@@ -5,14 +5,15 @@ import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useState } from "react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
-import { TAsset } from "@/libs/types/asset.type";
-import { useDeleteAsset } from "@/hooks/business-admin/asset-management/removeAsset";
-import { ViewAssetRecord } from "./ViewAssetRecord";
 import { useToast } from "@/components/ui/toast";
-import { EditAssetRecord } from "./EditAssetRecord";
+import { TClient } from "@/libs/types/client.types";
+import { useDeleteClient } from "@/hooks/business-admin/client-management/removeClientData";
+import { ViewClientRecord } from "./ViewClientRecord";
+import { EditBusinessForm } from "@/components/super-admin/business/EditBusinessRecord";
+import { EditClientForm } from "./EditClientRecord";
 
-interface AssetTableProps {
-  assets: TAsset[];
+interface ClientTableProps {
+  clients: TClient[];
   isLoading?: boolean;
   error?: string | null;
   page: number;
@@ -20,28 +21,28 @@ interface AssetTableProps {
   onPageChange: (page: number) => void;
 }
 
-export default function AssetRecord({
-  assets,
+export default function ClientRecord({
+  clients,
   isLoading,
   error,
   page,
   totalPages,
   onPageChange,
-}: AssetTableProps) {
+}: ClientTableProps) {
   const [editId, setEditId] = useState<string | null>(null);
   const [viewId, setViewId] = useState<string | null>(null);
 
-  const { mutate: deleteAsset } = useDeleteAsset();
-  const [itemToRemove, setItemToRemove] = useState<TAsset | null>(null);
+  const { mutate: deleteClient } = useDeleteClient();
+  const [itemToRemove, setItemToRemove] = useState<TClient | null>(null);
   const toast = useToast.getState();
 
   const confirmRemove = () => {
     if (!itemToRemove) return;
 
-    deleteAsset(itemToRemove._id, {
+    deleteClient(itemToRemove._id, {
       onSuccess: () => {
         toast.show({
-          message: "Asset deleted successfully",
+          message: "Client deleted successfully",
           type: "success",
         });
 
@@ -59,30 +60,32 @@ export default function AssetRecord({
   }
 
   return (
-    <div className="w-full h-[75vh] overflow-y-scroll ">
+    <div className="w-full">
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
             <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Asset Name</th>
-            <th className="py-3 px-6 text-left">Asset Type</th>
-            <th className="py-3 px-6 text-left">Status</th>
+            <th className="py-3 px-6 text-left">Client Name</th>
+            <th className="py-3 px-6 text-left">Email</th>
+            <th className="py-3 px-6 text-left">Phone</th>
+            <th className="py-3 px-6 text-left">Gender</th>
+            <th className="py-3 px-6 text-left">Role</th>
             <th className="py-3 px-6 text-left">Created At</th>
             <th className="py-3 px-6 text-left">Action</th>
           </tr>
         </thead>
 
         <tbody className="text-gray-700 text-sm">
-          {assets.length === 0 ? (
+          {clients.length === 0 ? (
             <tr>
-              <td colSpan={6} className="py-6 px-6 text-center text-gray-500">
-                No Assets found
+              <td colSpan={8} className="py-6 px-6 text-center text-gray-500">
+                No Clients found
               </td>
             </tr>
           ) : (
-            assets.map((asset, index) => (
+            clients.map((client, index) => (
               <tr
-                key={asset._id}
+                key={client._id}
                 className="border-b border-gray-200 hover:bg-gray-100 transition"
               >
                 <td className="py-3 px-6 text-left">
@@ -90,37 +93,46 @@ export default function AssetRecord({
                 </td>
 
                 <td className="py-3 px-6 text-left font-medium">
-                  {asset.name}
+                  {client.userName}
                 </td>
 
-                <td className="py-3 px-6 text-left">{asset.type}</td>
+                <td className="py-3 px-6 text-left">{client.userEmail}</td>
 
-                <td className="py-3 px-6 text-left">{asset.status}</td>
+                <td className="py-3 px-6 text-left">{client.userPhone}</td>
+
+                <td className="py-3 px-6 text-left capitalize">
+                  {client.gender || "-"}
+                </td>
+
+                <td className="py-3 px-6 text-left capitalize">
+                  {client.role}
+                </td>
 
                 <td className="py-3 px-6 text-left">
-                  {moment(asset.createdAt).format("lll")}
+                  {moment(client.createdAt).format("lll")}
                 </td>
 
                 <td className="py-3 px-6 text-left">
                   <div className="flex items-center gap-2">
+                    {/* VIEW */}
                     <button
-                      onClick={() => {
-                        setViewId(asset._id);
-                      }}
+                      onClick={() => setViewId(client._id)}
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
                     >
                       <Eye size={16} className="text-yellow-600" />
                     </button>
 
+                    {/* EDIT */}
                     <button
-                      onClick={() => setEditId(asset._id)}
+                      onClick={() => setEditId(client._id)}
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
                     >
                       <Pencil size={16} className="text-green-600" />
                     </button>
 
+                    {/* DELETE */}
                     <button
-                      onClick={() => setItemToRemove(asset)}
+                      onClick={() => setItemToRemove(client)}
                       className="p-2 border border-gray-200 rounded hover:bg-red-100 text-red-600 transition cursor-pointer"
                     >
                       <Trash2 size={16} />
@@ -133,7 +145,8 @@ export default function AssetRecord({
         </tbody>
       </table>
 
-      {assets.length >= 10 && (
+      {/* PAGINATION */}
+      {clients.length >= 10 && (
         <div className="mt-4">
           <TablePagination
             page={page}
@@ -143,25 +156,24 @@ export default function AssetRecord({
         </div>
       )}
 
+      {/* VIEW MODAL */}
       {viewId && (
-        <ViewAssetRecord
-          assetId={viewId ?? ""}
+        <ViewClientRecord
+          clientId={viewId}
           open={!!viewId}
           onClose={() => setViewId(null)}
         />
       )}
 
       {editId && (
-        <EditAssetRecord
-          assetId={editId}
-          onClose={() => setEditId(null)}
-        />
+        <EditClientForm clientId={editId} onClose={() => setEditId(null)} />
       )}
 
+      {/* DELETE CONFIRM */}
       <ConfirmDialog
         open={itemToRemove !== null}
-        title="Remove Asset"
-        message="Are you sure you want to remove this asset?"
+        title="Remove Client"
+        message="Are you sure you want to remove this client?"
         onConfirm={confirmRemove}
         onCancel={() => setItemToRemove(null)}
       />

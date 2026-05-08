@@ -2,14 +2,20 @@ import { initContract } from "@ts-rest/core";
 import z from "zod";
 
 import { errorSchema, successSchema } from "../common.schema";
-import { createUserSchema, getAllUsersSchema, getUserByIDSchema, removeUserSchema, updateUserSchema } from "./user.schema";
+import {
+  createUserSchema,
+  getAllUsersSchema,
+  getUserByIDSchema,
+  removeUserSchema,
+  updateUserSchema,
+} from "./user.schema";
 
 const c = initContract();
 
 export const userContract = c.router({
   createUser: {
     method: "POST",
-    path: "/users",
+    path: "/user",
     body: createUserSchema,
     responses: {
       201: successSchema,
@@ -20,8 +26,13 @@ export const userContract = c.router({
 
   getAllUsers: {
     method: "GET",
-    path: "/users",
+    path: "/user",
     summary: "Get all users",
+    query: z.object({
+      page: z.coerce.number().optional(),
+      limit: z.coerce.number().optional(),
+      role: z.enum(["admin", "business", "staff", "client"]).optional(),
+    }),
     responses: {
       200: getAllUsersSchema,
       500: errorSchema,
@@ -30,7 +41,7 @@ export const userContract = c.router({
 
   getUserByID: {
     method: "GET",
-    path: "/users/:userID",
+    path: "/user/:userID",
     pathParams: z.object({
       userID: z.string().min(1),
     }),
@@ -42,11 +53,11 @@ export const userContract = c.router({
 
   updateUser: {
     method: "PUT",
-    path: "/users/:userID",
+    path: "/user/:userID",
     pathParams: z.object({
       userID: z.string().min(1),
     }),
-    body: updateUserSchema,
+    body: z.any(),
     responses: {
       200: successSchema,
       400: errorSchema,
@@ -56,7 +67,7 @@ export const userContract = c.router({
 
   removeUser: {
     method: "DELETE",
-    path: "/users/:userID",
+    path: "/user/:userID",
     pathParams: z.object({
       userID: z.string().min(1),
     }),

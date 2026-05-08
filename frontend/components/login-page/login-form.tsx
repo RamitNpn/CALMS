@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import { loginUser } from "@/libs/api/auth.api";
-import { LoginFormValues, loginSchema } from "@/libs";
+import { LoginFormValues, loginSchema } from "@/libs/validation/login.validation";
 
 export default function LoginForm() {
   const router = useRouter();

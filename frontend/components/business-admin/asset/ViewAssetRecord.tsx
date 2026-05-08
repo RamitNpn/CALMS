@@ -3,7 +3,6 @@
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { useAssetById } from "@/hooks/business-admin/asset-management/getAssetById";
-import { TAsset } from "@/libs/types/asset.type";
 
 type ViewAssetModalProps = {
   assetId: string;

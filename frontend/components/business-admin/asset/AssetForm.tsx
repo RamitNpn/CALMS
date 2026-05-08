@@ -22,7 +22,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
   const businessId = storedData?.business_id;
 
   if (!businessId) {
-    console.error("❌ Missing business_id");
+    console.error("Missing business_id");
   }
 
   const {

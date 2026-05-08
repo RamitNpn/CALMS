@@ -4,16 +4,19 @@ export const genderEnum = z.enum(["male", "female", "other"]).optional();
 export const role = z.enum(["staff", "client"]).optional();
 
 export const createUserSchema = z.object({
-  business_id: z.string().min(1, "Business ID is required"),
+  business_id: z.string(),
   userName: z.string().min(1, "User name is required"),
   userEmail: z.string().email("Invalid email").optional(),
   userPhone: z.string().optional(),
-  userPassword: z.string().min(6, "Password must be at least 6 characters long").optional(),
+  userPassword: z
+    .string()
+    .min(6, "Password must be at least 6 characters long")
+    .optional(),
   gender: genderEnum,
-  profile: z.string().optional(),
-  citizenship: z.string().optional(),
-  liscence: z.string().optional(),
-  certificate: z.string().optional(),
+  profile: z.any().optional(),
+  citizenship: z.any().optional(),
+  license: z.any().optional(),
+  certificate: z.any().optional(),
   role: role,
 });
 
@@ -24,10 +27,10 @@ export const userSchema = z.object({
   userEmail: z.string().optional(),
   userPhone: z.string().optional(),
   gender: z.string().optional(),
-  profile: z.string().optional(),
-  citizenship: z.string().optional(),
-  liscence: z.string().optional(),
-  certificate: z.string().optional(),
+  profile: z.any().optional(),
+  citizenship: z.any().optional(),
+  license: z.any().optional(),
+  certificate: z.any().optional(),
   role: role,
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -42,12 +45,12 @@ export const updateUserSchema = z.object({
   userName: z.string().optional(),
   userEmail: z.string().email().optional(),
   userPhone: z.string().optional(),
-  userPassword: z.string().min(6).optional(),
+  userPassword: z.string().optional(),
   gender: z.string().optional(),
-  profile: z.string().optional(),
-  citizenship: z.string().optional(),
-  liscence: z.string().optional(),
-  certificate: z.string().optional(),
+  profile: z.any().optional(),
+  citizenship: z.any().optional(),
+  license: z.any().optional(),
+  certificate: z.any().optional(),
   role: role,
 });
 

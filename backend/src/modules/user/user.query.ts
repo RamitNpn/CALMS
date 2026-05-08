@@ -1,6 +1,7 @@
 import { AppRouteQueryImplementation } from "@ts-rest/express";
 import { userContract } from "../../contract/users/user.contract";
 import userRepository from "../../repository/user.repository";
+import businessRepository from "../../repository/business.repository";
 
 export const getAllUsers: AppRouteQueryImplementation<
   typeof userContract.getAllUsers
@@ -17,7 +18,7 @@ export const getAllUsers: AppRouteQueryImplementation<
       gender: u.gender,
       profile: u.profile,
       citizenship: u.citizenship,
-      liscence: u.liscence,
+      license: u.license,
       certificate: u.certificate,
       role: u.role,
       createdAt: u.createdAt,
@@ -68,18 +69,21 @@ export const getUserByID: AppRouteQueryImplementation<
       };
     }
 
+    const businessName = await businessRepository.getByID(user.business_id.toString());
+
     return {
       status: 200,
       body: {
         _id: user._id.toString(),
         business_id: user.business_id.toString(),
+        businessName: businessName?.businessName || "N/A",
         userName: user.userName,
         userEmail: user.userEmail,
         userPhone: user.userPhone,
         gender: user.gender,
         profile: user.profile,
         citizenship: user.citizenship,
-        liscence: user.liscence,
+        license: user.license,
         certificate: user.certificate,
         role: user.role,
         createdAt: user.createdAt,

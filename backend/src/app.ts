@@ -14,6 +14,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true })); // IMPORTANT
 app.use(morgan("dev"));
 
 const allowedOrigins =

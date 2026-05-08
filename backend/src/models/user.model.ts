@@ -9,7 +9,7 @@ export interface IUser extends Document {
   gender?: string;
   profile?: string;
   citizenship?: string;
-  liscence?: string;
+  license?: string;
   certificate?: string;
   role: "staff" | "client";
   createdAt: Date;
@@ -61,7 +61,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
 
-    liscence: {
+    license: {
       type: String,
     },
 

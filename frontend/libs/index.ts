@@ -4,6 +4,6 @@ export * from "./api/staff.api";
 
 export * from "./types/business.types";
 
-export * from "./validation/business.schema";
-export * from "./validation/login.schema";
-export * from "./validation/staff.schema";
+export * from "./validation/business.validation";
+export * from "./validation/login.validation";
+export * from "./validation/staff.validation";

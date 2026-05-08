@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
 import {
@@ -62,20 +61,8 @@ const menu = [
   },
 ];
 
-export default function BusinessSidebar() {
+export default function BusinessSidebar({ allowedServices }: { allowedServices: string[] }) {
   const [active, setActive] = useState("dashboard");
-
-  const allowedServices = React.useMemo(() => {
-    if (typeof window === "undefined") return [];
-
-    try {
-      const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
-
-      return storedData?.services || [];
-    } catch {
-      return [];
-    }
-  }, []);
 
   const filteredMenu = [
     dashboardItem,

@@ -4,11 +4,11 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { createBusinessSchema } from "@/libs/validation/business.schema";
 import { businessApi } from "@/libs/api/business.api";
 import { z } from "zod";
 import clsx from "clsx";
 import { X } from "lucide-react";
+import { createBusinessSchema } from "@/libs/validation/business.validation";
 
 type BusinessFormProps = {
   onClose?: () => void;

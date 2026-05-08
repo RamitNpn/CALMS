@@ -53,7 +53,6 @@ export type TGetAllBusinessSchema = z.infer<typeof getAllBusinessSchema>;
 
 export const updateBusinessSchema = z.object({
   _id: z.string(),
-
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
   operatorEmail: z.string().email().optional(),

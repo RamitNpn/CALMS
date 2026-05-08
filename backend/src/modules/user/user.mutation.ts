@@ -14,24 +14,34 @@ export const createUser: AppRouteMutationImplementation<
       userPhone,
       userPassword,
       gender,
-      profile,
-      citizenship,
-      liscence,
-      certificate,
       role,
     } = req.body;
 
-    const client = await userRepository.create({
+    const files = req.files as {
+      profile?: Express.Multer.File[];
+      citizenship?: Express.Multer.File[];
+      license?: Express.Multer.File[];
+      certificate?: Express.Multer.File[];
+    };
+
+    // Cloudinary URLs
+    const profileUrl = files?.profile?.[0]?.path;
+    const citizenshipUrl = files?.citizenship?.[0]?.path;
+    const licenseUrl = files?.license?.[0]?.path;
+    const certificateUrl = files?.certificate?.[0]?.path;
+
+    const created = await userRepository.create({
       business_id: new mongoose.Types.ObjectId(business_id),
       userName,
       userEmail,
       userPhone,
       userPassword,
       gender,
-      profile,
-      citizenship,
-      liscence,
-      certificate,
+      profile: profileUrl,
+      citizenship: citizenshipUrl,
+      license: licenseUrl,
+      certificate: certificateUrl,
+
       role,
     });
 
@@ -39,7 +49,7 @@ export const createUser: AppRouteMutationImplementation<
       status: 201,
       body: {
         success: true,
-        data: client,
+        data: created,
       },
     };
   } catch (error) {
@@ -59,18 +69,21 @@ export const updateUser: AppRouteMutationImplementation<
   try {
     const { userID } = req.params;
 
-     const {
-      userName,
-      userEmail,
-      userPhone,
-      userPassword,
-      gender,
-      profile,
-      citizenship,
-      liscence,
-      certificate,
-      role,
-    } = req.body;
+    const { userName, userEmail, userPhone, userPassword, gender, role } =
+      req.body;
+
+    const files = req.files as {
+      profile?: Express.Multer.File[];
+      citizenship?: Express.Multer.File[];
+      license?: Express.Multer.File[];
+      certificate?: Express.Multer.File[];
+    };
+
+    // Cloudinary URLs
+    const profileUrl = files?.profile?.[0]?.path;
+    const citizenshipUrl = files?.citizenship?.[0]?.path;
+    const licenseUrl = files?.license?.[0]?.path;
+    const certificateUrl = files?.certificate?.[0]?.path;
 
     const updated = await userRepository.update(userID, {
       userName,
@@ -78,10 +91,11 @@ export const updateUser: AppRouteMutationImplementation<
       userPhone,
       userPassword,
       gender,
-      profile,
-      citizenship,
-      liscence,
-      certificate,
+      profile: profileUrl,
+      citizenship: citizenshipUrl,
+      license: licenseUrl,
+      certificate: certificateUrl,
+
       role,
     });
 
