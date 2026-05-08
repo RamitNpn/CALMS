@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createStaffSchema = z.object({
-  id: z.string().optional(),
   business_id: z.string().min(1, "Business ID is required"),
   userName: z.string().min(1, "Staff name is required"),
   userEmail: z.string().email("Invalid email address"),
@@ -11,7 +10,7 @@ export const createStaffSchema = z.object({
     .max(15, "Phone number is too long"),
   userPassword: z.string().min(6, "Password must be at least 6 characters"),
   gender: z.enum(["male", "female", "other"]),
-  profile: z.string().optional(), // image URL or file path
+  profile: z.any().optional(), // image URL or file path
   role: z.string(),
 });
 
@@ -27,7 +26,7 @@ export const getStaffByIdSchema = z.object({
     .min(7, "Phone number is too short")
     .max(15, "Phone number is too long"),
   gender: z.enum(["male", "female", "other"]),
-  profile: z.string().optional(), // image URL or file path
+  profile: z.any().optional(), // image URL or file path
   role: z.string(),
   createdAt: z.string(),
 });
@@ -46,14 +45,14 @@ export const updateStaffSchema = z.object({
   userPhone: z.string().optional(),
   userPassword: z.string().min(6, "Password must be at least 6 characters").optional(),
   gender: z.enum(["male", "female", "other"]).optional(),
-  profile: z.string().optional(),
+  profile: z.any().optional(),
   role: z.string().optional(),
 });
 
 export type TUpdateStaffSchema = z.infer<typeof updateStaffSchema>;
 
 export const deleteStaffSchema = z.object({
-  _id: z.string("Staff ID is required"),
+  _id: z.string(),
 });
 
 export type TDeleteStaffSchema = z.infer<typeof deleteStaffSchema>;

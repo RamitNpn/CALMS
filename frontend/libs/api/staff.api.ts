@@ -3,7 +3,6 @@ import {
   TCreateStaffSchema,
   TDeleteStaffSchema,
   TGetStaffByIdSchema,
-  TUpdateStaffSchema,
 } from "../validation/staff.validation";
 
 export const createStaff = async (data: TCreateStaffSchema) => {
@@ -18,25 +17,25 @@ const getAllStaffApi = async (page = 1, limit = 10) => {
   return response.data;
 };
 
-const getStaffByIdApi = async (StaffId: TGetStaffByIdSchema["_id"]) => {
-  const response = await apiClient.get(`/user/${StaffId}`);
+const getStaffByIdApi = async (staffId: TGetStaffByIdSchema["_id"]) => {
+  const response = await apiClient.get(`/user/${staffId}`);
   return response.data;
 };
 
-const updateStaffApi = async (
-  StaffId: string,
-  data: Partial<TUpdateStaffSchema>,
-) => {
-  const response = await apiClient.put(`/user/${StaffId}`, data);
+
+const updateStaffApi = async (staffId: string, formData: FormData) => {
+  const response = await apiClient.put(`/user/${staffId}`, formData, {
+  });
+
   return response.data;
 };
 
-const deleteStaffApi = async (StaffId: TDeleteStaffSchema["_id"]) => {
-  const response = await apiClient.delete(`/user/${StaffId}`);
+const deleteStaffApi = async (staffId: TDeleteStaffSchema["_id"]) => {
+  const response = await apiClient.delete(`/user/${staffId}`);
   return response.data;
 };
 
-export const StaffApi = {
+export const staffApi = {
   createStaff,
   getAllStaffApi,
   getStaffByIdApi,

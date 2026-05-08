@@ -1,12 +1,18 @@
 "use client";
 
 import { Bell, Mail, LogOut } from "lucide-react";
+import { useRouter } from "next/dist/client/components/navigation";
 
 export default function Header() {
-  const pendingCount = 3; // example (replace with API later)
+  const pendingCount = 3;
+
+  const router = useRouter();
 
   const handleLogout = () => {
-    console.log("logout");
+    localStorage.removeItem("token");
+    localStorage.removeItem("auth-data");
+
+    router.push("/");
   };
 
   return (
@@ -18,7 +24,6 @@ export default function Header() {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-3 md:gap-4 text-sm md:text-base pr-6 py-2">
-        {/* Optional admin label (like your example) */}
         <span className="hidden lg:block text-sm text-gray-600 ml-2">
           Admin
         </span>

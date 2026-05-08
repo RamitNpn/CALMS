@@ -1,12 +1,13 @@
+export type Gender = "male" | "female" | "other";
 export interface TStaff {
-    _id: string;
+  _id: string;
   business_id: string;
   userName: string;
   userEmail: string;
   userPhone: string;
-  gender?: string;
+  gender: Gender;
   profile?: string;
-  role: "staff" | "client";
+  role: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,7 +18,7 @@ export interface TCreateStaff {
   userEmail: string;
   userPhone: string;
   userPassword: string;
-  gender?: string;
-  profile?: string;
-  role: "staff" | "client";
+  gender: Gender;
+  profile?: FileList;
+  role:string;
 }

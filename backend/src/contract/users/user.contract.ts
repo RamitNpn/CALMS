@@ -69,9 +69,8 @@ export const userContract = c.router({
     method: "DELETE",
     path: "/user/:userID",
     pathParams: z.object({
-      userID: z.string().min(1),
+      userID: z.string(),
     }),
-    body: removeUserSchema,
     responses: {
       200: successSchema,
       404: errorSchema,

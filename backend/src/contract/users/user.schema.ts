@@ -55,5 +55,5 @@ export const updateUserSchema = z.object({
 });
 
 export const removeUserSchema = z.object({
-  _id: z.string().min(1, "User ID is required"),
+  _id: z.string(),
 });

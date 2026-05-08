@@ -2,16 +2,50 @@ import { AppRouteMutationImplementation } from "@ts-rest/express";
 import { attendanceContract } from "../../contract/attendance/attendance.contract";
 import attendanceRepository from "../../repository/attendance.repository";
 import mongoose from "mongoose";
+import userRepository from "../../repository/user.repository";
 
 export const createAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.createAttendance
 > = async ({ req }) => {
   try {
-    const { business_id, clientId, userType, checkIn, checkOut } = req.body;
+    const {
+      business_id,
+      clientName,
+      clientEmail,
+      userType,
+      checkIn,
+      checkOut,
+    } = req.body;
+
+    if (!clientEmail) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          error: "Client email is required",
+        },
+      };
+    }
+
+    const clientData = await userRepository.getByEmail(
+      clientEmail.toLowerCase(),
+    );
+
+    if (!clientData) {
+      return {
+        status: 404,
+        body: {
+          success: false,
+          error: "Client with that email does not exist",
+        },
+      };
+    }
 
     const attendance = await attendanceRepository.createAttendance({
       business_id: new mongoose.Types.ObjectId(business_id),
-      clientId: new mongoose.Types.ObjectId(clientId),
+      clientId: new mongoose.Types.ObjectId(clientData._id),
+      clientName,
+      clientEmail,
       userType,
       checkIn,
       checkOut,
@@ -37,10 +71,11 @@ export const updateAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.updateAttendance
 > = async ({ req }) => {
   try {
-    const { method, checkIn, checkOut } = req.body;
+    const { clientName, method, checkIn, checkOut } = req.body;
     const updated = await attendanceRepository.updateAttendance(
       req.params.attendanceID,
       {
+        clientName,
         method,
         checkIn,
         checkOut,

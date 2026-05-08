@@ -1,5 +1,4 @@
-export type Gender = "male" | "female" | "other";
-
+type Gender = "male" | "female" | "other";
 export interface TClient {
   _id: string;
   business_id: string;
