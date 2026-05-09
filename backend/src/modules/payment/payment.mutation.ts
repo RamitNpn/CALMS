@@ -3,6 +3,9 @@ import { paymentContract } from "../../contract/payment/payment.contract";
 import paymentRepository from "../../repository/payment.repository";
 import mongoose from "mongoose";
 import businessRepository from "../../repository/business.repository";
+import { sendMail } from "../../utils/sendMail";
+import { subscriptionRenewalTemplate } from "../../template/subscription-renewal.template";
+import env from "../../config/env";
 
 export const createPayment: AppRouteMutationImplementation<
   typeof paymentContract.createPayment
@@ -145,9 +148,7 @@ export const renewPayment: AppRouteMutationImplementation<
       isActive,
     } = req.body;
 
-    const business = await businessRepository.getByID(
-      business_id,
-    );
+    const business = await businessRepository.getByID(business_id);
 
     if (!business) {
       return {
@@ -172,6 +173,25 @@ export const renewPayment: AppRouteMutationImplementation<
       isActive,
     });
 
+    if (payment) {
+      await sendMail({
+        to: business.operatorEmail,
+
+        subject: "FlowDesk Subscription Renewed",
+
+        html: subscriptionRenewalTemplate({
+          businessName: business.businessName,
+          operatorName: business.operatorName,
+          packageName: pkg,
+          startedAt: new Date(startedAt).toDateString(),
+          endAt: new Date(endAt).toDateString(),
+          paidAmount,
+          dueAmount,
+          paymentStatus,
+          loginUrl: `${env.frontend_url}`,
+        }),
+      });
+    }
     // OPTIONAL: UPDATE BUSINESS STATUS
     await businessRepository.update(business_id, {
       status: true,

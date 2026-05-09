@@ -6,6 +6,9 @@ type TEnv = {
   cloud_name: string;
   api_key: string;
   api_secret: string;
+  frontend_url: string;
+  email_user: string;
+  email_pass: string;
 };
 
 const env: TEnv = {
@@ -16,6 +19,9 @@ const env: TEnv = {
   cloud_name: process.env.CLOUD_NAME || "dslzx6qks",
   api_key: process.env.API_KEY || "619242651474882",
   api_secret: process.env.API_SECRET || "Bfx5e7n0jx9daRq_D0rfPpUWzPc",
+  frontend_url: process.env.FRONTEND_URL || "http://localhost:3000",
+  email_user: process.env.EMAIL_USER || "myproject.gk01@gmail.com",
+  email_pass: process.env.EMAIL_PASS || "mjcyokrcvidjamcj",
 };
 
 export default env;

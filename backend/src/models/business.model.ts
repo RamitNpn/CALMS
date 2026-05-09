@@ -44,7 +44,6 @@ const BusinessSchema = new mongoose.Schema(
     operatorEmail: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },

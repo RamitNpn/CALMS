@@ -9,6 +9,7 @@ import { z } from "zod";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { createBusinessSchema } from "@/libs/validation/business.validation";
+import { useToast } from "@/components";
 
 type BusinessFormProps = {
   onClose?: () => void;
@@ -16,6 +17,8 @@ type BusinessFormProps = {
 };
 
 export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
+  const toast = useToast.getState();
+
   const {
     register,
     handleSubmit,
@@ -44,10 +47,19 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
   const { mutate, isPending } = useMutation({
     mutationFn: businessApi.createBusiness,
     onSuccess: () => {
+      toast.show({
+        message: ("Business created successfully"),
+        type: "success",
+      });
       reset();
       onClose?.();
     },
-    onError: (err) => console.error(err),
+    onError: (err) => {
+      toast.show({
+        message: (err as { message?: string })?.message || "Business creation failed",
+        type: "error",
+      });
+    },
   });
 
   const onSubmit = (data: z.infer<typeof createBusinessSchema>) => {
@@ -77,7 +89,10 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Close modal"
           >
-            <X size={24} className="text-red-400 cursor-pointer border border-gray-200" />
+            <X
+              size={24}
+              className="text-red-400 cursor-pointer border border-gray-200"
+            />
           </button>
         </div>
 

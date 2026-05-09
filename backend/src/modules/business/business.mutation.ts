@@ -4,6 +4,9 @@ import businessRepository from "../../repository/business.repository";
 import bcrypt from "bcryptjs";
 
 import { Services } from "../../models/business.model"; // adjust path
+import { businessRegistrationTemplate } from "../../template/registration.template";
+import { sendMail } from "../../utils/sendMail";
+import env from "../../config/env";
 
 export const createBusiness: AppRouteMutationImplementation<
   typeof businessContract.createBusiness
@@ -33,6 +36,18 @@ export const createBusiness: AppRouteMutationImplementation<
       }
     }
 
+    const existing = await businessRepository.getByEmail(operatorEmail);
+
+    if (existing) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          error: "Email already exists",
+        },
+      };
+    }
+
     const hashedPassword = await bcrypt.hash(operatorPassword, 10);
 
     const business = await businessRepository.create({
@@ -48,6 +63,23 @@ export const createBusiness: AppRouteMutationImplementation<
       services: normalizedServices,
       payment_initiation,
     });
+
+    if (business) {
+      await sendMail({
+        to: operatorEmail,
+
+        subject: "Your FlowDesk Business Account",
+
+        html: businessRegistrationTemplate({
+          businessName,
+          operatorName,
+          operatorEmail,
+          password: operatorPassword,
+          packageName: pkg,
+          loginUrl: `${env.frontend_url}`,
+        }),
+      });
+    }
 
     return {
       status: 201,
