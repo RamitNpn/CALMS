@@ -28,6 +28,14 @@ const menu = [
     exact: true,
   },
 
+    {
+    id: "super-payment",
+    name: "Payment Management",
+    href: "/pages/dashboard/super-admin/payments",
+    icon: CreditCard,
+    exact: true,
+  },
+
   {
     id: "profile",
     name: "Profile Management",
@@ -106,8 +114,10 @@ export default function Sidebar({ allowedServices, userRole }: Props) {
           const isAdminBusiness =
             item.href === "/pages/dashboard/super-admin/business";
 
+            const isAdminPayment = item.href === "/pages/dashboard/super-admin/payments";
+
           const isActive =
-            isDashboard || isAdminBusiness
+            isDashboard || isAdminBusiness || isAdminPayment
               ? pathname === item.href
               : pathname.startsWith(item.href);
 

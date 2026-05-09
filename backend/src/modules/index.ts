@@ -10,6 +10,7 @@ import { businessRouter } from "./business/business.router";
 import { billingRouter } from "./billing/billing.router";
 import { userRouter } from "./user/user.router";
 import { authRouter } from "./auth/auth.router";
+import { paymentRouter } from "./payment/payment.router";
 
 const s = initServer();
 
@@ -19,6 +20,7 @@ export const router = s.router(contract, {
   auth: authRouter,
   billing: billingRouter,
   business: businessRouter,
+  payment: paymentRouter,
   schedule: scheduleRouter,
   token: tokenRouter,
   user: userRouter,

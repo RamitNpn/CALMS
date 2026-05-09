@@ -1,36 +1,46 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { X } from "lucide-react";
 
-import { createPaymentSchema } from "@/libs/validation/payment.validation";
+import { paymentApi } from "@/libs/api/payment.api";
+import {
+  renewPaymentSchema,
+  TRenewPaymentSchema,
+} from "@/libs/validation/payment.validation";
+import { usePaymentById } from "@/hooks/super-admin/payment-records/getPaymentById";
 
-import { z } from "zod";
-import { paymentApi } from "@/libs";
-
-type PaymentFormProps = {
-  onClose?: () => void;
+type Props = {
+  paymentId: string;
+  onClose: () => void;
   size?: "sm" | "md" | "lg" | "xl";
 };
 
-export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
+export function RenewPaymentForm({ paymentId, onClose, size = "lg" }: Props) {
+  const { data, isLoading } = usePaymentById(paymentId);
+
+  const payment = data?.data ?? data;
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
     reset,
-  } = useForm({
-    resolver: zodResolver(createPaymentSchema),
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<TRenewPaymentSchema>({
+    resolver: zodResolver(renewPaymentSchema),
     defaultValues: {
+      business_id: "",
       businessName: "",
       businessEmail: "",
       package: "starter",
-      startedAt: undefined,
-      endAt: undefined,
+      startedAt: "",
+      endAt: "",
       paidAmount: 0,
       dueAmount: 0,
       paymentStatus: "pending",
@@ -38,28 +48,57 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
     },
   });
 
+  const startedAt = watch("startedAt");
+
+  useEffect(() => {
+    if (!payment) return;
+
+    const latestEndDate = payment.endAt ? new Date(payment.endAt) : new Date();
+
+    latestEndDate.setDate(latestEndDate.getDate() + 1);
+
+    reset({
+      business_id: payment.business_id,
+      businessName: payment.businessName,
+      businessEmail: payment.businessEmail,
+      package: payment.package,
+      startedAt: latestEndDate.toISOString().split("T")[0],
+      endAt: latestEndDate.toISOString().split("T")[0],
+      paidAmount: 0,
+      dueAmount: 0,
+      paymentStatus: "pending",
+      isActive: true,
+    });
+  }, [payment, reset]);
+
+  useEffect(() => {
+    if (!startedAt) return;
+
+    const start = new Date(startedAt);
+
+    setValue("endAt", start.toISOString().split("T")[0]);
+  }, [startedAt, setValue]);
+
   const { mutate, isPending } = useMutation({
-    mutationFn: paymentApi.createPayment,
+    mutationFn: paymentApi.renewPayment,
     onSuccess: () => {
-      reset();
-      onClose?.();
+      onClose();
     },
-    onError: (err) => console.error(err),
   });
 
-  const onSubmit = (data: z.infer<typeof createPaymentSchema>) => {
+  const onSubmit = (data: TRenewPaymentSchema) => {
     mutate(data);
   };
 
-  if (errors) {
-    console.log("Validation Errors:", errors);
+  if (isLoading) {
+    return <div className="p-6">Loading...</div>;
   }
 
   return (
-    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div
         className={clsx(
-          "bg-white rounded-lg shadow-lg h-[90vh] overflow-y-auto w-full",
+          "bg-white rounded-lg shadow-lg h-auto overflow-y-auto w-full",
           {
             "max-w-md": size === "sm",
             "max-w-lg": size === "md",
@@ -71,27 +110,29 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
         {/* HEADER */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">
-            Create Payment / Subscription
+            Renew Subscription
           </h2>
 
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X size={24} className="text-red-400 cursor-pointer" />
+          <button onClick={onClose}>
+            <X className="text-red-500 cursor-pointer" />
           </button>
         </div>
 
         {/* FORM */}
         <div className="p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Business Info (readonly) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* BUSINESS NAME */}
               <div>
-                <label className="text-sm font-medium">Business Name</label>
+                <label className="block text-sm font-medium">
+                  Business Name
+                </label>
+
                 <input
+                  type="text"
                   {...register("businessName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  disabled
+                  className="w-full mt-1 border border-gray-200 p-2 rounded bg-gray-100 cursor-not-allowed"
                 />
                 {errors.businessName && (
                   <p className="text-red-500 text-sm mt-1">
@@ -100,11 +141,17 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                 )}
               </div>
 
+              {/* BUSINESS EMAIL */}
               <div>
-                <label className="text-sm font-medium">Business Email</label>
+                <label className="block text-sm font-medium">
+                  Business Email
+                </label>
+
                 <input
+                  type="email"
                   {...register("businessEmail")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  disabled
+                  className="w-full mt-1 border border-gray-200 p-2 rounded bg-gray-100 cursor-not-allowed"
                 />
                 {errors.businessEmail && (
                   <p className="text-red-500 text-sm mt-1">
@@ -112,15 +159,14 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* PACKAGE + DURATION */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* PACKAGE */}
               <div>
-                <label className="text-sm font-medium">Package</label>
+                <label className="block text-sm font-medium">Package</label>
+
                 <select
                   {...register("package")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded"
                 >
                   <option value="starter">Starter</option>
                   <option value="growth">Growth</option>
@@ -132,16 +178,15 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* DATES */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* START DATE */}
               <div>
-                <label className="text-sm font-medium">Started At</label>
+                <label className="block text-sm font-medium">Started At</label>
+
                 <input
                   type="date"
                   {...register("startedAt")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded"
                 />
                 {errors.startedAt && (
                   <p className="text-red-500 text-sm mt-1">
@@ -150,12 +195,14 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                 )}
               </div>
 
+              {/* END DATE */}
               <div>
-                <label className="text-sm font-medium">End At</label>
+                <label className="block text-sm font-medium">End At</label>
+
                 <input
                   type="date"
                   {...register("endAt")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded bg-gray-100"
                 />
                 {errors.endAt && (
                   <p className="text-red-500 text-sm mt-1">
@@ -163,16 +210,17 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* PAYMENT */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* PAID AMOUNT */}
               <div>
-                <label className="text-sm font-medium">Paid Amount</label>
+                <label className="block text-sm font-medium">Paid Amount</label>
+
                 <input
                   type="number"
-                  {...register("paidAmount", { valueAsNumber: true })}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  {...register("paidAmount", {
+                    valueAsNumber: true,
+                  })}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded"
                 />
                 {errors.paidAmount && (
                   <p className="text-red-500 text-sm mt-1">
@@ -181,12 +229,16 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                 )}
               </div>
 
+              {/* DUE AMOUNT */}
               <div>
-                <label className="text-sm font-medium">Due Amount</label>
+                <label className="block text-sm font-medium">Due Amount</label>
+
                 <input
                   type="number"
-                  {...register("dueAmount", { valueAsNumber: true })}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  {...register("dueAmount", {
+                    valueAsNumber: true,
+                  })}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded"
                 />
                 {errors.dueAmount && (
                   <p className="text-red-500 text-sm mt-1">
@@ -194,19 +246,20 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* STATUS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* STATUS */}
               <div>
-                <label className="text-sm font-medium">Payment Status</label>
+                <label className="block text-sm font-medium">
+                  Payment Status
+                </label>
+
                 <select
                   {...register("paymentStatus")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded"
                 >
-                  <option value="pending">Pending</option>
-                  <option value="partial">Partial</option>
                   <option value="paid">Paid</option>
+                  <option value="partial">Partial</option>
+                  <option value="pending">Pending</option>
                 </select>
                 {errors.paymentStatus && (
                   <p className="text-red-500 text-sm mt-1">
@@ -214,29 +267,24 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-
-              <div className="flex items-center gap-2 mt-6">
-                <input type="checkbox" {...register("isActive")} />
-                <label className="text-sm font-medium">Active</label>
-              </div>
             </div>
 
             {/* ACTIONS */}
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => reset()}
+                onClick={onClose}
                 className="px-4 py-2 bg-red-500 text-white rounded"
               >
-                Reset
+                Cancel
               </button>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="px-5 py-2 bg-gray-700 text-white rounded"
+                className="px-5 py-2 bg-blue-600 text-white rounded"
               >
-                {isPending ? "Saving..." : "Create Payment"}
+                {isPending ? "Renewing..." : "Renew Subscription"}
               </button>
             </div>
           </form>

@@ -8,6 +8,7 @@ import { businessContract } from "./business/business.contract";
 import { billingContract } from "./billing/billing.contract";
 import { userContract } from "./users/user.contract";
 import { authContract } from "./auth/auth.contract";
+import { paymentContract } from "./payment/payment.contract";
 
 const c = initContract();
 
@@ -17,6 +18,7 @@ export const contract = c.router({
     auth: authContract,
     billing: billingContract,
     business: businessContract,
+    payment: paymentContract,
     schedule: scheduleContract,
     token: tokenContract,
     user: userContract,

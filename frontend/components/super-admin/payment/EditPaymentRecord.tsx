@@ -1,36 +1,41 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { X } from "lucide-react";
 
-import { createPaymentSchema } from "@/libs/validation/payment.validation";
-
-import { z } from "zod";
-import { paymentApi } from "@/libs";
+import { paymentApi } from "@/libs/api/payment.api";
+import { TUpdatePaymentSchema, updatePaymentSchema } from "@/libs/validation/payment.validation";
+import { usePaymentById } from "@/hooks/super-admin/payment-records/getPaymentById";
 
 type PaymentFormProps = {
-  onClose?: () => void;
+  onClose: () => void;
   size?: "sm" | "md" | "lg" | "xl";
+  paymentId: string;
 };
 
-export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
+export function EditPaymentForm({
+  onClose,
+  size = "lg",
+  paymentId,
+}: PaymentFormProps) {
+  const { data, isLoading, isError } = usePaymentById(paymentId);
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
     reset,
-  } = useForm({
-    resolver: zodResolver(createPaymentSchema),
+    formState: { errors },
+  } = useForm<TUpdatePaymentSchema>({
+    resolver: zodResolver(updatePaymentSchema),
     defaultValues: {
-      businessName: "",
-      businessEmail: "",
+      _id: paymentId,
       package: "starter",
-      startedAt: undefined,
-      endAt: undefined,
+      startedAt: "",
+      endAt: "",
       paidAmount: 0,
       dueAmount: 0,
       paymentStatus: "pending",
@@ -38,28 +43,57 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
     },
   });
 
+  const payment = data;
+
+  useEffect(() => {
+    if (!paymentId || !payment) return;
+
+    reset({
+      _id: payment._id,
+      package: payment.package ?? "starter",
+
+      startedAt: payment.startedAt
+        ? new Date(payment.startedAt).toISOString().split("T")[0]
+        : "",
+
+      endAt: payment.endAt
+        ? new Date(payment.endAt).toISOString().split("T")[0]
+        : "",
+
+      paidAmount: payment.paidAmount ?? 0,
+      dueAmount: payment.dueAmount ?? 0,
+
+      paymentStatus: payment.paymentStatus ?? "pending",
+      isActive: payment.isActive ?? true,
+    });
+  }, [paymentId, payment, reset]);
+
   const { mutate, isPending } = useMutation({
-    mutationFn: paymentApi.createPayment,
+    mutationFn: (payload: TUpdatePaymentSchema) =>
+      paymentApi.updatePaymentApi(paymentId, payload),
+
     onSuccess: () => {
-      reset();
-      onClose?.();
+      onClose();
     },
-    onError: (err) => console.error(err),
   });
 
-  const onSubmit = (data: z.infer<typeof createPaymentSchema>) => {
-    mutate(data);
+  const onSubmit = (values: TUpdatePaymentSchema) => {
+    mutate({
+      ...values,
+      _id: paymentId,
+    });
   };
 
-  if (errors) {
-    console.log("Validation Errors:", errors);
-  }
+  if (isLoading) return <div className="p-6">Loading payment...</div>;
+
+  if (isError)
+    return <div className="p-6 text-red-500">Failed to load payment</div>;
 
   return (
-    <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div
         className={clsx(
-          "bg-white rounded-lg shadow-lg h-[90vh] overflow-y-auto w-full",
+          "bg-white rounded-lg shadow-lg h-auto overflow-y-auto w-full",
           {
             "max-w-md": size === "sm",
             "max-w-lg": size === "md",
@@ -71,7 +105,7 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
         {/* HEADER */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">
-            Create Payment / Subscription
+            Edit Payment Record
           </h2>
 
           <button
@@ -85,39 +119,17 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
         {/* FORM */}
         <div className="p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Business Info (readonly) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Business Name</label>
-                <input
-                  {...register("businessName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-                {errors.businessName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.businessName.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="text-sm font-medium">Business Email</label>
-                <input
-                  {...register("businessEmail")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-                {errors.businessEmail && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.businessEmail.message}
-                  </p>
-                )}
-              </div>
+            <div>
+              <p className="text-xl font-semibold">
+                Edit Subscription / Payment
+              </p>
             </div>
 
-            {/* PACKAGE + DURATION */}
+            {/* GRID */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Package */}
               <div>
-                <label className="text-sm font-medium">Package</label>
+                <label className="block text-sm font-medium">Package</label>
                 <select
                   {...register("package")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
@@ -132,12 +144,10 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* DATES */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Start Date */}
               <div>
-                <label className="text-sm font-medium">Started At</label>
+                <label className="block text-sm font-medium">Started At</label>
                 <input
                   type="date"
                   {...register("startedAt")}
@@ -150,8 +160,9 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                 )}
               </div>
 
+              {/* End Date */}
               <div>
-                <label className="text-sm font-medium">End At</label>
+                <label className="block text-sm font-medium">End At</label>
                 <input
                   type="date"
                   {...register("endAt")}
@@ -163,12 +174,10 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* PAYMENT */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Paid */}
               <div>
-                <label className="text-sm font-medium">Paid Amount</label>
+                <label className="block text-sm font-medium">Paid Amount</label>
                 <input
                   type="number"
                   {...register("paidAmount", { valueAsNumber: true })}
@@ -181,8 +190,9 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                 )}
               </div>
 
+              {/* Due */}
               <div>
-                <label className="text-sm font-medium">Due Amount</label>
+                <label className="block text-sm font-medium">Due Amount</label>
                 <input
                   type="number"
                   {...register("dueAmount", { valueAsNumber: true })}
@@ -194,12 +204,12 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                   </p>
                 )}
               </div>
-            </div>
 
-            {/* STATUS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Status */}
               <div>
-                <label className="text-sm font-medium">Payment Status</label>
+                <label className="block text-sm font-medium">
+                  Payment Status
+                </label>
                 <select
                   {...register("paymentStatus")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
@@ -215,6 +225,7 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
                 )}
               </div>
 
+              {/* Active */}
               <div className="flex items-center gap-2 mt-6">
                 <input type="checkbox" {...register("isActive")} />
                 <label className="text-sm font-medium">Active</label>
@@ -225,18 +236,18 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => reset()}
+                onClick={onClose}
                 className="px-4 py-2 bg-red-500 text-white rounded"
               >
-                Reset
+                Cancel
               </button>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="px-5 py-2 bg-gray-700 text-white rounded"
+                className="px-5 py-2 bg-blue-600 text-white rounded"
               >
-                {isPending ? "Saving..." : "Create Payment"}
+                {isPending ? "Updating..." : "Update Payment"}
               </button>
             </div>
           </form>
