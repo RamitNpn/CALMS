@@ -14,6 +14,7 @@ export interface IBusiness extends Document {
   operatorEmail: string;
   operatorPassword: string;
   businessType: string;
+  profilePicture?: string;
   role: TeamRole;
   teams: string;
   branch: Branch;
@@ -56,6 +57,10 @@ const BusinessSchema = new mongoose.Schema(
     businessType: {
       type: String,
       required: true,
+    },
+
+    profilePicture: {
+      type: String,
     },
 
     role: {

@@ -3,6 +3,8 @@ import mongoose, { Document } from "mongoose";
 export interface IBilling extends Document {
   business_id: mongoose.Types.ObjectId;
   clientId: mongoose.Types.ObjectId;
+  clientName: string;
+  clientEmail: string;
   title: string;
   items: {
     name: string;
@@ -11,7 +13,9 @@ export interface IBilling extends Document {
   }[];
   totalAmount: number;
   paidAmount: number;
-  status: "pending" | "completed" | "partial";
+  paymentMethod: "cash" | "online";
+  recipt: string;
+  status: "pending" | "paid" | "partial";
   dueDate: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -29,6 +33,18 @@ const BillingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Client",
       required: true,
+    },
+
+    clientName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    clientEmail: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
     title: {
@@ -57,9 +73,20 @@ const BillingSchema = new mongoose.Schema(
       min: 0,
     },
 
+    paymentMethod: {
+      type: String,
+      enum: ["cash", "online"],
+      default: "cash",
+    },
+
+    recipt: {
+      type: String,
+      default: "",
+    },
+
     status: {
       type: String,
-      enum: ["pending", "completed", "partial"],
+      enum: ["pending", "paid", "partial"],
       default: "pending",
     },
 

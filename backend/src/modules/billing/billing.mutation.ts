@@ -2,29 +2,77 @@ import { AppRouteMutationImplementation } from "@ts-rest/express";
 import mongoose from "mongoose";
 import { billingContract } from "../../contract/billing/billing.contract";
 import billingRepository from "../../repository/billing.repository";
+import userRepository from "../../repository/user.repository";
 
 export const createBilling: AppRouteMutationImplementation<
   typeof billingContract.createBilling
 > = async ({ req }) => {
   try {
-    const {
+    let {
       business_id,
-      clientId,
+      clientName,
+      clientEmail,
+      title,
       items,
       totalAmount,
       paidAmount,
+      paymentMethod,
       status,
       dueDate,
     } = req.body;
 
+    // Parse items from FormData
+    if (typeof items === "string") {
+      items = JSON.parse(items);
+    }
+
+    // Convert numbers
+    totalAmount = Number(totalAmount);
+    paidAmount = Number(paidAmount || 0);
+
+    if (!clientEmail) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          error: "Client email is required",
+        },
+      };
+    }
+
+    const clientData = await userRepository.getByEmail(
+      clientEmail.toLowerCase(),
+    );
+
+    if (!clientData) {
+      return {
+        status: 404,
+        body: {
+          success: false,
+          error: "Client with that email does not exist",
+        },
+      };
+    }
+
+    const files = req.files as {
+      recipt?: Express.Multer.File[];
+    };
+
+    const reciptUrl = files?.recipt?.[0]?.path || "";
+
     const billing = await billingRepository.create({
       business_id: new mongoose.Types.ObjectId(business_id),
-      clientId: new mongoose.Types.ObjectId(clientId),
+      clientId: new mongoose.Types.ObjectId(clientData._id),
+      clientName,
+      clientEmail,
+      title,
       items,
       totalAmount,
       paidAmount,
+      paymentMethod,
       status,
       dueDate,
+      recipt: reciptUrl,
     });
 
     return {
@@ -40,7 +88,7 @@ export const createBilling: AppRouteMutationImplementation<
       status: 500,
       body: {
         success: false,
-        error: (error as Error).message,
+        error: `Error creating billing: ${(error as Error).message}`,
       },
     };
   }
@@ -52,18 +100,41 @@ export const updateBilling: AppRouteMutationImplementation<
   try {
     const { billingID } = req.params;
 
-    const {
+    let {
+      clientName,
+      title,
       items,
       totalAmount,
       paidAmount,
+      paymentMethod,
       status,
       dueDate,
     } = req.body;
 
+    // Parse items from FormData
+    if (typeof items === "string") {
+      items = JSON.parse(items);
+    }
+
+    // Convert numbers
+    totalAmount = Number(totalAmount);
+    paidAmount = Number(paidAmount || 0);
+
+    const files = req.files as {
+      recipt?: Express.Multer.File[];
+    };
+
+    // Cloudinary URLs
+    const reciptUrl = files?.recipt?.[0]?.path;
+
     const updated = await billingRepository.update(billingID, {
+      clientName,
+      title,
+      paymentMethod,
       items,
       totalAmount,
       paidAmount,
+      recipt: reciptUrl,
       status,
       dueDate,
     });

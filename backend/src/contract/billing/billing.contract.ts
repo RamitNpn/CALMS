@@ -15,7 +15,7 @@ const c = initContract();
 export const billingContract = c.router({
   createBilling: {
     method: "POST",
-    path: "/billings",
+    path: "/billing",
     body: createBillingSchema,
     responses: {
       201: successSchema,
@@ -26,7 +26,7 @@ export const billingContract = c.router({
 
   getAllBillings: {
     method: "GET",
-    path: "/billings",
+    path: "/billing",
     summary: "Get all billings",
     responses: {
       200: getAllBillingsSchema,
@@ -36,7 +36,7 @@ export const billingContract = c.router({
 
   getBillingByID: {
     method: "GET",
-    path: "/billings/:billingID",
+    path: "/billing/:billingID",
     pathParams: z.object({
       billingID: z.string().min(1, "Billing ID is required"),
     }),
@@ -48,7 +48,7 @@ export const billingContract = c.router({
 
   updateBilling: {
     method: "PUT",
-    path: "/billings/:billingID",
+    path: "/billing/:billingID",
     pathParams: z.object({
       billingID: z.string().min(1, "Billing ID is required"),
     }),
@@ -63,11 +63,10 @@ export const billingContract = c.router({
 
   removeBilling: {
     method: "DELETE",
-    path: "/billings/:billingID",
+    path: "/billing/:billingID",
     pathParams: z.object({
       billingID: z.string().min(1, "Billing ID is required"),
     }),
-    body: removeBillingSchema,
     responses: {
       200: successSchema,
       404: errorSchema,

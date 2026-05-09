@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 
 import { loginUser } from "@/libs/api/auth.api";
 import { LoginFormValues, loginSchema } from "@/libs/validation/login.validation";
+import { useToast } from "../ui/toast";
 
 export default function LoginForm() {
   const router = useRouter();
+  const toast = useToast.getState();
 
   const {
     register,
@@ -23,7 +25,10 @@ export default function LoginForm() {
     mutationFn: loginUser,
 
     onSuccess: (data) => {
-      console.log("Login success:", data);
+      toast.show({
+        message: "Login success:",
+        type: "success",
+      });
 
       // TODO: store token (localStorage/cookies)
       localStorage.setItem("token", data.token);
@@ -41,11 +46,14 @@ export default function LoginForm() {
       }
     },
 
-    onError: (error: any) => {
-      console.error("Login failed:", error?.response?.data || error.message);
+    onError: (error: unknown) => {
+      console.error("Login failed:", (error as { message?: string })?.message);
 
       // TODO: show toast
-      alert(error?.response?.data?.message || "Login failed");
+      toast.show({
+        message: (error as { message?: string })?.message || "Login failed",
+        type: "error",
+      });
     },
   });
 

@@ -33,6 +33,7 @@ export const getAllBusinessByIdSchema = z.object({
   operatorName: z.string().min(1),
   operatorEmail: z.string().email(),
   businessType: z.string(),
+  profilePicture: z.any().optional(),
   role: z.enum(["admin", "business", "staff", "client"]),
   teams: z.string().optional(),
   branch: branchSchema,
@@ -55,9 +56,13 @@ export const updateBusinessSchema = z.object({
   _id: z.string(),
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
-  operatorEmail: z.string().email().optional(),
-  operatorPassword: z.string().min(6).optional(),
+  operatorEmail: z.string().email("Invalid email format").optional().or(z.literal("")),
+  operatorPassword: z.string().refine(
+    (val) => !val || val.length >= 6,
+    "Password must be at least 6 characters"
+  ).optional(),
   businessType: z.string().optional(),
+  profilePicture: z.any().optional(),
   role: z.enum(["admin", "business", "staff", "client"]).optional(),
   teams: z.string().optional(),
   branch: branchSchema.optional(),

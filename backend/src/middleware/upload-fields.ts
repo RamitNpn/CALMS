@@ -5,4 +5,5 @@ export const userUploadFields = upload.fields([
   { name: "citizenship", maxCount: 1 },
   { name: "license", maxCount: 1 },
   { name: "certificate", maxCount: 1 },
+  { name: "recipt", maxCount: 1 },
 ]);

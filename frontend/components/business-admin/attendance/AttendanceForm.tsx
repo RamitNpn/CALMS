@@ -57,26 +57,8 @@ export function AttendanceForm({ onClose, size = "lg" }: AttendanceFormProps) {
     },
 
     onError: (err: unknown) => {
-      let message = "Failed to create attendance";
-
-      if (typeof err === "object" && err !== null && "response" in err) {
-        const error = err as {
-          response?: {
-            data?: {
-              error?: string;
-              message?: string;
-            };
-          };
-        };
-
-        message =
-          error.response?.data?.error ||
-          error.response?.data?.message ||
-          message;
-      }
-
       toast.show({
-        message,
+        message: (err as { message?: string })?.message || "Failed to create attendance",
         type: "error",
       });
     },

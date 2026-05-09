@@ -1,4 +1,4 @@
-import BillingModel, { IBilling } from "../models/billing.schema";
+import BillingModel, { IBilling } from "../models/billing.model";
 
 class InvoiceRepository {
   private model;
@@ -7,7 +7,7 @@ class InvoiceRepository {
     this.model = BillingModel;
   }
 
-  async create(data: Partial<IBilling>) {
+  async create(data: Partial<IBilling >) {
     try {
       return await this.model.create(data);
     } catch (error) {
