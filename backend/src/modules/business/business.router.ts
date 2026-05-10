@@ -3,7 +3,7 @@ import { businessContract } from "../../contract/business/business.contract";
 import { businessQueryHandler } from "./business.query";
 import { businessMutationHandler } from "./business.mutation";
 import { userUploadFields } from "../../middleware/upload-fields";
-
+import { requireAuthMiddleware } from "../../middleware/requireAuth.middleware";
 
 const s = initServer();
 
@@ -13,7 +13,7 @@ export const businessRouter = s.router(businessContract, {
 
   createBusiness: businessMutationHandler.createBusiness,
   updateBusiness: {
-    middleware: [userUploadFields],
+    middleware: [requireAuthMiddleware, userUploadFields],
     handler: businessMutationHandler.updateBusiness,
   },
   removeBusiness: businessMutationHandler.removeBusiness,

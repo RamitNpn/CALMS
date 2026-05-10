@@ -87,6 +87,7 @@ export const assetContract = c.router({
     pathParams: z.object({
       assetID: z.string(),
     }),
+    body: z.object({}),
     summary: "Delete asset",
     responses: {
       200: successSchema,

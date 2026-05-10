@@ -77,7 +77,10 @@ export const tokenContract = c.router({
   removeToken: {
     method: "DELETE",
     path: "/tokens/:tokenID",
-    body: removeTokenSchema,
+    pathParams: z.object({
+      tokenID: z.string(),
+    }),
+    body: z.object({}),
     responses: {
       200: successSchema,
       404: errorSchema,

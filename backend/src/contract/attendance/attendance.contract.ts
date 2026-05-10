@@ -78,7 +78,10 @@ export const attendanceContract = c.router({
   removeAttendance: {
     method: "DELETE",
     path: "/attendance/:attendanceID",
-    body: removeAttendanceSchema,
+    pathParams: z.object({
+      attendanceID: z.string(),
+    }),
+    body: z.object({}),
     responses: {
       200: successSchema,
       404: errorSchema,

@@ -30,13 +30,9 @@ export const authLogin: AppRouteMutationImplementation<
       : account.userPassword;
 
     const role = isBusiness ? account.role : account.role;
-
     const userName = isBusiness ? account.operatorName : account.userName;
-
     const userEmail = isBusiness ? account.operatorEmail : account.userEmail;
-
     const services = isBusiness ? account.services : "";
-
     const business_id = isBusiness ? account._id : account.business_id;
 
     // 4. verify password

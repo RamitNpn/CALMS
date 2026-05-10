@@ -79,6 +79,7 @@ export const billingContract = c.router({
     pathParams: z.object({
       billingID: z.string().min(1, "Billing ID is required"),
     }),
+    body: z.object({}),
     responses: {
       200: successSchema,
       404: errorSchema,

@@ -79,7 +79,7 @@ export const userContract = c.router({
     pathParams: z.object({
       userID: z.string(),
     }),
-    body: removeUserSchema,
+    body: z.object({}),
     responses: {
       200: successSchema,
       404: errorSchema,

@@ -77,7 +77,10 @@ export const scheduleContract = c.router({
   removeSchedule: {
     method: "DELETE",
     path: "/schedules/:scheduleID",
-    body: removeScheduleSchema,
+    pathParams: z.object({
+      scheduleID: z.string(),
+    }),
+    body: z.object({}),
     responses: {
       200: successSchema,
       404: errorSchema,

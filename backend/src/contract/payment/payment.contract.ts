@@ -100,7 +100,7 @@ export const paymentContract = c.router({
     pathParams: z.object({
       paymentID: z.string().min(1),
     }),
-    body: removePaymentSchema,
+    body: z.object({}),
     summary: "Delete payment",
     responses: {
       200: successSchema,

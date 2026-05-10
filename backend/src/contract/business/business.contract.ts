@@ -79,7 +79,7 @@ export const businessContract = c.router({
     pathParams: z.object({
       businessID: z.string(),
     }),
-    body: removeBusinessSchema,
+    body: z.object({}),
     summary: "Delete business",
     responses: {
       200: successSchema,
