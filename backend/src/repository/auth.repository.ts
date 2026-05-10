@@ -11,6 +11,20 @@ class AuthRepository {
     return jwt.sign(payload, secret, options);
   }
 
+  createSetupToken(
+    payload: {
+      accountId: string;
+      setupToken: boolean;
+    },
+    secret: string,
+    options?: SignOptions
+  ) {
+    return jwt.sign(payload, secret, {
+      ...options,
+      expiresIn: options?.expiresIn || "24h",
+    });
+  }
+
   verifyJwtToken(token: string, secret: string, options?: object) {
     try {
       return jwt.verify(token, secret, options) as string | jwt.JwtPayload;

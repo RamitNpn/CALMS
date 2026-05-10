@@ -5,8 +5,10 @@ import bcrypt from "bcryptjs";
 
 import { Services } from "../../models/business.model"; // adjust path
 import { businessRegistrationTemplate } from "../../template/registration.template";
+import { welcomeTemplate } from "../../template/welcome.template";
 import { sendMail } from "../../utils/sendMail";
 import env from "../../config/env";
+import { authRepository } from "../../repository/auth.repository";
 
 export const createBusiness: AppRouteMutationImplementation<
   typeof businessContract.createBusiness
@@ -16,7 +18,6 @@ export const createBusiness: AppRouteMutationImplementation<
       businessName,
       operatorName,
       operatorEmail,
-      operatorPassword,
       businessType,
       role = "business",
       teams = "",
@@ -48,13 +49,12 @@ export const createBusiness: AppRouteMutationImplementation<
       };
     }
 
-    const hashedPassword = await bcrypt.hash(operatorPassword, 10);
-
+    // Create business with empty password (will be set by user via welcome link)
     const business = await businessRepository.create({
       businessName,
       operatorName,
       operatorEmail,
-      operatorPassword: hashedPassword,
+      operatorPassword: "",
       businessType,
       role,
       teams,
@@ -65,27 +65,44 @@ export const createBusiness: AppRouteMutationImplementation<
     });
 
     if (business) {
-      await sendMail({
-        to: operatorEmail,
+      // Generate setup token
+      const setupToken = authRepository.createSetupToken(
+        {
+          accountId: business._id.toString(),
+          setupToken: true,
+        },
+        env.JWT_SECRET,
+        { expiresIn: "24h" }
+      );
 
-        subject: "Your FlowDesk Business Account",
+      // Create welcome link
+      const setupLink = `${env.frontend_url}/pages/welcome?token=${setupToken}`;
 
-        html: businessRegistrationTemplate({
-          businessName,
-          operatorName,
-          operatorEmail,
-          password: operatorPassword,
-          packageName: pkg,
-          loginUrl: `${env.frontend_url}`,
-        }),
-      });
+      // Send welcome email with setup link
+      try {
+        await sendMail({
+          to: operatorEmail,
+          subject: "Complete Your FlowDesk Account Setup",
+          html: welcomeTemplate({
+            businessName,
+            operatorName,
+            operatorEmail,
+            setupLink,
+          }),
+        });
+        console.log(`Welcome email sent successfully to ${operatorEmail}`);
+      } catch (emailError) {
+        console.error(`Failed to send welcome email to ${operatorEmail}:`, emailError);
+        // Don't fail the business creation if email fails
+        // but log it for debugging
+      }
     }
 
     return {
       status: 201,
       body: {
         success: true,
-        message: "Business created successfully",
+        message: "Business created successfully. Welcome email sent with setup link.",
         data: business,
       },
     };

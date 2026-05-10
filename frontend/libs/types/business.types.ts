@@ -9,7 +9,6 @@ export interface TBusiness {
   businessName: string;
   operatorName: string;
   operatorEmail: string;
-  operatorPassword: string;
   businessType: string;
   role: "business";
   teams: string;
@@ -27,7 +26,6 @@ export interface TBusinessCreate {
   businessName: string;
   operatorName: string;
   operatorEmail: string;
-  operatorPassword: string;
   businessType: string;
   role: "business";
   teams: string;

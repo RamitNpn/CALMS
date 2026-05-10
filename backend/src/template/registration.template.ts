@@ -20,7 +20,7 @@ export const businessRegistrationTemplate = ({
     padding: 40px 20px;
   ">
     <div style="
-      max-width: 650px;
+      max-width: 650px;s
       margin: auto;
       background: #ffffff;
       border-radius: 12px;

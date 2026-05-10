@@ -30,7 +30,6 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
       businessName: "",
       operatorName: "",
       operatorEmail: "",
-      operatorPassword: "",
       businessType: "",
       role: "business",
       teams: "",
@@ -152,18 +151,6 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <input
                   type="email"
                   {...register("operatorEmail")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
-                />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium">
-                  Operator Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  {...register("operatorPassword")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded"
                 />
               </div>

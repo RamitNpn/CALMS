@@ -24,9 +24,6 @@ export const createBusinessSchema = z.object({
     .string()
     .email("Invalid email")
     .min(1, "Operator email is required"),
-  operatorPassword: z
-    .string()
-    .min(6, "Password must be at least 6 characters"),
   businessType: z.string().min(1, "Business type is required"),
   role: teamRoleEnum.optional(),
   teams: z.string().optional(),

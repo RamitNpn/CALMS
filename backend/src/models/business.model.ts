@@ -50,7 +50,8 @@ const BusinessSchema = new mongoose.Schema(
 
     operatorPassword: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
     },
 
     businessType: {
