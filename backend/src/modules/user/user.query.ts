@@ -5,9 +5,15 @@ import businessRepository from "../../repository/business.repository";
 
 export const getAllUsers: AppRouteQueryImplementation<
   typeof userContract.getAllUsers
-> = async () => {
+> = async ({ req }) => {
   try {
-    const users = await userRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const role = req.query.role as string | undefined;
+    const skip = (page - 1) * limit;
+
+    const { data: users, total } = await userRepository.getAll(skip, limit, role);
+    const totalPages = Math.ceil(total / limit);
 
     const formattedUsers = users.map((u) => ({
       _id: u._id.toString(),
@@ -27,7 +33,15 @@ export const getAllUsers: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedUsers,
+      body: {
+        data: formattedUsers,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     console.error("Error in getAllUsers:", error);

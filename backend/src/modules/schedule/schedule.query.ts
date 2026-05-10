@@ -5,9 +5,14 @@ import { title } from "node:process";
 
 export const getAllSchedules: AppRouteQueryImplementation<
   typeof scheduleContract.getAllSchedules
-> = async () => {
+> = async ({ req }) => {
   try {
-    const schedules = await scheduleRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const { data: schedules, total } = await scheduleRepository.getAll(skip, limit);
+    const totalPages = Math.ceil(total / limit);
 
     const formattedSchedules = schedules.map((s) => ({
       _id: s._id.toString(),
@@ -23,7 +28,15 @@ export const getAllSchedules: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedSchedules, // return array of schedules directly
+      body: {
+        data: formattedSchedules,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     console.error("Error in getAllSchedules:", error);

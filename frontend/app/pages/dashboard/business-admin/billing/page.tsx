@@ -18,6 +18,7 @@ export default function BillingPage() {
   } = useAllBillings({ page, limit: 10 });
 
   const billings = billingData?.data ?? billingData ?? [];
+  const pagination = billingData?.pagination;
 
   return (
     <div className="space-y-6">
@@ -45,7 +46,7 @@ export default function BillingPage() {
         isLoading={isLoading}
         error={isError ? "Failed to load billing records" : null}
         page={page}
-        totalPages={billingData?.totalPages || 1}
+        totalPages={pagination?.totalPages || 1}
         onPageChange={setPage}
       />
 

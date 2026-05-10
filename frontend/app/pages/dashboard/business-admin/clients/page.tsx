@@ -18,6 +18,7 @@ export default function ClientPage() {
   } = useAllClients({ page, limit: 10 });
 
   const clients = clientData?.data ?? clientData ?? [];
+  const pagination = clientData?.pagination;
 
   return (
     <div className="space-y-6">
@@ -45,7 +46,7 @@ export default function ClientPage() {
         isLoading={isLoading}
         error={isError ? "Failed to load client records" : null}
         page={page}
-        totalPages={clientData?.totalPages || 1}
+        totalPages={pagination?.totalPages || 1}
         onPageChange={setPage}
       />
 

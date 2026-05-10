@@ -133,7 +133,7 @@ export default function AssetRecord({
         </tbody>
       </table>
 
-      {assets.length >= 10 && (
+      {totalPages > 1 && (
         <div className="mt-4">
           <TablePagination
             page={page}

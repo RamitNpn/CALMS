@@ -27,14 +27,22 @@ export const userContract = c.router({
   getAllUsers: {
     method: "GET",
     path: "/user",
-    summary: "Get all users",
+    summary: "Get all users with pagination",
     query: z.object({
       page: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
       role: z.enum(["admin", "business", "staff", "client"]).optional(),
     }),
     responses: {
-      200: getAllUsersSchema,
+      200: z.object({
+        data: getAllUsersSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
     },
   },

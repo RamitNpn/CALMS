@@ -186,7 +186,7 @@ export default function BillingRecord({
       </table>
 
       {/* PAGINATION */}
-      {billings.length >= 10 && (
+      {totalPages > 1 && (
         <div className="mt-4">
           <TablePagination
             page={page}

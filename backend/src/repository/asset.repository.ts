@@ -15,10 +15,12 @@ class AssetRepository {
     }
   }
 
-  async getAll(business_id?: string) {
+  async getAll(business_id?: string, skip: number = 0, limit: number = 10) {
     try {
       const query = business_id ? { business_id } : {};
-      return await this.model.find(query).sort({ createdAt: -1 });
+      const data = await this.model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
+      const total = await this.model.countDocuments(query);
+      return { data, total };
     } catch (error) {
       throw new Error(`Error fetching assets: ${error}`);
     }

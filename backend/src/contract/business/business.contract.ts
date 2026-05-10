@@ -28,9 +28,21 @@ export const businessContract = c.router({
   getAllBusinesses: {
     method: "GET",
     path: "/business",
-    summary: "Get all businesses",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }),
+    summary: "Get all businesses with pagination",
     responses: {
-      200: getAllBusinessesSchema,
+      200: z.object({
+        data: getAllBusinessesSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
     },
   },

@@ -18,6 +18,7 @@ export default function StaffPage() {
   } = useAllStaff({ page, limit: 10 });
 
   const staffs = staffData?.data ?? staffData ?? [];
+  const pagination = staffData?.pagination;
 
   return (
     <div className="space-y-6">
@@ -45,7 +46,7 @@ export default function StaffPage() {
         isLoading={isLoading}
         error={isError ? "Failed to load staff records" : null}
         page={page}
-        totalPages={staffData?.totalPages || 1}
+        totalPages={pagination?.totalPages || 1}
         onPageChange={setPage}
       />
 

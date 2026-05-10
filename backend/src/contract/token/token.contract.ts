@@ -29,9 +29,21 @@ export const tokenContract = c.router({
   getAllTokens: {
     method: "GET",
     path: "/tokens",
-    summary: "Get all tokens",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }),
+    summary: "Get all tokens with pagination",
     responses: {
-      200: getAllTokensSchema,
+      200: z.object({
+        data: getAllTokensSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
     },
   },

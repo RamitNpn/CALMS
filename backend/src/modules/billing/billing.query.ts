@@ -6,9 +6,14 @@ export const getAllBillings: AppRouteQueryImplementation<
   typeof billingContract.getAllBillings
 > = async ({ req }) => {
   try {
-    const billings = await billingRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
 
-    const formattedbillings = billings.map((i: any) => ({
+    const { data: billings, total } = await billingRepository.getAll(skip, limit);
+    const totalPages = Math.ceil(total / limit);
+
+    const formattedBillings = billings.map((i: any) => ({
       _id: i._id.toString(),
       business_id: i.business_id?.toString(),
       title: i.title,
@@ -28,10 +33,18 @@ export const getAllBillings: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedbillings,
+      body: {
+        data: formattedBillings,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
-    console.error("Error in getAllbillings:", error);
+    console.error("Error in getAllBillings:", error);
     return {
       status: 500,
       body: {

@@ -94,8 +94,10 @@ export function ViewClientRecord({
               {/* IMAGE */}
               <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
                 <Image
-                  src={client.profile}
+                  src={client.profile || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIPCfcvp9e7k8T4Wi3kZ0wyY5EeA1BOsEqp3Uqmn79ww&s"}
                   alt={client.userName}
+                  width={32}
+                  height={32}
                   fill
                   className="object-cover"
                 />
@@ -155,11 +157,11 @@ export function ViewClientRecord({
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <DocumentImageCard title="Citizenship" url={client.citizenship} />
+              <DocumentImageCard title="Citizenship" url={client.citizenship || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s"} />
 
-              <DocumentImageCard title="License" url={client.license} />
+              <DocumentImageCard title="License" url={client.license || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s"} />
 
-              <DocumentImageCard title="Certificate" url={client.certificate} />
+              <DocumentImageCard title="Certificate" url={client.certificate || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s"} />
             </div>
           </div>
         </div>

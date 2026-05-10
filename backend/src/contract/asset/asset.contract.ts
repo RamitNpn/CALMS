@@ -29,9 +29,22 @@ export const assetContract = c.router({
   getAllAssets: {
     method: "GET",
     path: "/assets",
-    summary: "Get all assets",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+      business_id: z.string().optional(),
+    }),
+    summary: "Get all assets with pagination",
     responses: {
-      200: getAllAssetsSchema,
+      200: z.object({
+        data: getAllAssetsSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
       404: errorSchema,
     },

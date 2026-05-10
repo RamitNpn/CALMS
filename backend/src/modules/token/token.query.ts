@@ -4,9 +4,14 @@ import tokenRepository from "../../repository/token.repository";
 
 export const getAllTokens: AppRouteQueryImplementation<
   typeof tokenContract.getAllTokens
-> = async () => {
+> = async ({ req }) => {
   try {
-    const tokens = await tokenRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const { data: tokens, total } = await tokenRepository.getAll(skip, limit);
+    const totalPages = Math.ceil(total / limit);
 
     const formattedTokens = tokens.map((t) => ({
       _id: t._id.toString(),
@@ -22,7 +27,15 @@ export const getAllTokens: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedTokens, // return array of tokens directly
+      body: {
+        data: formattedTokens,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     console.error("Error in getAllTokens:", error);

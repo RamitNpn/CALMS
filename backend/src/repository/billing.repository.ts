@@ -15,9 +15,11 @@ class InvoiceRepository {
     }
   }
 
-  async getAll() {
+  async getAll(skip: number = 0, limit: number = 10) {
     try {
-      return await this.model.find().sort({ createdAt: -1 });
+      const data = await this.model.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
+      const total = await this.model.countDocuments();
+      return { data, total };
     } catch (error) {
       throw new Error(`Error fetching billings: ${error}`);
     }

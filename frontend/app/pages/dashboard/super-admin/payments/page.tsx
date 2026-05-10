@@ -18,6 +18,7 @@ export default function AdminPaymentPage() {
   } = useAllPayments({ page, limit: 10 });
 
   const payments = paymentData?.data ?? paymentData ?? [];
+  const pagination = paymentData?.pagination;
 
   return (
     <div className="space-y-6">
@@ -45,7 +46,7 @@ export default function AdminPaymentPage() {
         isLoading={isLoading}
         error={isError ? "Failed to load payment records" : null}
         page={page}
-        totalPages={paymentData?.totalPages || 1}
+        totalPages={pagination?.totalPages || 1}
         onPageChange={setPage}
       />
 

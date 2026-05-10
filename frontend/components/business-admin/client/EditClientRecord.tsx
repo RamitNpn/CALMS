@@ -225,7 +225,7 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
                 <p className="text-sm font-medium mb-1">Profile Image</p>
                 {client?.profile && (
                   <Image
-                    src={client.profile}
+                    src={client.profile || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s"}
                     className="w-20 h-20 rounded mb-2"
                     width={80}
                     height={80}
@@ -243,7 +243,7 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
                 <p className="text-sm font-medium mb-1">Citizenship</p>
                 {client?.citizenship && (
                   <Image
-                    src={client.citizenship}
+                    src={client.citizenship || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s"}
                     className="w-20 h-20 rounded mb-2"
                     width={80}
                     height={80}
@@ -261,7 +261,7 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
                 <p className="text-sm font-medium mb-1">License</p>
                 {client?.license && (
                   <Image
-                    src={client.license}
+                    src={client.license || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s"}
                     width={80}
                     height={80}
                     alt="License"
@@ -279,7 +279,7 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
                 <p className="text-sm font-medium mb-1">Certificate</p>
                 {client?.certificate && (
                   <Image
-                    src={client.certificate}
+                    src={client.certificate || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s"}
                     alt="Certificate"
                     width={80}
                     height={80}

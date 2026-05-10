@@ -29,9 +29,21 @@ export const scheduleContract = c.router({
   getAllSchedules: {
     method: "GET",
     path: "/schedules",
-    summary: "Get all schedules",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }),
+    summary: "Get all schedules with pagination",
     responses: {
-      200: getAllSchedulesSchema,
+      200: z.object({
+        data: getAllSchedulesSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
     },
   },

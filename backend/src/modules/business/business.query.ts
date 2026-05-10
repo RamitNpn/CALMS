@@ -4,9 +4,14 @@ import businessRepository from "../../repository/business.repository";
 
 export const getAllBusinesses: AppRouteQueryImplementation<
   typeof businessContract.getAllBusinesses
-> = async () => {
+> = async ({ req }) => {
   try {
-    const businesses = await businessRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const { data: businesses, total } = await businessRepository.getAll(skip, limit);
+    const totalPages = Math.ceil(total / limit);
 
     const formattedBusinesses = businesses.map((b: any) => ({
       _id: b._id.toString(),
@@ -29,7 +34,15 @@ export const getAllBusinesses: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedBusinesses,
+      body: {
+        data: formattedBusinesses,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     console.error("Error in getAllBusinesses:", error);

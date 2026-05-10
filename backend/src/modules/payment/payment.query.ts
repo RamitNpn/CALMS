@@ -6,9 +6,16 @@ import paymentRepository from "../../repository/payment.repository";
 
 export const getAllPayments: AppRouteQueryImplementation<
   typeof paymentContract.getAllPayments
-> = async () => {
+> = async ({ req }) => {
   try {
-    const payments = await paymentRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    
+    const skip = (page - 1) * limit;
+
+    const { data: payments, total } = await paymentRepository.getAll(skip, limit);
+
+    const totalPages = Math.ceil(total / limit);
 
     const formattedPayments = payments.map((p: any) => ({
       _id: p._id.toString(),
@@ -29,7 +36,15 @@ export const getAllPayments: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedPayments,
+      body: {
+        data: formattedPayments,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     console.error("Error in getAllPayments:", error);

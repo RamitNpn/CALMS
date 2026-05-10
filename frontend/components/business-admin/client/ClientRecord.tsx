@@ -145,7 +145,7 @@ export default function ClientRecord({
       </table>
 
       {/* PAGINATION */}
-      {clients.length >= 10 && (
+      {totalPages > 1 && (
         <div className="mt-4">
           <TablePagination
             page={page}

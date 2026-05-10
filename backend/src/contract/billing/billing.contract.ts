@@ -27,9 +27,21 @@ export const billingContract = c.router({
   getAllBillings: {
     method: "GET",
     path: "/billing",
-    summary: "Get all billings",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }),
+    summary: "Get all billings with pagination",
     responses: {
-      200: getAllBillingsSchema,
+      200: z.object({
+        data: getAllBillingsSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
     },
   },

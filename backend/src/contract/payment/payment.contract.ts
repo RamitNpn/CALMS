@@ -45,9 +45,21 @@ export const paymentContract = c.router({
   getAllPayments: {
     method: "GET",
     path: "/payment",
-    summary: "Get all payments",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }),
+    summary: "Get all payments with pagination",
     responses: {
-      200: getAllPaymentsSchema,
+      200: z.object({
+        data: getAllPaymentsSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
     },
   },

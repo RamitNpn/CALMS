@@ -18,6 +18,7 @@ export default function BusinessesPage() {
   } = useAllAssets({ page, limit: 10 });
 
   const assets = assetData?.data ?? assetData ?? [];
+  const pagination = assetData?.pagination;
 
   return (
     <div className="space-y-6">
@@ -45,7 +46,7 @@ export default function BusinessesPage() {
         isLoading={isLoading}
         error={isError ? "Failed to load asset records" : null}
         page={page}
-        totalPages={assetData?.totalPages || 1}
+        totalPages={pagination?.totalPages || 1}
         onPageChange={setPage}
       />
 

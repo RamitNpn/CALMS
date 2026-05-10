@@ -148,7 +148,7 @@ export default function StaffRecord({
       </table>
 
       {/* PAGINATION */}
-      {staffs.length >= 10 && (
+      {totalPages > 1 && (
         <div className="mt-4">
           <TablePagination
             page={page}
