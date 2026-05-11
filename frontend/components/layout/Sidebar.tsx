@@ -28,7 +28,7 @@ const menu = [
     exact: true,
   },
 
-    {
+  {
     id: "super-payment",
     name: "Payment Management",
     href: "/pages/dashboard/super-admin/payments",
@@ -90,13 +90,22 @@ type Props = {
   userRole: string[];
 };
 
-export default function Sidebar({ allowedServices, userRole }: Props) {
+export default function Sidebar({
+  allowedServices,
+  userRole,
+}: Props) {
   const pathname = usePathname();
 
   const filteredMenu = userRole.includes("admin")
-    ? menu
+    ? menu.filter((item) =>
+        ["dashboard", "super-business", "super-payment"].includes(
+          item.id,
+        ),
+      )
     : menu.filter(
-        (item) => item.serviceKey && allowedServices.includes(item.serviceKey),
+        (item) =>
+          item.serviceKey &&
+          allowedServices.includes(item.serviceKey),
       );
 
   return (
@@ -109,32 +118,23 @@ export default function Sidebar({ allowedServices, userRole }: Props) {
         {filteredMenu.map((item) => {
           const Icon = item.icon;
 
-          const isDashboard = item.href === "/pages/dashboard/business-admin";
-
-          const isAdminBusiness =
-            item.href === "/pages/dashboard/super-admin/business";
-
-            const isAdminPayment = item.href === "/pages/dashboard/super-admin/payments";
-
-          const isActive =
-            isDashboard || isAdminBusiness || isAdminPayment
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
+          const isActive = item.exact
+            ? pathname === item.href
+            : pathname.startsWith(item.href);
 
           return (
             <Link
               key={item.id}
               href={item.href}
               className={`flex items-center px-4 py-3 rounded-xl transition-all duration-200
-        ${
-          isActive
-            ? "bg-gray-800 text-white shadow-md"
-            : "text-gray-700 hover:bg-gray-100"
-        }
-      `}
+                ${
+                  isActive
+                    ? "bg-gray-800 text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-100"
+                }
+              `}
             >
               <Icon className="w-5 h-5 mr-3" />
-
               <span>{item.name}</span>
             </Link>
           );

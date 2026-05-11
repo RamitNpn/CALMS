@@ -2,17 +2,16 @@
 
 import { Bell, Mail, LogOut } from "lucide-react";
 import { useRouter } from "next/dist/client/components/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const pendingCount = 3;
 
   const router = useRouter();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("auth-data");
-
-    router.push("/");
+    logout();
   };
 
   return (

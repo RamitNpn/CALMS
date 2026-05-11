@@ -133,7 +133,7 @@ export default function BillingRecord({
                 <td className="py-3 px-6 text-left">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      billing.status === "completed"
+                      billing.status === "paid"
                         ? "bg-green-100 text-green-700"
                         : billing.status === "partial"
                         ? "bg-yellow-100 text-yellow-700"

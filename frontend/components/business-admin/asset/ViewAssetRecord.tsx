@@ -101,7 +101,7 @@ export function ViewAssetRecord({
             Object.keys(asset.customFields).length > 0 ? (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 {Object.entries(asset.customFields ?? {}).map(
-                  ([key, value]) => (
+                  ([key, value]: [string, any]) => (
                     <div key={key} className="border border-gray-100 p-1 rounded">
                       <p className="font-medium">{key}</p>
                       <p className="text-xs text-gray-500">{value}</p>

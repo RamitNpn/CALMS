@@ -103,12 +103,13 @@ export const verifySetupToken: AppRouteMutationImplementation<
 
     const accountId = decoded.accountId as string;
 
-    // Find account by ID
-    let account = await businessRepository.getByID(accountId);
+    // Find account by ID - try business first, then user
+    const businessAccount = await businessRepository.getByID(accountId);
+    const userAccount = !businessAccount
+      ? await userRepository.getByID(accountId)
+      : null;
 
-    if (!account) {
-      account = await userRepository.getByID(accountId);
-    }
+    const account = businessAccount || userAccount;
 
     if (!account) {
       return {
@@ -118,10 +119,10 @@ export const verifySetupToken: AppRouteMutationImplementation<
     }
 
     // Check if account already has password set (empty string means not set)
-    const isBusiness = "operatorPassword" in account;
+    const isBusiness = !!businessAccount;
     const hasPassword = isBusiness
-      ? account.operatorPassword && account.operatorPassword.length > 0
-      : account.userPassword && account.userPassword.length > 0;
+      ? businessAccount!.operatorPassword && businessAccount!.operatorPassword.length > 0
+      : userAccount!.userPassword && userAccount!.userPassword.length > 0;
 
     if (hasPassword) {
       return {
@@ -130,8 +131,12 @@ export const verifySetupToken: AppRouteMutationImplementation<
       };
     }
 
-    const accountName = isBusiness ? account.operatorName : account.userName;
-    const accountEmail = isBusiness ? account.operatorEmail : account.userEmail;
+    const accountName = isBusiness
+      ? businessAccount!.operatorName
+      : userAccount!.userName;
+    const accountEmail = isBusiness
+      ? businessAccount!.operatorEmail
+      : userAccount!.userEmail;
 
     return {
       status: 200,

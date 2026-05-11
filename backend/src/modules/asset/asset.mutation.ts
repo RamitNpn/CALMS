@@ -41,15 +41,17 @@ export const updateAsset: AppRouteMutationImplementation<
 > = async ({ req }) => {
   try {
     const { assetID } = req.params;
+    const { name, type, customFields, status } = req.body;
 
-  const { name, type, customFields, status } = req.body;
+    console.log("📝 UPDATING ASSET:", assetID, { name, type, customFields, status });
 
-    const updated = await assetRepository.update(assetID,{
-      name,
-      type,
-      customFields,
-      status,
-    });
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (type !== undefined) updateData.type = type;
+    if (status !== undefined) updateData.status = status;
+    if (customFields !== undefined) updateData.customFields = customFields;
+
+    const updated = await assetRepository.update(assetID, updateData);
 
     if (!updated) {
       return {
@@ -70,6 +72,7 @@ export const updateAsset: AppRouteMutationImplementation<
       },
     };
   } catch (error) {
+    console.error("❌ UPDATE ERROR:", error);
     return {
       status: 500,
       body: {

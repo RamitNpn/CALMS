@@ -24,7 +24,7 @@ const getAssetByIdApi = async (
 
 const updateAssetApi = async (
   assetId: string,
-  data: Partial<TUpdateAssetSchema>,
+  data: Omit<Partial<TUpdateAssetSchema>, "_id">,
 ) => {
   const response = await apiClient.put(`/assets/${assetId}`, data);
   return response.data;

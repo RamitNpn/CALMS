@@ -8,10 +8,12 @@ import { useRouter } from "next/navigation";
 import { loginUser } from "@/libs/api/auth.api";
 import { LoginFormValues, loginSchema } from "@/libs/validation/login.validation";
 import { useToast } from "../ui/toast";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
   const router = useRouter();
   const toast = useToast.getState();
+  const { setAuthData } = useAuth();
 
   const {
     register,
@@ -30,9 +32,15 @@ export default function LoginForm() {
         type: "success",
       });
 
-      // TODO: store token (localStorage/cookies)
+      // Store token in localStorage and auth context
       localStorage.setItem("token", data.token);
       localStorage.setItem("auth-data", JSON.stringify(data));
+      
+      // Set token in cookie for middleware
+      document.cookie = `token=${data.token}; path=/; max-age=86400`;
+
+      // Update auth context
+      setAuthData(data);
 
       // Example role-based redirect
       if (data.role === "admin") {

@@ -34,6 +34,13 @@ export const updateAssetSchema = z.object({
   status: z.string().optional(),
 });
 
+export const updateAssetBodySchema = z.object({
+  name: z.string().min(1).optional(),
+  type: z.string().min(1).optional(),
+  customFields: customFieldsSchema.optional(),
+  status: z.string().optional(),
+});
+
 export const removeAssetSchema = z.object({
   _id: z.string(),
 });

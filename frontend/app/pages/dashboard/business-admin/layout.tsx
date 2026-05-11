@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export default function BusinessAdminLayout({
   children,
@@ -29,14 +30,16 @@ export default function BusinessAdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-white">
-      <Sidebar allowedServices={allowedServices} userRole={userRole} />
+    <ProtectedRoute allowedRoles={["business", "staff", "client"]}>
+      <div className="flex min-h-screen bg-gray-white">
+        <Sidebar allowedServices={allowedServices} userRole={userRole} />
 
-      <div className="flex-1 flex flex-col">
-        <Header />
+        <div className="flex-1 flex flex-col">
+          <Header />
 
-        <main className="p-6">{children}</main>
+          <main className="p-6">{children}</main>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

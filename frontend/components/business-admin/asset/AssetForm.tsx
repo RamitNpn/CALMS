@@ -14,6 +14,10 @@ type AssetFormProps = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
+type AssetFormData = Omit<TCreateAsset, "customFields"> & {
+  customFieldsArray?: Array<{ key: string; value: string }>;
+};
+
 export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
   const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
 
@@ -31,19 +35,19 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
     control,
     reset,
     formState: { errors },
-  } = useForm<TCreateAsset>({
+  } = useForm<AssetFormData>({
     defaultValues: {
       business_id: businessId,
       name: "",
       type: "",
       status: "active",
-      customFields: [{ key: "", value: "" }],
+      customFieldsArray: [{ key: "", value: "" }],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "customFields",
+    name: "customFieldsArray",
   });
 
   const { mutate, isPending } = useMutation({
@@ -59,7 +63,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
     },
     onError: (err) => console.error(err),
   });
-  const onSubmit = (data: TCreateAsset) => {
+  const onSubmit = (data: AssetFormData) => {
     if (!data.business_id) {
       toast.show({
         message: "Business ID missing",
@@ -69,12 +73,12 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
     }
 
     const customFieldsObject = Object.fromEntries(
-      data.customFields
+      (data.customFieldsArray || [])
         .filter((f) => f.key.trim() !== "" && f.value.trim() !== "")
         .map((f) => [f.key.trim(), f.value.trim()]),
     );
 
-    const payload = {
+    const payload: TCreateAsset = {
       business_id: data.business_id,
       name: data.name.trim(),
       type: data.type.trim(),
@@ -82,7 +86,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       customFields:
         Object.keys(customFieldsObject).length > 0
           ? customFieldsObject
-          : undefined,
+          : ({} as Record<string, string>),
     };
 
     console.log("✅ FINAL PAYLOAD:", payload);
@@ -183,13 +187,13 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
                   >
                     <input
                       placeholder="Key"
-                      {...register(`customFields.${index}.key` as const)}
+                      {...register(`customFieldsArray.${index}.key` as const)}
                       className="col-span-2 input w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                     />
 
                     <input
                       placeholder="Value"
-                      {...register(`customFields.${index}.value` as const)}
+                      {...register(`customFieldsArray.${index}.value` as const)}
                       className="col-span-2 input w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                     />
 

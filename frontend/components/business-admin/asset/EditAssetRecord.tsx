@@ -5,15 +5,14 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { X, Plus, Trash2 } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 
 import { assetApi } from "@/libs/api/asset.api";
-import { updateAssetSchema } from "@/libs/validation/asset.validation";
+import { TUpdateAssetSchema, updateAssetSchema } from "@/libs/validation/asset.validation";
 import { useAssetById } from "@/hooks/business-admin/asset-management/getAssetById";
 import { useToast } from "@/components/ui/toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type AssetFormData = z.infer<typeof updateAssetSchema> & {
+type AssetFormData = Omit<TUpdateAssetSchema, "customFields"> & {
   customFieldsArray?: Array<{ key: string; value: string }>;
 };
 
@@ -59,9 +58,12 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
     const customFieldsArray = asset.customFields
       ? Object.entries(asset.customFields).map(([key, value]) => ({
           key,
-          value,
+          value: String(value),
         }))
       : [{ key: "", value: "" }];
+
+    console.log("📦 ASSET LOADED - CUSTOM FIELDS COUNT:", customFieldsArray.length);
+    console.log("📦 ASSET LOADED - CUSTOM FIELDS:", customFieldsArray);
 
     reset({
       _id: assetId,
@@ -70,6 +72,8 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
       status: asset.status ?? "active",
       customFieldsArray,
     });
+    
+    console.log("✅ FORM RESET WITH", customFieldsArray.length, "CUSTOM FIELDS");
   }, [assetId, asset, reset]);
 
   const { mutate, isPending } = useMutation({
@@ -78,7 +82,7 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
       data,
     }: {
       assetId: string;
-      data: Partial<z.infer<typeof updateAssetSchema>>;
+      data: Omit<Partial<TUpdateAssetSchema>, "_id">;
     }) => assetApi.updateAssetApi(assetId, data),
     onSuccess: () => {
       toast.show({
@@ -98,23 +102,39 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
   });
 
   const onSubmit = (values: AssetFormData) => {
-    // Convert customFieldsArray back to object
+    console.log("📋 FORM VALUES:", JSON.stringify(values, null, 2));
+    
+    const customFieldsArray = values.customFieldsArray || [];
+    console.log("🔍 CUSTOM FIELDS ARRAY LENGTH:", customFieldsArray.length);
+    console.log("🔍 CUSTOM FIELDS ARRAY CONTENT:", JSON.stringify(customFieldsArray, null, 2));
+    
+    const filteredFields = customFieldsArray.filter((f) => {
+      const hasKey = f.key?.trim();
+      const hasValue = f.value?.trim();
+      console.log(`  Field: key="${f.key}" (${hasKey ? "✓" : "✗"}), value="${f.value}" (${hasValue ? "✓" : "✗"})`);
+      return hasKey && hasValue;
+    });
+    
+    console.log("✅ FILTERED FIELDS COUNT:", filteredFields.length);
+    console.log("✅ FILTERED FIELDS:", JSON.stringify(filteredFields, null, 2));
+    
     const customFieldsObject = Object.fromEntries(
-      (values.customFieldsArray || [])
-        .filter((f) => f.key.trim() !== "" && f.value.trim() !== "")
-        .map((f) => [f.key.trim(), f.value.trim()]),
+      filteredFields.map((f) => [f.key!.trim(), f.value!.trim()])
     );
 
-    const payload: Partial<z.infer<typeof updateAssetSchema>> = {
-      _id: assetId,
+    console.log("🎯 FINAL CUSTOM FIELDS OBJECT:", customFieldsObject);
+
+    const payload: Omit<Partial<TUpdateAssetSchema>, "_id"> = {
       name: values.name?.trim(),
       type: values.type?.trim(),
       status: values.status,
-      customFields:
-        Object.keys(customFieldsObject).length > 0
-          ? customFieldsObject
-          : undefined,
     };
+
+    if (Object.keys(customFieldsObject).length > 0) {
+      payload.customFields = customFieldsObject;
+    }
+
+    console.log("✅ UPDATE PAYLOAD:", JSON.stringify(payload, null, 2));
 
     mutate({ assetId, data: payload });
   };
@@ -127,7 +147,7 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div
         className={clsx(
-          "bg-white rounded-lg shadow-lg h-[90vh] overflow-y-auto w-full",
+          "bg-white rounded-lg shadow-lg h-auto overflow-y-auto w-full",
           {
             "max-w-md": size === "sm",
             "max-w-lg": size === "md",

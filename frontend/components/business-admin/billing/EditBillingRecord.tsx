@@ -70,6 +70,22 @@ export function EditBillingRecord({
   useEffect(() => {
     if (!billingId || !billing) return;
 
+    console.log("📦 BILLING DATA LOADED:", billing);
+
+    // Format dueDate properly for date input
+    let formattedDueDate = "";
+    if (billing.dueDate) {
+      if (typeof billing.dueDate === "string") {
+        // If it's already a string, use it as is
+        formattedDueDate = billing.dueDate.split("T")[0];
+      } else if (billing.dueDate instanceof Date) {
+        // If it's a Date object, convert it
+        formattedDueDate = billing.dueDate.toISOString().split("T")[0];
+      }
+    }
+
+    console.log("📅 FORMATTED DUE DATE:", formattedDueDate);
+
     reset({
       _id: billing._id,
       clientName: billing.clientName,
@@ -83,9 +99,7 @@ export function EditBillingRecord({
       paymentMethod: billing.paymentMethod ?? undefined,
       recipt: billing.recipt ?? "",
       status: billing.status ?? "pending",
-      dueDate: billing.payment_initiation
-        ? new Date(billing.payment_initiation).toISOString().split("T")[0]
-        : "",
+      dueDate: formattedDueDate,
     });
   }, [billingId, billing, reset]);
 
@@ -140,7 +154,11 @@ export function EditBillingRecord({
   });
 
   const onSubmit = (values: BillingFormData) => {
-    const cleanedItems = values.items.map((item) => ({
+    console.log("📋 FORM SUBMITTED - DUE DATE:", values.dueDate);
+    
+    const items = values.items ?? [];
+    
+    const cleanedItems = items.map((item) => ({
       name: item.name.trim(),
       price: Number(item.price),
       qty: Number(item.qty),
@@ -163,6 +181,8 @@ export function EditBillingRecord({
       status: values.status,
       dueDate: values.dueDate,
     };
+
+    console.log("✅ BILLING UPDATE PAYLOAD:", payload);
 
     mutate({
       billingId,
@@ -304,8 +324,15 @@ export function EditBillingRecord({
                 <input
                   type="date"
                   {...register("dueDate")}
+                  placeholder="Select a date"
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
+
+                {errors.dueDate && (
+                  <p className="text-red-500 text-sm">
+                    {errors.dueDate.message}
+                  </p>
+                )}
               </div>
 
               {/* RECEIPT */}

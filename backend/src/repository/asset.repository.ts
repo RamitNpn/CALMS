@@ -36,8 +36,19 @@ class AssetRepository {
 
   async update(id: string, data: Partial<IAsset>) {
     try {
-      return await this.model.findByIdAndUpdate(id, data, { new: true });
+      console.log("🔧 REPOSITORY UPDATE - ID:", id, "DATA:", data);
+
+      // Use $set operator for proper Mongoose updates, especially with Map types
+      const updated = await this.model.findByIdAndUpdate(
+        id,
+        { $set: data },
+        { new: true, runValidators: true }
+      );
+
+      console.log("✅ REPOSITORY UPDATE - RESULT:", updated);
+      return updated;
     } catch (error) {
+      console.error("❌ REPOSITORY UPDATE ERROR:", error);
       throw new Error(`Error updating asset: ${error}`);
     }
   }

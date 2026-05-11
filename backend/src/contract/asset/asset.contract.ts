@@ -8,6 +8,7 @@ import {
   getAssetByIDSchema,
   createAssetSchema,
   updateAssetSchema,
+  updateAssetBodySchema,
   removeAssetSchema,
 } from "./asset.schema";
 
@@ -71,7 +72,7 @@ export const assetContract = c.router({
     pathParams: z.object({
       assetID: z.string().min(1, "Asset ID is required"),
     }),
-    body: updateAssetSchema,
+    body: updateAssetBodySchema,
     summary: "Update asset details",
     responses: {
       200: successSchema,
