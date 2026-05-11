@@ -1,7 +1,7 @@
 import { AppRouteMutationImplementation } from "@ts-rest/express";
 import mongoose from "mongoose";
-import { userContract } from "../../contract/users/user.contract";
 import userRepository from "../../repository/user.repository";
+import { userContract } from "../../contract/user/user.contract";
 
 export const createUser: AppRouteMutationImplementation<
   typeof userContract.createUser

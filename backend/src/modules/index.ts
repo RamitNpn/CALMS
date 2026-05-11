@@ -4,8 +4,6 @@ import { contract } from "../contract";
 
 import { assetRouter } from "./asset/asset.router";
 import { attendanceRouter } from "./attendance/attendance.router";
-import { scheduleRouter } from "./schedule/schedule.router";
-import { tokenRouter } from "./token/token.router";
 import { businessRouter } from "./business/business.router";
 import { billingRouter } from "./billing/billing.router";
 import { userRouter } from "./user/user.router";
@@ -21,7 +19,5 @@ export const router = s.router(contract, {
   billing: billingRouter,
   business: businessRouter,
   payment: paymentRouter,
-  schedule: scheduleRouter,
-  token: tokenRouter,
   user: userRouter,
 });

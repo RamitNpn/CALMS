@@ -1,38 +1,45 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useState } from "react";
+
+type AuthData = {
+  services: string[];
+  role: string[];
+};
 
 export default function BusinessAdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [allowedServices, setAllowedServices] = useState<string[]>([]);
-  const [userRole, setUserRole] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authData] = useState<AuthData>(() => {
+    if (typeof window === "undefined") {
+      return {
+        services: [],
+        role: [],
+      };
+    }
 
-  useEffect(() => {
-    // This only runs on the client side
     const storedData = JSON.parse(
       localStorage.getItem("auth-data") || "{}"
     );
-    setAllowedServices(storedData?.services || []);
-    setUserRole(storedData?.role || []);
-    setIsLoading(false);
-  }, []);
 
-  if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
-  }
+    return {
+      services: storedData?.services || [],
+      role: storedData?.role || [],
+    };
+  });
 
   return (
-    <ProtectedRoute allowedRoles={["business", "staff", "client"]}>
+    <ProtectedRoute allowedRoles={["business"]}>
       <div className="flex min-h-screen bg-gray-white">
-        <Sidebar allowedServices={allowedServices} userRole={userRole} />
+        <Sidebar
+          allowedServices={authData.services}
+          userRole={authData.role}
+        />
 
         <div className="flex-1 flex flex-col">
           <Header />

@@ -1,10 +1,10 @@
 import { initServer } from "@ts-rest/express";
 
-import { userContract } from "../../contract/users/user.contract";
 import { userQueryHandler } from "./user.query";
 import { userMutationHandler } from "./user.mutation";
 
 import { userUploadFields } from "../../middleware/upload-fields";
+import { userContract } from "../../contract/user/user.contract";
 
 const s = initServer();
 

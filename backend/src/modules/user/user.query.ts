@@ -1,15 +1,16 @@
 import { AppRouteQueryImplementation } from "@ts-rest/express";
-import { userContract } from "../../contract/users/user.contract";
 import userRepository from "../../repository/user.repository";
 import businessRepository from "../../repository/business.repository";
+import { userContract } from "../../contract/user/user.contract";
 
 export const getAllUsers: AppRouteQueryImplementation<
   typeof userContract.getAllUsers
 > = async ({ req }) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const role = req.query.role as string | undefined;
+    // The contract validates and coerces these to numbers via z.coerce.number()
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
+    const role = req.query.role;
     const skip = (page - 1) * limit;
 
     const { data: users, total } = await userRepository.getAll(skip, limit, role);

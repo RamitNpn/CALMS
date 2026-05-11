@@ -12,12 +12,17 @@ import {
 } from "lucide-react";
 
 const menu = [
+  // =========================
+  // ADMIN MENU
+  // =========================
+
   {
-    id: "dashboard",
+    id: "super-dashboard",
     name: "Dashboard",
-    href: "/pages/dashboard/business-admin",
+    href: "/pages/dashboard/super-admin",
     icon: LayoutDashboard,
     exact: true,
+    roles: ["admin"],
   },
 
   {
@@ -25,7 +30,8 @@ const menu = [
     name: "Business Management",
     href: "/pages/dashboard/super-admin/business",
     icon: Building2,
-    exact: true,
+    exact: false,
+    roles: ["admin"],
   },
 
   {
@@ -33,7 +39,21 @@ const menu = [
     name: "Payment Management",
     href: "/pages/dashboard/super-admin/payments",
     icon: CreditCard,
+    exact: false,
+    roles: ["admin"],
+  },
+
+  // =========================
+  // BUSINESS MENU
+  // =========================
+
+  {
+    id: "business-dashboard",
+    name: "Dashboard",
+    href: "/pages/dashboard/business-admin",
+    icon: LayoutDashboard,
     exact: true,
+    roles: ["business"],
   },
 
   {
@@ -41,6 +61,7 @@ const menu = [
     name: "Profile Management",
     href: "/pages/dashboard/business-admin/business",
     icon: Building2,
+    roles: ["business"],
     serviceKey: "business_management",
   },
 
@@ -49,6 +70,7 @@ const menu = [
     name: "Asset Management",
     href: "/pages/dashboard/business-admin/assets",
     icon: BarChart,
+    roles: ["business"],
     serviceKey: "asset_management",
   },
 
@@ -57,6 +79,7 @@ const menu = [
     name: "Client Management",
     href: "/pages/dashboard/business-admin/clients",
     icon: Users,
+    roles: ["business"],
     serviceKey: "client_management",
   },
 
@@ -65,6 +88,7 @@ const menu = [
     name: "Staff Management",
     href: "/pages/dashboard/business-admin/staff",
     icon: Users,
+    roles: ["business"],
     serviceKey: "staff_management",
   },
 
@@ -73,6 +97,7 @@ const menu = [
     name: "Attendance Management",
     href: "/pages/dashboard/business-admin/attendance",
     icon: LayoutDashboard,
+    roles: ["business"],
     serviceKey: "attendance_management",
   },
 
@@ -81,6 +106,7 @@ const menu = [
     name: "Billing & Payments",
     href: "/pages/dashboard/business-admin/billing",
     icon: CreditCard,
+    roles: ["business"],
     serviceKey: "billing_management",
   },
 ];
@@ -96,17 +122,28 @@ export default function Sidebar({
 }: Props) {
   const pathname = usePathname();
 
-  const filteredMenu = userRole.includes("admin")
-    ? menu.filter((item) =>
-        ["dashboard", "super-business", "super-payment"].includes(
-          item.id,
-        ),
-      )
-    : menu.filter(
-        (item) =>
-          item.serviceKey &&
-          allowedServices.includes(item.serviceKey),
-      );
+  const filteredMenu = menu.filter((item) => {
+    // Role access
+    const hasRoleAccess = item.roles.some((role) => userRole.includes(role));
+
+    if (!hasRoleAccess) return false;
+
+    // Admin can access everything assigned to admin role
+    if (userRole.includes("admin")) {
+      return true;
+    }
+
+    // Business dashboard always visible
+    if (item.id === "business-dashboard") {
+      return true;
+    }
+
+    // Business services access
+    return (
+      item.serviceKey &&
+      allowedServices.includes(item.serviceKey)
+    );
+  });
 
   return (
     <aside className="w-64 h-screen bg-white border-r border-gray-200 hidden md:block shadow-sm">
@@ -135,6 +172,7 @@ export default function Sidebar({
               `}
             >
               <Icon className="w-5 h-5 mr-3" />
+
               <span>{item.name}</span>
             </Link>
           );
