@@ -59,18 +59,18 @@ export default function ClientRecord({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[71vh] overflow-y-scroll">
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Client Name</th>
-            <th className="py-3 px-6 text-left">Email</th>
-            <th className="py-3 px-6 text-left">Phone</th>
-            <th className="py-3 px-6 text-left">Gender</th>
-            <th className="py-3 px-6 text-left">Role</th>
-            <th className="py-3 px-6 text-left">Created At</th>
-            <th className="py-3 px-6 text-left">Action</th>
+            <th className="py-2 px-6 text-left">SN</th>
+            <th className="py-2 px-6 text-left">Client Name</th>
+            <th className="py-2 px-6 text-left">Email</th>
+            <th className="py-2 px-6 text-left">Phone</th>
+            <th className="py-2 px-6 text-left">Gender</th>
+            <th className="py-2 px-6 text-left">Role</th>
+            <th className="py-2 px-6 text-left">Created At</th>
+            <th className="py-2 px-6 text-left">Action</th>
           </tr>
         </thead>
 
@@ -87,31 +87,31 @@ export default function ClientRecord({
                 key={client._id}
                 className="border-b border-gray-200 hover:bg-gray-100 transition"
               >
-                <td className="py-3 px-6 text-left">
+                <td className="py-2 px-6 text-left">
                   {(page - 1) * 10 + index + 1}
                 </td>
 
-                <td className="py-3 px-6 text-left font-medium">
+                <td className="py-2 px-6 text-left font-medium">
                   {client.userName}
                 </td>
 
-                <td className="py-3 px-6 text-left">{client.userEmail}</td>
+                <td className="py-2 px-6 text-left">{client.userEmail}</td>
 
-                <td className="py-3 px-6 text-left">{client.userPhone}</td>
+                <td className="py-2 px-6 text-left">{client.userPhone}</td>
 
-                <td className="py-3 px-6 text-left capitalize">
+                <td className="py-2 px-6 text-left capitalize">
                   {client.gender || "-"}
                 </td>
 
-                <td className="py-3 px-6 text-left capitalize">
+                <td className="py-2 px-6 text-left capitalize">
                   {client.role}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-2 px-6 text-left">
                   {moment(client.createdAt).format("lll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-2 px-6 text-left">
                   <div className="flex items-center gap-2">
                     {/* VIEW */}
                     <button

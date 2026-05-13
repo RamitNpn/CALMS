@@ -7,14 +7,12 @@ import clsx from "clsx";
 import { X, Plus, Trash2 } from "lucide-react";
 
 import { assetApi } from "@/libs/api/asset.api";
-import { TUpdateAssetSchema, updateAssetSchema } from "@/libs/validation/asset.validation";
+import { TUpdateAssetSchema, TUpdateAssetFormSchema, updateAssetFormSchema } from "@/libs/validation/asset.validation";
 import { useAssetById } from "@/hooks/business-admin/asset-management/getAssetById";
 import { useToast } from "@/components/ui/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-type AssetFormData = Omit<TUpdateAssetSchema, "customFields"> & {
-  customFieldsArray?: Array<{ key: string; value: string }>;
-};
+type AssetFormData = TUpdateAssetFormSchema;
 
 type Props = {
   assetId: string;
@@ -36,7 +34,7 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
     control,
     formState: { errors },
   } = useForm<AssetFormData>({
-    resolver: zodResolver(updateAssetSchema),
+    resolver: zodResolver(updateAssetFormSchema),
     defaultValues: {
       _id: assetId,
       name: "",
@@ -62,8 +60,8 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
         }))
       : [{ key: "", value: "" }];
 
-    console.log("📦 ASSET LOADED - CUSTOM FIELDS COUNT:", customFieldsArray.length);
-    console.log("📦 ASSET LOADED - CUSTOM FIELDS:", customFieldsArray);
+    console.log("ASSET LOADED - CUSTOM FIELDS COUNT:", customFieldsArray.length);
+    console.log("ASSET LOADED - CUSTOM FIELDS:", customFieldsArray);
 
     reset({
       _id: assetId,
@@ -73,7 +71,7 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
       customFieldsArray,
     });
     
-    console.log("✅ FORM RESET WITH", customFieldsArray.length, "CUSTOM FIELDS");
+    console.log("FORM RESET WITH", customFieldsArray.length, "CUSTOM FIELDS");
   }, [assetId, asset, reset]);
 
   const { mutate, isPending } = useMutation({
@@ -82,8 +80,11 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
       data,
     }: {
       assetId: string;
-      data: Omit<Partial<TUpdateAssetSchema>, "_id">;
-    }) => assetApi.updateAssetApi(assetId, data),
+      data: Omit<TUpdateAssetSchema, "_id">;
+    }) => {
+      console.log("MUTATION FN - SENDING DATA:", JSON.stringify(data, null, 2));
+      return assetApi.updateAssetApi(assetId, data);
+    },
     onSuccess: () => {
       toast.show({
         message: "Asset updated successfully",
@@ -102,39 +103,35 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
   });
 
   const onSubmit = (values: AssetFormData) => {
-    console.log("📋 FORM VALUES:", JSON.stringify(values, null, 2));
+    console.log("FORM VALUES:", JSON.stringify(values, null, 2));
     
     const customFieldsArray = values.customFieldsArray || [];
-    console.log("🔍 CUSTOM FIELDS ARRAY LENGTH:", customFieldsArray.length);
-    console.log("🔍 CUSTOM FIELDS ARRAY CONTENT:", JSON.stringify(customFieldsArray, null, 2));
+    console.log("CUSTOM FIELDS ARRAY:", JSON.stringify(customFieldsArray, null, 2));
     
+    // Filter out empty fields
     const filteredFields = customFieldsArray.filter((f) => {
       const hasKey = f.key?.trim();
       const hasValue = f.value?.trim();
-      console.log(`  Field: key="${f.key}" (${hasKey ? "✓" : "✗"}), value="${f.value}" (${hasValue ? "✓" : "✗"})`);
       return hasKey && hasValue;
     });
     
-    console.log("✅ FILTERED FIELDS COUNT:", filteredFields.length);
-    console.log("✅ FILTERED FIELDS:", JSON.stringify(filteredFields, null, 2));
+    console.log("FILTERED FIELDS:", JSON.stringify(filteredFields, null, 2));
     
+    // Convert array to object for API
     const customFieldsObject = Object.fromEntries(
-      filteredFields.map((f) => [f.key!.trim(), f.value!.trim()])
+      filteredFields.map((f) => [f.key.trim(), f.value.trim()])
     );
 
-    console.log("🎯 FINAL CUSTOM FIELDS OBJECT:", customFieldsObject);
+    console.log("CUSTOM FIELDS OBJECT:", JSON.stringify(customFieldsObject, null, 2));
 
-    const payload: Omit<Partial<TUpdateAssetSchema>, "_id"> = {
+    const payload: Omit<TUpdateAssetSchema, "_id"> = {
       name: values.name?.trim(),
       type: values.type?.trim(),
       status: values.status,
+      customFields: customFieldsObject,
     };
 
-    if (Object.keys(customFieldsObject).length > 0) {
-      payload.customFields = customFieldsObject;
-    }
-
-    console.log("✅ UPDATE PAYLOAD:", JSON.stringify(payload, null, 2));
+    console.log("FINAL PAYLOAD:", JSON.stringify(payload, null, 2));
 
     mutate({ assetId, data: payload });
   };

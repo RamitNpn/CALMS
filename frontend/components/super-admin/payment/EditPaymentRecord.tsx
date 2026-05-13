@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import clsx from "clsx";
 import { X } from "lucide-react";
 
@@ -22,6 +23,7 @@ export function EditPaymentForm({
   size = "lg",
   paymentId,
 }: PaymentFormProps) {
+  const toast = useToast.getState();
   const { data, isLoading, isError } = usePaymentById(paymentId);
 
   const {
@@ -72,8 +74,19 @@ export function EditPaymentForm({
     mutationFn: (payload: TUpdatePaymentSchema) =>
       paymentApi.updatePaymentApi(paymentId, payload),
 
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Payment updated successfully",
+        type: "success",
+      });
       onClose();
+    },
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to update payment";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 

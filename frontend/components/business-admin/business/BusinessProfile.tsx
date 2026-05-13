@@ -19,6 +19,7 @@ import {
 
 import { useForm, Controller } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 
 import { businessApi } from "@/libs/api/business.api";
 import { useBusinessById } from "@/hooks/super-admin/business-records/getBusinessRecordById";
@@ -38,10 +39,9 @@ type BusinessForm = z.infer<typeof updateBusinessSchema>;
 
 export default function BusinessProfilePage({ businessId }: Props) {
   const queryClient = useQueryClient();
+  const toast = useToast.getState();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useBusinessById(businessId);
 
@@ -52,7 +52,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
     handleSubmit,
     reset,
     control,
-    setValue,
     formState: { errors },
   } = useForm<BusinessForm>({
     resolver: zodResolver(updateBusinessSchema),
@@ -112,13 +111,13 @@ export default function BusinessProfilePage({ businessId }: Props) {
 
     onSuccess: (response) => {
       console.log("UPDATE SUCCESS:", response);
-      setSubmitError(null);
-      setSubmitSuccess("Business profile updated successfully!");
+      toast.show({
+        message: response?.message || "Business profile updated successfully!",
+        type: "success",
+      });
       queryClient.invalidateQueries({
         queryKey: ["business", businessId],
       });
-
-      setTimeout(() => setSubmitSuccess(null), 3000);
 
       setIsEditing(false);
     },
@@ -126,10 +125,14 @@ export default function BusinessProfilePage({ businessId }: Props) {
     onError: (error: unknown) => {
       console.error("UPDATE ERROR:", error);
       const errorMessage =
+        (error as ApiError)?.response?.data?.error ||
         (error as ApiError)?.response?.data?.message ||
         (error as { message?: string })?.message ||
         "Failed to update business profile";
-      setSubmitError(errorMessage);
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 
@@ -148,14 +151,20 @@ export default function BusinessProfilePage({ businessId }: Props) {
               `${key}: ${ (error as { message?: string })?.message || "Invalid field" }`,
           )
           .join(", ");
-        setSubmitError(`Validation errors: ${errorMessages}`);
+        toast.show({
+          message: `Validation errors: ${errorMessages}`,
+          type: "error",
+        });
         return;
       }
 
       // Validate branch object
       if (!values.branch || !values.branch.name || !values.branch.location) {
         const errorMsg = "Branch name and location are required";
-        setSubmitError(errorMsg);
+        toast.show({
+          message: errorMsg,
+          type: "error",
+        });
         console.error(errorMsg);
         return;
       }
@@ -163,7 +172,10 @@ export default function BusinessProfilePage({ businessId }: Props) {
       // Validate services array
       if (!Array.isArray(values.services) || values.services.length === -1) {
         const errorMsg = "At least one service must be selected";
-        setSubmitError(errorMsg);
+        toast.show({
+          message: errorMsg,
+          type: "error",
+        });
         console.error(errorMsg);
         return;
       }
@@ -172,7 +184,10 @@ export default function BusinessProfilePage({ businessId }: Props) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (values.operatorEmail && !emailRegex.test(values.operatorEmail)) {
         const errorMsg = "Please enter a valid email address";
-        setSubmitError(errorMsg);
+        toast.show({
+          message: errorMsg,
+          type: "error",
+        });
         console.error(errorMsg);
         return;
       }
@@ -206,13 +221,15 @@ export default function BusinessProfilePage({ businessId }: Props) {
           values.payment_initiation || business.payment_initiation,
       };
 
-      // Only add password if it's not empty and not just whitespace
       if (
         values.operatorPassword &&
         values.operatorPassword.trim().length > 0
       ) {
         if (values.operatorPassword.length < 6) {
-          setSubmitError("Password must be at least 6 characters");
+          toast.show({
+            message: "Password must be at least 6 characters",
+            type: "error",
+          });
           return;
         }
         submitData.operatorPassword = values.operatorPassword;
@@ -220,11 +237,13 @@ export default function BusinessProfilePage({ businessId }: Props) {
 
       console.log("CLEANED DATA TO SUBMIT:", submitData);
 
-      setSubmitError(null);
       mutate(submitData);
     } catch (err: unknown) {
       console.error("SUBMISSION ERROR:", err);
-      setSubmitError((err as { message?: string })?.message || "An error occurred");
+      toast.show({
+        message: (err as { message?: string })?.message || "An error occurred",
+        type: "error",
+      });
     }
   };
 
@@ -414,20 +433,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
 
             {/* FORM */}
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
-              {/* ERROR MESSAGE */}
-              {submitError && (
-                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700">
-                  <p className="font-medium">Error: {submitError}</p>
-                </div>
-              )}
-
-              {/* SUCCESS MESSAGE */}
-              {submitSuccess && (
-                <div className="p-4 rounded-xl bg-green-50 border border-green-200 text-green-700">
-                  <p className="font-medium">{submitSuccess}</p>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InputField
                   label="Business Name"
@@ -481,7 +486,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
                 <InputField
                   label="Package"
                   register={register("package")}
-                  disabled={!isEditing}
+                  disabled={true}
                   error={errors.package?.message}
                 />
 
@@ -525,27 +530,8 @@ export default function BusinessProfilePage({ businessId }: Props) {
                                 Array.isArray(value) &&
                                 value.includes(service.value)
                               }
-                              disabled={!isEditing}
-                              onChange={(e) => {
-                                const currentServices = Array.isArray(value)
-                                  ? [...value]
-                                  : [];
-                                if (e.target.checked) {
-                                  if (
-                                    !currentServices.includes(service.value)
-                                  ) {
-                                    currentServices.push(service.value);
-                                  }
-                                } else {
-                                  const index = currentServices.indexOf(
-                                    service.value,
-                                  );
-                                  if (index > -1) {
-                                    currentServices.splice(index, 1);
-                                  }
-                                }
-                                setValue("services", currentServices);
-                              }}
+                              disabled={true}
+                              onChange={() => {}}
                               className="w-4 h-4 rounded cursor-pointer"
                             />
                           )}

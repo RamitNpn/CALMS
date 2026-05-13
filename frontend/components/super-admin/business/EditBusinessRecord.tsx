@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import { z } from "zod";
 import clsx from "clsx";
 
@@ -25,6 +26,7 @@ export function EditBusinessForm({
   size = "lg",
   businessId,
 }: BusinessFormProps) {
+  const toast = useToast.getState();
   const { data, isLoading, isError } = useBusinessById(businessId);
 
   const {
@@ -88,8 +90,19 @@ export function EditBusinessForm({
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: BusinessForm) =>
       businessApi.updateBusinessApi(businessId, payload),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Business updated successfully",
+        type: "success",
+      });
       onClose();
+    },
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to update business";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 

@@ -47,3 +47,19 @@ export const removeAssetSchema = z.object({
 });
 
 export type TDeleteAssetSchema = z.infer<typeof removeAssetSchema>;
+
+// Form-specific schema for editing assets with custom fields array
+export const updateAssetFormSchema = z.object({
+  _id: z.string().min(1, "Asset ID is required"),
+  name: z.string().min(1, "Asset name is required"),
+  type: z.string().min(1, "Asset type is required"),
+  customFieldsArray: z.array(
+    z.object({
+      key: z.string(),
+      value: z.string(),
+    })
+  ).optional(),
+  status: z.string().optional(),
+});
+
+export type TUpdateAssetFormSchema = z.infer<typeof updateAssetFormSchema>;

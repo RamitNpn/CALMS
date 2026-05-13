@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,8 +22,7 @@ type Props = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
-export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {
-  const { data, isLoading, isError } = useStaffById(staffId);
+export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {  const toast = useToast.getState();  const { data, isLoading, isError } = useStaffById(staffId);
   const staff = data?.data ?? data;
 
   const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
@@ -73,9 +73,19 @@ export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {
       staffId: string;
       formData: FormData;
     }) => staffApi.updateStaffApi(staffId, formData),
-    onSuccess: () => onClose(),
-    onError: (err) => {
-      console.error("Update failed:", err);
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Staff updated successfully",
+        type: "success",
+      });
+      onClose();
+    },
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to update staff";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 

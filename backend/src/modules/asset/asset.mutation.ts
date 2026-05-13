@@ -43,13 +43,23 @@ export const updateAsset: AppRouteMutationImplementation<
     const { assetID } = req.params;
     const { name, type, customFields, status } = req.body;
 
-    console.log("📝 UPDATING ASSET:", assetID, { name, type, customFields, status });
+    console.log("📝 UPDATING ASSET:", assetID);
+    console.log("📝 NAME:", name);
+    console.log("📝 TYPE:", type);
+    console.log("📝 STATUS:", status);
+    console.log("📝 CUSTOM FIELDS RECEIVED:", JSON.stringify(customFields, null, 2));
+    console.log("📝 FULL REQ BODY:", JSON.stringify(req.body, null, 2));
 
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (type !== undefined) updateData.type = type;
     if (status !== undefined) updateData.status = status;
-    if (customFields !== undefined) updateData.customFields = customFields;
+    if (customFields !== undefined) {
+      console.log("📝 SETTING CUSTOM FIELDS TO:", JSON.stringify(customFields, null, 2));
+      updateData.customFields = customFields;
+    }
+
+    console.log("📝 FINAL UPDATE DATA:", JSON.stringify(updateData, null, 2));
 
     const updated = await assetRepository.update(assetID, updateData);
 
@@ -62,6 +72,8 @@ export const updateAsset: AppRouteMutationImplementation<
         },
       };
     }
+
+    console.log("✅ ASSET UPDATED SUCCESSFULLY. NEW CUSTOM FIELDS:", JSON.stringify(updated.customFields, null, 2));
 
     return {
       status: 200,

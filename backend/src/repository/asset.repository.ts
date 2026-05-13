@@ -36,16 +36,30 @@ class AssetRepository {
 
   async update(id: string, data: Partial<IAsset>) {
     try {
-      console.log("🔧 REPOSITORY UPDATE - ID:", id, "DATA:", data);
+      console.log("🔧 REPOSITORY UPDATE - ID:", id);
+      console.log("🔧 REPOSITORY UPDATE - DATA:", JSON.stringify(data, null, 2));
 
-      // Use $set operator for proper Mongoose updates, especially with Map types
+      // Handle customFields separately as it's a Map type
+      const updateData: any = {};
+      for (const [key, value] of Object.entries(data)) {
+        if (key === 'customFields') {
+          // For Map types, use $set to properly replace the entire map
+          // The custom fields object will completely replace existing map
+          updateData.customFields = value;
+        } else {
+          updateData[key] = value;
+        }
+      }
+
+      console.log("🔧 PROCESSED UPDATE DATA:", JSON.stringify(updateData, null, 2));
+
       const updated = await this.model.findByIdAndUpdate(
         id,
-        { $set: data },
-        { new: true, runValidators: true }
+        updateData,
+        { new: true, runValidators: false }
       );
 
-      console.log("✅ REPOSITORY UPDATE - RESULT:", updated);
+      console.log("✅ REPOSITORY UPDATE - RESULT:", JSON.stringify(updated, null, 2));
       return updated;
     } catch (error) {
       console.error("❌ REPOSITORY UPDATE ERROR:", error);

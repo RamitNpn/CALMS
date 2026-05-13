@@ -52,18 +52,18 @@ export default function PaymentTable({
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[71vh] overflow-y-scroll">
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Business</th>
-            <th className="py-3 px-6 text-left">Package</th>
-            <th className="py-3 px-6 text-left">Paid</th>
-            <th className="py-3 px-6 text-left">Due</th>
-            <th className="py-3 px-6 text-left">Status</th>
-            <th className="py-3 px-6 text-left">End Date</th>
-            <th className="py-3 px-6 text-left">Action</th>
+            <th className="py-2 px-6 text-left">SN</th>
+            <th className="py-2 px-6 text-left">Business</th>
+            <th className="py-2 px-6 text-left">Package</th>
+            <th className="py-2 px-6 text-left">Paid</th>
+            <th className="py-2 px-6 text-left">Due</th>
+            <th className="py-2 px-6 text-left">Status</th>
+            <th className="py-2 px-6 text-left">End Date</th>
+            <th className="py-2 px-6 text-left">Action</th>
           </tr>
         </thead>
 
@@ -81,10 +81,10 @@ export default function PaymentTable({
                 className="border-b border-gray-200 hover:bg-gray-100 transition"
               >
                 {/* SN */}
-                <td className="py-3 px-6">{(page - 1) * 10 + index + 1}</td>
+                <td className="py-2 px-6">{(page - 1) * 10 + index + 1}</td>
 
                 {/* Business */}
-                <td className="py-3 px-6">
+                <td className="py-2 px-6">
                   <div className="font-medium">{payment.businessName}</div>
                   <div className="text-xs text-gray-500">
                     {payment.businessEmail}
@@ -92,16 +92,16 @@ export default function PaymentTable({
                 </td>
 
                 {/* Package */}
-                <td className="py-3 px-6 capitalize">{payment.package}</td>
+                <td className="py-2 px-6 capitalize">{payment.package}</td>
 
                 {/* Paid */}
-                <td className="py-3 px-6">{payment.paidAmount}</td>
+                <td className="py-2 px-6">{payment.paidAmount}</td>
 
                 {/* Due */}
-                <td className="py-3 px-6">{payment.dueAmount}</td>
+                <td className="py-2 px-6">{payment.dueAmount}</td>
 
                 {/* Status */}
-                <td className="py-3 px-6">
+                <td className="py-2 px-6">
                   <span
                     className={`px-2 py-1 rounded text-xs font-medium ${
                       payment.paymentStatus === "paid"
@@ -116,12 +116,12 @@ export default function PaymentTable({
                 </td>
 
                 {/* End Date */}
-                <td className="py-3 px-6">
+                <td className="py-2 px-6">
                   {moment(payment.endAt).format("lll")}
                 </td>
 
                 {/* ACTIONS */}
-                <td className="py-3 px-6">
+                <td className="py-2 px-6">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setViewId(payment._id)}

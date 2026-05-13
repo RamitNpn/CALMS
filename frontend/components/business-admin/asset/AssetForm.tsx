@@ -52,16 +52,22 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: assetApi.createAsset,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast.show({
-        message: "Asset created successfully",
+        message: data?.message || "Asset created successfully",
         type: "success",
       });
 
       reset();
       onClose?.();
     },
-    onError: (err) => console.error(err),
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to create asset";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
+    },
   });
   const onSubmit = (data: AssetFormData) => {
     if (!data.business_id) {

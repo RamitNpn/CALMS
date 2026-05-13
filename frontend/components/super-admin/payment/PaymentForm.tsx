@@ -4,6 +4,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import clsx from "clsx";
 import { X } from "lucide-react";
 
@@ -18,6 +19,7 @@ type PaymentFormProps = {
 };
 
 export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
+  const toast = useToast.getState();
   const {
     register,
     handleSubmit,
@@ -40,11 +42,21 @@ export function PaymentForm({ onClose, size = "lg" }: PaymentFormProps) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: paymentApi.createPayment,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Payment created successfully",
+        type: "success",
+      });
       reset();
       onClose?.();
     },
-    onError: (err) => console.error(err),
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to create payment";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
+    },
   });
 
   const onSubmit = (data: z.infer<typeof createPaymentSchema>) => {

@@ -52,16 +52,16 @@ export default function BusinessTable({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full h-[71vh] overflow-y-scroll">
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Business Name</th>
-            <th className="py-3 px-6 text-left">Operator Name</th>
-            <th className="py-3 px-6 text-left">Email</th>
-            <th className="py-3 px-6 text-left">Created At</th>
-            <th className="py-3 px-6 text-left">Action</th>
+            <th className="py-2 px-6 text-left">SN</th>
+            <th className="py-2 px-6 text-left">Business Name</th>
+            <th className="py-2 px-6 text-left">Operator Name</th>
+            <th className="py-2 px-6 text-left">Email</th>
+            <th className="py-2 px-6 text-left">Created At</th>
+            <th className="py-2 px-6 text-left">Action</th>
           </tr>
         </thead>
 
@@ -78,25 +78,25 @@ export default function BusinessTable({
                 key={business._id}
                 className="border-b border-gray-200 hover:bg-gray-100 transition"
               >
-                <td className="py-3 px-6 text-left">
+                <td className="py-2 px-6 text-left">
                   {(page - 1) * 10 + index + 1}
                 </td>
 
-                <td className="py-3 px-6 text-left font-medium">
+                <td className="py-2 px-6 text-left font-medium">
                   {business.businessName}
                 </td>
 
-                <td className="py-3 px-6 text-left">{business.operatorName}</td>
+                <td className="py-2 px-6 text-left">{business.operatorName}</td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-2 px-6 text-left">
                   {business.operatorEmail}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-2 px-6 text-left">
                   {moment(business.createdAt).format("lll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-2 px-6 text-left">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {

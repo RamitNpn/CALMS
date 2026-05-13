@@ -3,6 +3,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ type StaffFormProps = {
 };
 
 export function StaffForm({ onClose, size = "lg" }: StaffFormProps) {
+  const toast = useToast.getState();
   const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
 
   const businessId = storedData?.business_id || "";
@@ -40,12 +42,20 @@ export function StaffForm({ onClose, size = "lg" }: StaffFormProps) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: staffApi.createStaff,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Staff created successfully",
+        type: "success",
+      });
       reset();
       onClose?.();
     },
-    onError: (err) => {
-      console.error(err);
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to create staff";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 

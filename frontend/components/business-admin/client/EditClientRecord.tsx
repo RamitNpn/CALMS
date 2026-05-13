@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
+  const toast = useToast.getState();
   const { data, isLoading, isError } = useClientById(clientId);
   const client = data?.data ?? data;
 
@@ -79,9 +81,19 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
       clientId: string;
       formData: FormData;
     }) => clientApi.updateClientApi(clientId, formData),
-    onSuccess: () => onClose(),
-    onError: (err) => {
-      console.error("Update failed:", err);
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Client updated successfully",
+        type: "success",
+      });
+      onClose();
+    },
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to update client";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 

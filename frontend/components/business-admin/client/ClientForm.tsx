@@ -3,6 +3,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +18,7 @@ type ClientFormProps = {
 };
 
 export function ClientForm({ onClose, size = "lg" }: ClientFormProps) {
+  const toast = useToast.getState();
   const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
 
   const businessId = storedData?.business_id || "";
@@ -45,12 +47,20 @@ export function ClientForm({ onClose, size = "lg" }: ClientFormProps) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: clientApi.createClient,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Client created successfully",
+        type: "success",
+      });
       reset();
       onClose?.();
     },
-    onError: (err) => {
-      console.error(err);
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to create client";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 

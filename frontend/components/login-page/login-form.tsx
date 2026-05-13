@@ -49,8 +49,10 @@ export default function LoginForm() {
         router.push("/pages/dashboard/business-admin");
       } else if (data.role === "staff") {
         router.push("/pages/dashboard/staff-portal");
-      } else {
+      } else if (data.role === "client") {
         router.push("/pages/dashboard/client-portal");
+      } else {
+        router.push("/");
       }
     },
 
@@ -89,7 +91,7 @@ export default function LoginForm() {
             {...register("email")}
             type="email"
             placeholder="Enter your email"
-            className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full mt-1 px-4 py-2 border rounded focus:border-blue-500 outline-none"
           />
           {errors.email && (
             <p className="text-xs text-red-500 mt-1">
@@ -107,7 +109,7 @@ export default function LoginForm() {
             {...register("password")}
             type="password"
             placeholder="Enter your password"
-            className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full mt-1 px-4 py-2 border rounded focus:border-blue-500 outline-none"
           />
           {errors.password && (
             <p className="text-xs text-red-500 mt-1">
@@ -130,9 +132,9 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+          className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition"
         >
-          {isPending ? "Logging in..." : "Login"}
+          {isPending ? "Signing in..." : "Sign In"}
         </button>
       </form>
 

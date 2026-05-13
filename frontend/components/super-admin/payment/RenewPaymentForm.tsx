@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/toast";
 import clsx from "clsx";
 import { X } from "lucide-react";
 
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export function RenewPaymentForm({ paymentId, onClose, size = "lg" }: Props) {
+  const toast = useToast.getState();
   const { data, isLoading } = usePaymentById(paymentId);
 
   const payment = data?.data ?? data;
@@ -81,8 +83,19 @@ export function RenewPaymentForm({ paymentId, onClose, size = "lg" }: Props) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: paymentApi.renewPayment,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
+      toast.show({
+        message: data?.message || "Payment renewed successfully",
+        type: "success",
+      });
       onClose();
+    },
+    onError: (err: any) => {
+      const errorMessage = err?.response?.data?.error || err?.message || "Failed to renew payment";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
     },
   });
 
