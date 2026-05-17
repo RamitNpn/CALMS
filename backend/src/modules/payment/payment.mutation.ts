@@ -6,6 +6,8 @@ import businessRepository from "../../repository/business.repository";
 import { sendMail } from "../../utils/sendMail";
 import { subscriptionRenewalTemplate } from "../../template/subscription-renewal.template";
 import env from "../../config/env";
+import userRepository from "../../repository/user.repository";
+import activityLogRepository from "../../repository/activity-log.repository";
 
 export const createPayment: AppRouteMutationImplementation<
   typeof paymentContract.createPayment
@@ -47,8 +49,10 @@ export const createPayment: AppRouteMutationImplementation<
       };
     }
 
+    const business_id = businessData._id.toString();
+
     const payment = await paymentRepository.create({
-      business_id: new mongoose.Types.ObjectId(businessData._id),
+      business_id: new mongoose.Types.ObjectId(business_id),
       businessName,
       businessEmail,
       package: pkg,
@@ -59,6 +63,31 @@ export const createPayment: AppRouteMutationImplementation<
       paymentStatus,
       isActive,
     });
+
+    const businessUser = await businessRepository.getByID(business_id);
+    const user = await userRepository.getByID(business_id);
+    const account = businessUser || user;
+
+    if (!account) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    const isBusiness = "operatorPassword" in account;
+
+    const userName = isBusiness ? account.operatorName : account.userName;
+
+    if (payment) {
+      const createLogs = await activityLogRepository.create({
+        module: "Payment",
+        action: "CREATE",
+        userId: new mongoose.Types.ObjectId(business_id),
+        userName: userName,
+        description: `Payment created by user: ${userName}`,
+      });
+    }
 
     return {
       status: 201,

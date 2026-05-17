@@ -5,6 +5,8 @@ import env from "../../config/env";
 import businessRepository from "../../repository/business.repository";
 import userRepository from "../../repository/user.repository";
 import { authRepository } from "../../repository/auth.repository";
+import activityLogRepository from "../../repository/activity-log.repository";
+import mongoose from "mongoose";
 
 export const authLogin: AppRouteMutationImplementation<
   typeof authContract.login
@@ -32,7 +34,6 @@ export const authLogin: AppRouteMutationImplementation<
     const role = isBusiness ? account.role : account.role;
     const userName = isBusiness ? account.operatorName : account.userName;
     const userEmail = isBusiness ? account.operatorEmail : account.userEmail;
-    const services = isBusiness ? account.services : "";
     const business_id = isBusiness ? account._id : account.business_id;
 
     // 4. verify password
@@ -54,6 +55,14 @@ export const authLogin: AppRouteMutationImplementation<
       { expiresIn: "1d" },
     );
 
+    const createLogs = await activityLogRepository.create({
+      module: "Login",
+      action: "LOGIN",
+      userId: new mongoose.Types.ObjectId(business_id),
+      userName: userName,
+      description: `User logged in with email: ${email}`,
+    });
+
     return {
       status: 200,
       body: {
@@ -63,7 +72,6 @@ export const authLogin: AppRouteMutationImplementation<
         userEmail,
         role,
         token,
-        services,
       },
     };
   } catch (error) {
@@ -121,7 +129,8 @@ export const verifySetupToken: AppRouteMutationImplementation<
     // Check if account already has password set (empty string means not set)
     const isBusiness = !!businessAccount;
     const hasPassword = isBusiness
-      ? businessAccount!.operatorPassword && businessAccount!.operatorPassword.length > 0
+      ? businessAccount!.operatorPassword &&
+        businessAccount!.operatorPassword.length > 0
       : userAccount!.userPassword && userAccount!.userPassword.length > 0;
 
     if (hasPassword) {
@@ -191,7 +200,7 @@ export const setPassword: AppRouteMutationImplementation<
 
     // Find account - try business first, then user
     const businessAccount = await businessRepository.getByID(accountId);
-    
+
     if (businessAccount) {
       const updated = await businessRepository.update(accountId, {
         operatorPassword: hashedPassword,
@@ -208,7 +217,7 @@ export const setPassword: AppRouteMutationImplementation<
       }
     } else {
       const userAccount = await userRepository.getByID(accountId);
-      
+
       if (!userAccount) {
         return {
           status: 404,

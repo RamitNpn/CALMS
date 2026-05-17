@@ -7,9 +7,7 @@ import {
   getAllAssetsSchema,
   getAssetByIDSchema,
   createAssetSchema,
-  updateAssetSchema,
   updateAssetBodySchema,
-  removeAssetSchema,
 } from "./asset.schema";
 
 const c = initContract();

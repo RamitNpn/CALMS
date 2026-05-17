@@ -29,7 +29,7 @@ export const createBusinessSchema = z.object({
   teams: z.string().optional(),
   branch: branchSchema,
   package: packageEnum.optional(),
-  services: z.array(servicesEnum).min(1, "At least one service is required"),
+  services: z.array(z.string()).default([]),
   payment_initiation: z.coerce.date().optional(),
 });
 
@@ -44,7 +44,7 @@ export const businessSchema = z.object({
   teams: z.string().optional(),
   branch: branchSchema,
   package: packageEnum,
-  services: z.array(servicesEnum).min(1, "At least one service is required"),
+  services: z.array(z.string()).optional(),
   status: z.boolean(),
   payment_status: z.boolean(),
   payment_initiation: z.coerce.date().optional(),
@@ -68,7 +68,7 @@ export const updateBusinessSchema = z.object({
   teams: z.string().optional(),
   branch: branchSchema.optional(),
   package: packageEnum.optional(),
-  services: z.array(servicesEnum).optional(),
+  services: z.array(z.string()).optional(),
   status: z.boolean().optional(),
   payment_status: z.boolean().optional(),
   payment_initiation: z.coerce.date().optional(),

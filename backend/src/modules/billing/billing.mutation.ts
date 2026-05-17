@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import { billingContract } from "../../contract/billing/billing.contract";
 import billingRepository from "../../repository/billing.repository";
 import userRepository from "../../repository/user.repository";
+import businessRepository from "../../repository/business.repository";
+import activityLogRepository from "../../repository/activity-log.repository";
 
 export const createBilling: AppRouteMutationImplementation<
   typeof billingContract.createBilling
@@ -74,6 +76,31 @@ export const createBilling: AppRouteMutationImplementation<
       dueDate,
       recipt: reciptUrl,
     });
+
+    const businessUser = await businessRepository.getByID(business_id);
+    const user = await userRepository.getByID(business_id);
+    const account = businessUser || user;
+
+    if (!account) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    const isBusiness = "operatorPassword" in account;
+
+    const userName = isBusiness ? account.operatorName : account.userName;
+
+    if (billing) {
+      const createLogs = await activityLogRepository.create({
+        module: "Billing",
+        action: "CREATE",
+        userId: new mongoose.Types.ObjectId(business_id),
+        userName: userName,
+        description: `Billing created for client: ${clientName}`,
+      });
+    }
 
     return {
       status: 201,

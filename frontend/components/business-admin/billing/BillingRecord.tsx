@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useState } from "react";
@@ -12,6 +12,8 @@ import { useDeleteBilling } from "@/hooks/business-admin/billing-management/remo
 
 import { ViewBillingRecord } from "./ViewBillingRecord";
 import { EditBillingRecord } from "./EditBillingRecord";
+import { BillingForm } from "./BillingForm";
+import Button from "@/components/ui/button";
 
 interface BillingTableProps {
   billings: TBilling[];
@@ -30,6 +32,8 @@ export default function BillingRecord({
   totalPages,
   onPageChange,
 }: BillingTableProps) {
+  const [open, setOpen] = useState(false);
+
   const [editId, setEditId] = useState<string | null>(null);
   const [viewId, setViewId] = useState<string | null>(null);
 
@@ -71,12 +75,20 @@ export default function BillingRecord({
 
   return (
     <div className="w-full h-[75vh] overflow-y-scroll">
+      <div className="flex justify-end mb-2">
+        <Button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+        >
+          <Plus size={18} />
+          Create Business Billings
+        </Button>
+      </div>
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
             <th className="py-3 px-6 text-left">SN</th>
             <th className="py-3 px-6 text-left">Client</th>
-            <th className="py-3 px-6 text-left">Title</th>
             <th className="py-3 px-6 text-left">Total Amount</th>
             <th className="py-3 px-6 text-left">Paid Amount</th>
             <th className="py-3 px-6 text-left">Status</th>
@@ -89,10 +101,7 @@ export default function BillingRecord({
         <tbody className="text-gray-700 text-sm">
           {billings.length === 0 ? (
             <tr>
-              <td
-                colSpan={9}
-                className="py-6 px-6 text-center text-gray-500"
-              >
+              <td colSpan={9} className="py-6 px-6 text-center text-gray-500">
                 No Billing Records Found
               </td>
             </tr>
@@ -108,18 +117,12 @@ export default function BillingRecord({
 
                 <td className="py-3 px-6 text-left">
                   <div className="flex flex-col">
-                    <span className="font-medium">
-                      {billing.clientName}
-                    </span>
+                    <span className="font-medium">{billing.clientName}</span>
 
                     <span className="text-xs text-gray-500">
                       {billing.clientEmail}
                     </span>
                   </div>
-                </td>
-
-                <td className="py-3 px-6 text-left font-medium">
-                  {billing.title}
                 </td>
 
                 <td className="py-3 px-6 text-left">
@@ -136,8 +139,8 @@ export default function BillingRecord({
                       billing.status === "paid"
                         ? "bg-green-100 text-green-700"
                         : billing.status === "partial"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-red-100 text-red-700"
                     }`}
                   >
                     {billing.status}
@@ -207,11 +210,10 @@ export default function BillingRecord({
 
       {/* EDIT MODAL */}
       {editId && (
-        <EditBillingRecord
-          billingId={editId}
-          onClose={() => setEditId(null)}
-        />
+        <EditBillingRecord billingId={editId} onClose={() => setEditId(null)} />
       )}
+
+      {open && <BillingForm onClose={() => setOpen(false)} />}
 
       {/* DELETE CONFIRM */}
       <ConfirmDialog

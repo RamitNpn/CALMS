@@ -18,7 +18,7 @@ export default function Header() {
   };
 
   return (
-    <header className="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-white shadow-sm">
+    <header className="flex justify-between items-center px-4 py-1 border-b border-gray-200 bg-white shadow-sm">
       {/* Left: Brand */}
       <h1 className="text-lg font-semibold text-gray-800 px-6">
        Flowdesk - {userRole.includes("admin") ? "Super Admin" : "Business Admin"}

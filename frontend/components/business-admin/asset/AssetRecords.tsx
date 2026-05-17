@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useState } from "react";
@@ -10,6 +10,8 @@ import { useDeleteAsset } from "@/hooks/business-admin/asset-management/removeAs
 import { ViewAssetRecord } from "./ViewAssetRecord";
 import { useToast } from "@/components/ui/toast";
 import { EditAssetRecord } from "./EditAssetRecord";
+import Button from "@/components/ui/button";
+import { AssetForm } from "./AssetForm";
 
 interface AssetTableProps {
   assets: TAsset[];
@@ -28,6 +30,7 @@ export default function AssetRecord({
   totalPages,
   onPageChange,
 }: AssetTableProps) {
+  const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [viewId, setViewId] = useState<string | null>(null);
 
@@ -60,6 +63,15 @@ export default function AssetRecord({
 
   return (
     <div className="w-full h-[75vh] overflow-y-scroll ">
+      <div className="flex justify-end mb-2">
+        <Button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+        >
+          <Plus size={18} />
+          Create Business Assets
+        </Button>
+      </div>
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
@@ -152,11 +164,10 @@ export default function AssetRecord({
       )}
 
       {editId && (
-        <EditAssetRecord
-          assetId={editId}
-          onClose={() => setEditId(null)}
-        />
+        <EditAssetRecord assetId={editId} onClose={() => setEditId(null)} />
       )}
+
+      {open && <AssetForm onClose={() => setOpen(false)} />}
 
       <ConfirmDialog
         open={itemToRemove !== null}

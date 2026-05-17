@@ -2,6 +2,10 @@ import { Toast } from "@/components";
 import "./globals.css";
 import QueryProvider from "@/provider/queryProvider";
 import type { Metadata } from "next";
+import { Geist } from 'next/font/google'
+
+const geistSans = Geist({ subsets: ["latin"] });
+
 
 export const metadata: Metadata = {
   title: {
@@ -120,7 +124,7 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className="bg-gray-50">
+      <body className={`${geistSans.className} bg-gray-50`}>
           <QueryProvider>
             {children}
             <Toast />

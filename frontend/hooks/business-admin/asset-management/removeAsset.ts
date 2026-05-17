@@ -9,7 +9,7 @@ export function useDeleteAsset() {
   const toast = useToast.getState();
 
   return useMutation({
-    mutationFn: (id: string) => assetApi.deleteAssetApi(id),
+    mutationFn: (id: string,) => assetApi.deleteAssetApi(id),
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["delete asset"] });
       toast.show({

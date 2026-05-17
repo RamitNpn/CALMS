@@ -2,6 +2,7 @@ import { AppRouteMutationImplementation } from "@ts-rest/express";
 import mongoose from "mongoose";
 import userRepository from "../../repository/user.repository";
 import { userContract } from "../../contract/user/user.contract";
+import activityLogRepository from "../../repository/activity-log.repository";
 
 export const createUser: AppRouteMutationImplementation<
   typeof userContract.createUser
@@ -41,9 +42,27 @@ export const createUser: AppRouteMutationImplementation<
       citizenship: citizenshipUrl,
       license: licenseUrl,
       certificate: certificateUrl,
-
       role,
     });
+
+    const user = await userRepository.getByID(business_id);
+
+    if (!user) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    if (user) {
+      const createLogs = await activityLogRepository.create({
+        module: "Payment",
+        action: "CREATE",
+        userId: new mongoose.Types.ObjectId(business_id),
+        userName: user.userName,
+        description: `Payment created by user: ${user.userName}`,
+      });
+    }
 
     return {
       status: 201,

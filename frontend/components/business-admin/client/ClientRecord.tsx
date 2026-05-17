@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useState } from "react";
@@ -10,6 +10,8 @@ import { TClient } from "@/libs/types/client.types";
 import { useDeleteClient } from "@/hooks/business-admin/client-management/removeClientData";
 import { ViewClientRecord } from "./ViewClientRecord";
 import { EditClientForm } from "./EditClientRecord";
+import Button from "@/components/ui/button";
+import { ClientForm } from "./ClientForm";
 
 interface ClientTableProps {
   clients: TClient[];
@@ -28,6 +30,7 @@ export default function ClientRecord({
   totalPages,
   onPageChange,
 }: ClientTableProps) {
+  const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [viewId, setViewId] = useState<string | null>(null);
 
@@ -60,6 +63,15 @@ export default function ClientRecord({
 
   return (
     <div className="w-full h-[71vh] overflow-y-scroll">
+      <div className="flex justify-end mb-2">
+        <Button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+        >
+          <Plus size={18} />
+          Create Business Clients
+        </Button>
+      </div>
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
@@ -167,6 +179,8 @@ export default function ClientRecord({
       {editId && (
         <EditClientForm clientId={editId} onClose={() => setEditId(null)} />
       )}
+
+      {open && <ClientForm onClose={() => setOpen(false)} />}
 
       {/* DELETE CONFIRM */}
       <ConfirmDialog

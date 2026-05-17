@@ -3,6 +3,8 @@ import { attendanceContract } from "../../contract/attendance/attendance.contrac
 import attendanceRepository from "../../repository/attendance.repository";
 import mongoose from "mongoose";
 import userRepository from "../../repository/user.repository";
+import businessRepository from "../../repository/business.repository";
+import activityLogRepository from "../../repository/activity-log.repository";
 
 export const createAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.createAttendance
@@ -50,6 +52,31 @@ export const createAttendance: AppRouteMutationImplementation<
       checkIn,
       checkOut,
     });
+
+    const businessUser = await businessRepository.getByID(business_id);
+    const user = await userRepository.getByID(business_id);
+    const account = businessUser || user;
+
+    if (!account) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    const isBusiness = "operatorPassword" in account;
+
+    const userName = isBusiness ? account.operatorName : account.userName;
+
+    if (attendance) {
+      const createLogs = await activityLogRepository.create({
+        module: "Attendance",
+        action: "CREATE",
+        userId: new mongoose.Types.ObjectId(business_id),
+        userName: userName,
+        description: `Attendance created for client: ${clientName}`,
+      });
+    }
 
     return {
       status: 201,

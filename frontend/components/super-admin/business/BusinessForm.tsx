@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { businessApi } from "@/libs/api/business.api";
@@ -24,6 +24,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm({
     resolver: zodResolver(createBusinessSchema),
     defaultValues: {
@@ -47,7 +48,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
     mutationFn: businessApi.createBusiness,
     onSuccess: () => {
       toast.show({
-        message: ("Business created successfully"),
+        message: "Business created successfully",
         type: "success",
       });
       reset();
@@ -55,7 +56,8 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
     },
     onError: (err) => {
       toast.show({
-        message: (err as { message?: string })?.message || "Business creation failed",
+        message:
+          (err as { message?: string })?.message || "Business creation failed",
         type: "error",
       });
     },
@@ -216,26 +218,48 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {[
-                    "business_management",
-                    "asset_management",
-                    "client_management",
-                    "staff_management",
-                    "attendance_management",
-                    "billing_management",
-                  ].map((service) => (
-                    <label
-                      key={service}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        value={service}
-                        {...register("services")}
-                      />
-                      {service}
-                    </label>
-                  ))}
+                  <Controller
+                    control={control}
+                    name="services"
+                    render={({ field }) => {
+                      const toggleService = (value: string) => {
+                        const exists = field.value.includes(value);
+
+                        if (exists) {
+                          field.onChange(
+                            field.value.filter((v: string) => v !== value),
+                          );
+                        } else {
+                          field.onChange([...field.value, value]);
+                        }
+                      };
+
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {[
+                            "business_management",
+                            "asset_management",
+                            "client_management",
+                            "staff_management",
+                            "attendance_management",
+                            "billing_management",
+                          ].map((service) => (
+                            <label
+                              key={service}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={field.value.includes(service)}
+                                onChange={() => toggleService(service)}
+                              />
+                              {service}
+                            </label>
+                          ))}
+                        </div>
+                      );
+                    }}
+                  />
                 </div>
               </div>
             </div>

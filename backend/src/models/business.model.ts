@@ -19,7 +19,6 @@ export interface IBusiness extends Document {
   teams: string;
   branch: Branch;
   package: PackageType;
-  services: Services[];
   status: boolean;
   payment_status: boolean;
   payment_initiation: Date;
@@ -91,11 +90,6 @@ const BusinessSchema = new mongoose.Schema(
       type: String,
       enum: ["starter", "growth", "enterprise"],
       default: "starter",
-    },
-
-    services: {
-      type: [String],
-      default: [],
     },
 
     status: {

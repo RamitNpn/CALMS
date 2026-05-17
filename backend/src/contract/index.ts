@@ -7,6 +7,8 @@ import { billingContract } from "./billing/billing.contract";
 import { authContract } from "./auth/auth.contract";
 import { paymentContract } from "./payment/payment.contract";
 import { userContract } from "./user/user.contract";
+import { serviceContract } from "./service/service.contract";
+import { activityLogContract } from "./activity-log/activity-log.contract";
 
 const c = initContract();
 
@@ -16,6 +18,8 @@ export const contract = c.router({
     auth: authContract,
     billing: billingContract,
     business: businessContract,
+    log: activityLogContract,
     payment: paymentContract,
+    service: serviceContract,
     user: userContract,
 });

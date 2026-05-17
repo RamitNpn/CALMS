@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
 import moment from "moment";
 
 import TablePagination from "@/components/shared/Pagination";
@@ -13,6 +13,8 @@ import { useDeleteAttendance } from "@/hooks/business-admin/attendance-managemen
 import { ViewAttendanceRecord } from "./ViewAttendanceRecord";
 import { EditAttendanceRecord } from "./EditAttendanceRecord";
 import { TAttendance } from "@/libs";
+import Button from "@/components/ui/button";
+import { AttendanceForm } from "./AttendanceForm";
 
 interface AttendanceTableProps {
   attendances: TAttendance[];
@@ -31,6 +33,7 @@ export default function AttendanceRecord({
   totalPages,
   onPageChange,
 }: AttendanceTableProps) {
+  const [open, setOpen] = useState(false);
   const [viewId, setViewId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [itemToDelete, setItemToDelete] = useState<TAttendance | null>(null);
@@ -58,6 +61,15 @@ export default function AttendanceRecord({
 
   return (
     <div className="w-full h-[75vh] overflow-y-scroll">
+      <div className="flex justify-end mb-2">
+        <Button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+        >
+          <Plus size={18} />
+          Create Business Assets
+        </Button>
+      </div>
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm">
@@ -180,6 +192,7 @@ export default function AttendanceRecord({
           onClose={() => setEditId(null)}
         />
       )}
+      {open && <AttendanceForm onClose={() => setOpen(false)} />}
 
       {/* DELETE CONFIRM */}
       <ConfirmDialog

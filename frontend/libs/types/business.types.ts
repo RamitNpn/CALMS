@@ -14,7 +14,7 @@ export interface TBusiness {
   teams: string;
   branch: Branch;
   package: PackageType;
-  services: string;
+  services: string[];
   status: boolean;
   payment_status: boolean;
   payment_initiation: Date;
@@ -31,6 +31,7 @@ export interface TBusinessCreate {
   teams: string;
   branch: Branch;
   package: PackageType;
+  services: string[];
   payment_status: boolean;
   payment_initiation: Date;
 }
