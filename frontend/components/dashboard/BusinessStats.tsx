@@ -43,7 +43,7 @@ export default function BusinessStatsPage() {
     <div className="space-y-4 md:space-y-8">
       <div>
         <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-          Super Admin Dashboard
+          Business Admin Dashboard
         </h1>
         <p className="text-sm text-gray-500">
           Overview of system performance and business activity

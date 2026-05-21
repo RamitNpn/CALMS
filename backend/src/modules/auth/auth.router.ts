@@ -5,6 +5,7 @@ import { authMutationHandler } from "./auth.mutation";
 const s = initServer();
 
 export const authRouter = s.router(authContract, {
-
   login: authMutationHandler.authLogin,
+  verifySetupToken: authMutationHandler.verifySetupToken,
+  setPassword: authMutationHandler.setPassword,
 });

@@ -1,4 +1,4 @@
-import BillingModel, { IBilling } from "../models/billing.schema";
+import BillingModel, { IBilling } from "../models/billing.model";
 
 class InvoiceRepository {
   private model;
@@ -15,11 +15,25 @@ class InvoiceRepository {
     }
   }
 
-  async getAll() {
+  async getAll(
+    skip: number = 0,
+    limit: number = 10
+  ) {
     try {
-      return await this.model.find().sort({ createdAt: -1 });
+      const data = await this.model
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const total =
+        await this.model.countDocuments();
+
+      return { data, total };
     } catch (error) {
-      throw new Error(`Error fetching billings: ${error}`);
+      throw new Error(
+        `Error fetching billings: ${error}`
+      );
     }
   }
 
@@ -31,9 +45,16 @@ class InvoiceRepository {
     }
   }
 
-  async update(id: string, data: Partial<IBilling>) {
+  async update(
+    id: string,
+    data: Partial<IBilling>
+  ) {
     try {
-      return await this.model.findByIdAndUpdate(id, data, { new: true });
+      return await this.model.findByIdAndUpdate(
+        id,
+        data,
+        { new: true }
+      );
     } catch (error) {
       throw new Error(`Error updating billing: ${error}`);
     }
@@ -44,6 +65,24 @@ class InvoiceRepository {
       return await this.model.findByIdAndDelete(id);
     } catch (error) {
       throw new Error(`Error deleting billing: ${error}`);
+    }
+  }
+
+  async count(filter: Record<string, any> = {}) {
+    try {
+      return await this.model.countDocuments(filter);
+    } catch (error) {
+      throw new Error(`Error counting billings: ${error}`);
+    }
+  }
+
+  async aggregate(pipeline: any[]) {
+    try {
+      return await this.model.aggregate(pipeline);
+    } catch (error) {
+      throw new Error(
+        `Error aggregating billings: ${error}`
+      );
     }
   }
 }

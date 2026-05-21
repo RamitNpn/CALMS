@@ -4,9 +4,14 @@ import attendanceRepository from "../../repository/attendance.repository";
 
 export const getAllAttendance: AppRouteQueryImplementation<
   typeof attendanceContract.getAllAttendance
-> = async () => {
+> = async ({ req }) => {
   try {
-    const data = await attendanceRepository.getAllAttendance();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const { data, total } = await attendanceRepository.getAllAttendance(skip, limit);
+    const totalPages = Math.ceil(total / limit);
 
     const formattedAttendance = data.map((u) => ({
       _id: u._id.toString(),
@@ -22,7 +27,15 @@ export const getAllAttendance: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedAttendance, // return array of users directly
+      body: {
+        data: formattedAttendance,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     return {

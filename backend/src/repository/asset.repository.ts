@@ -15,10 +15,23 @@ class AssetRepository {
     }
   }
 
-  async getAll(business_id?: string) {
+  async getAll(
+    business_id?: string,
+    skip: number = 0,
+    limit: number = 10
+  ) {
     try {
       const query = business_id ? { business_id } : {};
-      return await this.model.find(query).sort({ createdAt: -1 });
+
+      const data = await this.model
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.model.countDocuments(query);
+
+      return { data, total };
     } catch (error) {
       throw new Error(`Error fetching assets: ${error}`);
     }
@@ -34,7 +47,16 @@ class AssetRepository {
 
   async update(id: string, data: Partial<IAsset>) {
     try {
-      return await this.model.findByIdAndUpdate(id, data, { new: true });
+      const updated = await this.model.findByIdAndUpdate(
+        id,
+        data,
+        {
+          new: true,
+          runValidators: false,
+        }
+      );
+
+      return updated;
     } catch (error) {
       throw new Error(`Error updating asset: ${error}`);
     }
@@ -45,6 +67,22 @@ class AssetRepository {
       return await this.model.findByIdAndDelete(id);
     } catch (error) {
       throw new Error(`Error deleting asset: ${error}`);
+    }
+  }
+
+  async count(filter: Record<string, any> = {}) {
+    try {
+      return await this.model.countDocuments(filter);
+    } catch (error) {
+      throw new Error(`Error counting assets: ${error}`);
+    }
+  }
+
+  async aggregate(pipeline: any[]) {
+    try {
+      return await this.model.aggregate(pipeline);
+    } catch (error) {
+      throw new Error(`Error aggregating assets: ${error}`);
     }
   }
 }

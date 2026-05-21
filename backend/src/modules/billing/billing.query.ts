@@ -6,15 +6,25 @@ export const getAllBillings: AppRouteQueryImplementation<
   typeof billingContract.getAllBillings
 > = async ({ req }) => {
   try {
-    const billings = await billingRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
 
-    const formattedbillings = billings.map((i: any) => ({
+    const { data: billings, total } = await billingRepository.getAll(skip, limit);
+    const totalPages = Math.ceil(total / limit);
+
+    const formattedBillings = billings.map((i: any) => ({
       _id: i._id.toString(),
       business_id: i.business_id?.toString(),
+      title: i.title,
       clientId: i.clientId.toString(),
+      clientName: i.clientName,
+      clientEmail: i.clientEmail,
       items: i.items,
       totalAmount: i.totalAmount,
       paidAmount: i.paidAmount,
+      paymentMethod: i.paymentMethod,
+      recipt: i.recipt,
       status: i.status,
       dueDate: i.dueDate,
       createdAt: i.createdAt,
@@ -23,10 +33,18 @@ export const getAllBillings: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedbillings,
+      body: {
+        data: formattedBillings,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
-    console.error("Error in getAllbillings:", error);
+    console.error("Error in getAllBillings:", error);
     return {
       status: 500,
       body: {
@@ -70,10 +88,15 @@ export const getBillingByID: AppRouteQueryImplementation<
       body: {
         _id: billing._id.toString(),
         business_id: billing.business_id?.toString(),
+        title: billing.title,
         clientId: billing.clientId.toString(),
+        clientName: billing.clientName,
+        clientEmail: billing.clientEmail,
         items: billing.items,
         totalAmount: billing.totalAmount,
         paidAmount: billing.paidAmount,
+        paymentMethod: billing.paymentMethod,
+        recipt: billing.recipt,
         status: billing.status,
         dueDate: billing.dueDate,
         createdAt: billing.createdAt,

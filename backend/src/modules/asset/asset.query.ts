@@ -4,9 +4,15 @@ import assetRepository from "../../repository/asset.repository";
 
 export const getAllAssets: AppRouteQueryImplementation<
   typeof assetContract.getAllAssets
-> = async () => {
+> = async ({ req }) => {
   try {
-    const assets = await assetRepository.getAll();
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const business_id = req.query.business_id as string | undefined;
+    const skip = (page - 1) * limit;
+
+    const { data: assets, total } = await assetRepository.getAll(business_id, skip, limit);
+    const totalPages = Math.ceil(total / limit);
 
     const formattedAssets = assets.map((a) => ({
       _id: a._id.toString(),
@@ -21,7 +27,15 @@ export const getAllAssets: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedAssets,
+      body: {
+        data: formattedAssets,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     console.error("Error in getAllAssets:", error);

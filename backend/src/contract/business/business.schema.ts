@@ -24,15 +24,12 @@ export const createBusinessSchema = z.object({
     .string()
     .email("Invalid email")
     .min(1, "Operator email is required"),
-  operatorPassword: z
-    .string()
-    .min(6, "Password must be at least 6 characters"),
   businessType: z.string().min(1, "Business type is required"),
   role: teamRoleEnum.optional(),
   teams: z.string().optional(),
   branch: branchSchema,
   package: packageEnum.optional(),
-  services: z.array(servicesEnum).min(1, "At least one service is required"),
+  services: z.array(z.string()).default([]),
   payment_initiation: z.coerce.date().optional(),
 });
 
@@ -42,11 +39,12 @@ export const businessSchema = z.object({
   operatorName: z.string().min(1),
   operatorEmail: z.string().email(),
   businessType: z.string(),
+  profile: z.string().url(),
   role: teamRoleEnum,
   teams: z.string().optional(),
   branch: branchSchema,
   package: packageEnum,
-  services: z.array(servicesEnum).min(1, "At least one service is required"),
+  services: z.array(z.string()).optional(),
   status: z.boolean(),
   payment_status: z.boolean(),
   payment_initiation: z.coerce.date().optional(),
@@ -65,13 +63,40 @@ export const updateBusinessSchema = z.object({
   operatorEmail: z.string().email().optional(),
   operatorPassword: z.string().min(6).optional(),
   businessType: z.string().optional(),
+  profile: z.string(),
   role: teamRoleEnum.optional(),
   teams: z.string().optional(),
-  branch: branchSchema.optional(),
+  branch: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        return JSON.parse(val);
+      }
+      return val;
+    },
+    z.object({
+      name: z.string(),
+      location: z.string(),
+    }),
+  ),
   package: packageEnum.optional(),
-  services: z.array(servicesEnum).optional(),
-  status: z.boolean().optional(),
-  payment_status: z.boolean().optional(),
+  services: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return JSON.parse(val);
+    }
+    return val;
+  }, z.array(z.string())),
+  status: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return val === "true";
+    }
+    return val;
+  }, z.boolean()),
+  payment_status: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return val === "true";
+    }
+    return val;
+  }, z.boolean()),
   payment_initiation: z.coerce.date().optional(),
 });
 

@@ -1,23 +1,28 @@
-// contracts/comment.contract.ts
 import { initContract } from "@ts-rest/core";
 import { assetContract } from "./asset/asset.contract";
 import { attendanceContract } from "./attendance/attendance.contract";
-import { scheduleContract } from "./schedule/schedule.contract";
-import { tokenContract } from "./token/token.contract";
 import { businessContract } from "./business/business.contract";
 import { billingContract } from "./billing/billing.contract";
-import { userContract } from "./users/user.contract";
 import { authContract } from "./auth/auth.contract";
+import { paymentContract } from "./payment/payment.contract";
+import { userContract } from "./user/user.contract";
+import { serviceContract } from "./service/service.contract";
+import { activityLogContract } from "./activity-log/activity-log.contract";
+import { statsContract } from "./stats/stats.contract";
+import { assetTypeContract } from "./asset-type/type.contract";
 
 const c = initContract();
 
 export const contract = c.router({
     asset: assetContract,
+    atype: assetTypeContract,
     attendance: attendanceContract,
     auth: authContract,
     billing: billingContract,
     business: businessContract,
-    schedule: scheduleContract,
-    token: tokenContract,
+    log: activityLogContract,
+    payment: paymentContract,
+    service: serviceContract,
+    stats: statsContract,
     user: userContract,
 });

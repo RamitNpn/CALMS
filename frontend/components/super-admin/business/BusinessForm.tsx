@@ -1,14 +1,15 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { createBusinessSchema } from "@/libs/validation/business.schema";
 import { businessApi } from "@/libs/api/business.api";
 import { z } from "zod";
 import clsx from "clsx";
 import { X } from "lucide-react";
+import { createBusinessSchema } from "@/libs/validation/business.validation";
+import { useToast } from "@/components";
 
 type BusinessFormProps = {
   onClose?: () => void;
@@ -16,18 +17,20 @@ type BusinessFormProps = {
 };
 
 export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
+  const toast = useToast.getState();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm({
     resolver: zodResolver(createBusinessSchema),
     defaultValues: {
       businessName: "",
       operatorName: "",
       operatorEmail: "",
-      operatorPassword: "",
       businessType: "",
       role: "business",
       teams: "",
@@ -44,10 +47,20 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
   const { mutate, isPending } = useMutation({
     mutationFn: businessApi.createBusiness,
     onSuccess: () => {
+      toast.show({
+        message: "Business created successfully",
+        type: "success",
+      });
       reset();
       onClose?.();
     },
-    onError: (err) => console.error(err),
+    onError: (err) => {
+      toast.show({
+        message:
+          (err as { message?: string })?.message || "Business creation failed",
+        type: "error",
+      });
+    },
   });
 
   const onSubmit = (data: z.infer<typeof createBusinessSchema>) => {
@@ -77,7 +90,10 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Close modal"
           >
-            <X size={24} className="text-red-400 cursor-pointer border border-gray-200" />
+            <X
+              size={24}
+              className="text-red-400 cursor-pointer border border-gray-200"
+            />
           </button>
         </div>
 
@@ -137,18 +153,6 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <input
                   type="email"
                   {...register("operatorEmail")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
-                />
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-medium">
-                  Operator Password <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="password"
-                  {...register("operatorPassword")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded"
                 />
               </div>
@@ -214,26 +218,48 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {[
-                    "business_management",
-                    "asset_management",
-                    "client_management",
-                    "staff_management",
-                    "attendance_management",
-                    "billing_management",
-                  ].map((service) => (
-                    <label
-                      key={service}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        value={service}
-                        {...register("services")}
-                      />
-                      {service}
-                    </label>
-                  ))}
+                  <Controller
+                    control={control}
+                    name="services"
+                    render={({ field }) => {
+                      const toggleService = (value: string) => {
+                        const exists = field.value.includes(value);
+
+                        if (exists) {
+                          field.onChange(
+                            field.value.filter((v: string) => v !== value),
+                          );
+                        } else {
+                          field.onChange([...field.value, value]);
+                        }
+                      };
+
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {[
+                            "business_management",
+                            "asset_management",
+                            "client_management",
+                            "staff_management",
+                            "attendance_management",
+                            "billing_management",
+                          ].map((service) => (
+                            <label
+                              key={service}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={field.value.includes(service)}
+                                onChange={() => toggleService(service)}
+                              />
+                              {service}
+                            </label>
+                          ))}
+                        </div>
+                      );
+                    }}
+                  />
                 </div>
               </div>
             </div>

@@ -29,9 +29,21 @@ export const attendanceContract = c.router({
   getAllAttendance: {
     method: "GET",
     path: "/attendance",
-    summary: "Get all attendance records",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }),
+    summary: "Get all attendance records with pagination",
     responses: {
-      200: getAllAttendanceSchema,
+      200: z.object({
+        data: getAllAttendanceSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
     },
   },
@@ -66,7 +78,10 @@ export const attendanceContract = c.router({
   removeAttendance: {
     method: "DELETE",
     path: "/attendance/:attendanceID",
-    body: removeAttendanceSchema,
+    pathParams: z.object({
+      attendanceID: z.string(),
+    }),
+    body: z.object({}),
     responses: {
       200: successSchema,
       404: errorSchema,

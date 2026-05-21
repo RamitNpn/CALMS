@@ -15,9 +15,23 @@ class UserRepository {
     }
   }
 
-  async getAll() {
+  async getAll(skip: number = 0, limit: number = 10, role?: string) {
     try {
-      return await this.model.find().sort({ createdAt: -1 });
+      const query: any = {};
+
+      if (role) {
+        query.role = role;
+      }
+
+      const data = await this.model
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const total = await this.model.countDocuments(query);
+
+      return { data, total };
     } catch (error) {
       throw new Error(`Error fetching users: ${error}`);
     }
@@ -31,10 +45,11 @@ class UserRepository {
     }
   }
 
-    async getByEmail(email: string) {
+  async getByEmail(email: string) {
     try {
-      return await this.model.findOne({ 
-        userEmail: email });
+      return await this.model.findOne({
+        userEmail: email,
+      });
     } catch (error) {
       throw new Error(`Error fetching user: ${error}`);
     }
@@ -53,6 +68,14 @@ class UserRepository {
       return await this.model.findByIdAndDelete(id);
     } catch (error) {
       throw new Error(`Error deleting user: ${error}`);
+    }
+  }
+
+  async count(filter: Record<string, any> = {}) {
+    try {
+      return await this.model.countDocuments(filter);
+    } catch (error) {
+      throw new Error(`Error counting users: ${error}`);
     }
   }
 }

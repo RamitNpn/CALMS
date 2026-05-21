@@ -9,13 +9,13 @@ export interface TBusiness {
   businessName: string;
   operatorName: string;
   operatorEmail: string;
-  operatorPassword: string;
   businessType: string;
+  profile?: FileList;
   role: "business";
   teams: string;
   branch: Branch;
   package: PackageType;
-  services: string;
+  services: string[];
   status: boolean;
   payment_status: boolean;
   payment_initiation: Date;
@@ -27,12 +27,12 @@ export interface TBusinessCreate {
   businessName: string;
   operatorName: string;
   operatorEmail: string;
-  operatorPassword: string;
   businessType: string;
   role: "business";
   teams: string;
   branch: Branch;
   package: PackageType;
+  services: string[];
   payment_status: boolean;
   payment_initiation: Date;
 }

@@ -8,10 +8,16 @@ import { TCreateAsset } from "@/libs/types/asset.type";
 import { useMutation } from "@tanstack/react-query";
 import { assetApi } from "@/libs/api/asset.api";
 import { useToast } from "@/components/ui/toast";
+import { useAllAssetTypes } from "@/hooks/business-admin/asset-management/getAllAssetTypes";
+import { TAssetType } from "@/libs/types/assetType.types";
 
 type AssetFormProps = {
   onClose?: () => void;
   size?: "sm" | "md" | "lg" | "xl";
+};
+
+type AssetFormData = Omit<TCreateAsset, "customFields"> & {
+  customFieldsArray?: Array<{ key: string; value: string }>;
 };
 
 export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
@@ -21,8 +27,16 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
 
   const businessId = storedData?.business_id;
 
+  const { data: assetTypesData } = useAllAssetTypes({
+    page: 1,
+    limit: 100,
+    business_id: businessId,
+  });
+
+  const assetTypes = assetTypesData?.data || [];
+
   if (!businessId) {
-    console.error("❌ Missing business_id");
+    console.error("Missing business_id");
   }
 
   const {
@@ -31,35 +45,42 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
     control,
     reset,
     formState: { errors },
-  } = useForm<TCreateAsset>({
+  } = useForm<AssetFormData>({
     defaultValues: {
       business_id: businessId,
       name: "",
       type: "",
       status: "active",
-      customFields: [{ key: "", value: "" }],
+      customFieldsArray: [{ key: "", value: "" }],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "customFields",
+    name: "customFieldsArray",
   });
 
   const { mutate, isPending } = useMutation({
     mutationFn: assetApi.createAsset,
-    onSuccess: () => {
+    onSuccess: (data: { response?: { data?: { error?: string } }; message?: string }) => {
       toast.show({
-        message: "Asset created successfully",
+        message: data?.message || "Asset created successfully",
         type: "success",
       });
 
       reset();
       onClose?.();
     },
-    onError: (err) => console.error(err),
+    onError: (err: { response?: { data?: { error?: string } }; message?: string }) => {
+      const errorMessage =
+        err?.response?.data?.error || err?.message || "Failed to create asset";
+      toast.show({
+        message: errorMessage,
+        type: "error",
+      });
+    },
   });
-  const onSubmit = (data: TCreateAsset) => {
+  const onSubmit = (data: AssetFormData) => {
     if (!data.business_id) {
       toast.show({
         message: "Business ID missing",
@@ -69,12 +90,12 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
     }
 
     const customFieldsObject = Object.fromEntries(
-      data.customFields
+      (data.customFieldsArray || [])
         .filter((f) => f.key.trim() !== "" && f.value.trim() !== "")
         .map((f) => [f.key.trim(), f.value.trim()]),
     );
 
-    const payload = {
+    const payload: TCreateAsset = {
       business_id: data.business_id,
       name: data.name.trim(),
       type: data.type.trim(),
@@ -82,7 +103,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       customFields:
         Object.keys(customFieldsObject).length > 0
           ? customFieldsObject
-          : undefined,
+          : ({} as Record<string, string>),
     };
 
     console.log("✅ FINAL PAYLOAD:", payload);
@@ -139,10 +160,28 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
                 <label className="block text-sm font-medium">
                   Asset Type <span className="text-red-500">*</span>
                 </label>
-                <input
-                  {...register("type", { required: true })}
+
+                <select
+                  {...register("type", {
+                    required: "Asset type is required",
+                  })}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Select Asset Type
+                  </option>
+
+                  {assetTypes.map((type: TAssetType) => (
+                    <option key={type._id} value={type.typeName}>
+                      {type.typeName}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.type && (
+                  <p className="text-red-500 text-sm">{errors.type.message}</p>
+                )}
               </div>
 
               {/* Status */}
@@ -183,13 +222,13 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
                   >
                     <input
                       placeholder="Key"
-                      {...register(`customFields.${index}.key` as const)}
+                      {...register(`customFieldsArray.${index}.key` as const)}
                       className="col-span-2 input w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                     />
 
                     <input
                       placeholder="Value"
-                      {...register(`customFields.${index}.value` as const)}
+                      {...register(`customFieldsArray.${index}.value` as const)}
                       className="col-span-2 input w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                     />
 

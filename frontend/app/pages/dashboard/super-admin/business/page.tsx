@@ -18,6 +18,7 @@ export default function BusinessesPage() {
   } = useAllBusinesses({ page, limit: 10 });
 
   const businesses = businessData?.data ?? businessData ?? [];
+  const pagination = businessData?.pagination;
 
   return (
     <div className="space-y-6">
@@ -45,7 +46,7 @@ export default function BusinessesPage() {
         isLoading={isLoading}
         error={isError ? "Failed to load businesses records" : null}
         page={page}
-        totalPages={businessData?.totalPages || 1}
+        totalPages={pagination?.totalPages || 1}
         onPageChange={setPage}
       />
 

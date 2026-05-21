@@ -14,11 +14,11 @@ export interface IBusiness extends Document {
   operatorEmail: string;
   operatorPassword: string;
   businessType: string;
+  profile?: string;
   role: TeamRole;
   teams: string;
   branch: Branch;
   package: PackageType;
-  services: Services[];
   status: boolean;
   payment_status: boolean;
   payment_initiation: Date;
@@ -43,19 +43,23 @@ const BusinessSchema = new mongoose.Schema(
     operatorEmail: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
 
     operatorPassword: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
     },
 
     businessType: {
       type: String,
       required: true,
+    },
+
+    profile: {
+      type: String,
     },
 
     role: {
@@ -86,11 +90,6 @@ const BusinessSchema = new mongoose.Schema(
       type: String,
       enum: ["starter", "growth", "enterprise"],
       default: "starter",
-    },
-
-    services: {
-      type: [String],
-      default: [],
     },
 
     status: {

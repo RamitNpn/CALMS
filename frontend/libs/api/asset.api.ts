@@ -2,7 +2,7 @@ import { apiClient } from "@/utils/api";
 import { TCreateAssetSchema, TDeleteAssetSchema, TGetAssetByIdSchema, TUpdateAssetSchema } from "../validation/asset.validation";
 
 
-export const createAsset = async (data: TCreateAssetSchema) => {
+const createAsset = async (data: TCreateAssetSchema) => {
   const response = await apiClient.post("/assets", data);
   return response.data;
 };
@@ -24,7 +24,7 @@ const getAssetByIdApi = async (
 
 const updateAssetApi = async (
   assetId: string,
-  data: Partial<TUpdateAssetSchema>,
+  data: Omit<Partial<TUpdateAssetSchema>, "_id">,
 ) => {
   const response = await apiClient.put(`/assets/${assetId}`, data);
   return response.data;

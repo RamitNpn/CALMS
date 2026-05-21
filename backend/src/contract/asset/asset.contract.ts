@@ -7,8 +7,7 @@ import {
   getAllAssetsSchema,
   getAssetByIDSchema,
   createAssetSchema,
-  updateAssetSchema,
-  removeAssetSchema,
+  updateAssetBodySchema,
 } from "./asset.schema";
 
 const c = initContract();
@@ -29,9 +28,22 @@ export const assetContract = c.router({
   getAllAssets: {
     method: "GET",
     path: "/assets",
-    summary: "Get all assets",
+    query: z.object({
+      page: z.string().optional(),
+      limit: z.string().optional(),
+      business_id: z.string().optional(),
+    }),
+    summary: "Get all assets with pagination",
     responses: {
-      200: getAllAssetsSchema,
+      200: z.object({
+        data: getAllAssetsSchema,
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
       500: errorSchema,
       404: errorSchema,
     },
@@ -58,7 +70,7 @@ export const assetContract = c.router({
     pathParams: z.object({
       assetID: z.string().min(1, "Asset ID is required"),
     }),
-    body: updateAssetSchema,
+    body: updateAssetBodySchema,
     summary: "Update asset details",
     responses: {
       200: successSchema,
@@ -74,6 +86,7 @@ export const assetContract = c.router({
     pathParams: z.object({
       assetID: z.string(),
     }),
+    body: z.object({}),
     summary: "Delete asset",
     responses: {
       200: successSchema,

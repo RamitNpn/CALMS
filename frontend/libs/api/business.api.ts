@@ -3,18 +3,16 @@ import {
   TCreateBusinessSchema,
   TDeleteBusinessSchema,
   TGetAllBusinessByIdSchema,
-  TUpdateBusinessSchema,
-} from "../validation/business.schema";
+} from "../validation/business.validation";
 
-export const createBusiness = async (data: TCreateBusinessSchema) => {
+const createBusiness = async (data: TCreateBusinessSchema) => {
   const res = await apiClient.post("/business", data);
   return res.data;
 };
 
-const getAllBusinessApi = async (  page = 1,
-  limit = 10) => {
+const getAllBusinessApi = async (page = 1, limit = 10) => {
   const response = await apiClient.get("/business", {
-    params: { page, limit }
+    params: { page, limit },
   });
   return response.data;
 };
@@ -28,7 +26,7 @@ const getBusinessByIdApi = async (
 
 const updateBusinessApi = async (
   businessId: string,
-  data: Partial<TUpdateBusinessSchema>,
+  data: FormData,
 ) => {
   const response = await apiClient.put(`/business/${businessId}`, data);
   return response.data;

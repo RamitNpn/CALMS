@@ -1,12 +1,20 @@
 import { AppRouteQueryImplementation } from "@ts-rest/express";
-import { userContract } from "../../contract/users/user.contract";
 import userRepository from "../../repository/user.repository";
+import businessRepository from "../../repository/business.repository";
+import { userContract } from "../../contract/user/user.contract";
 
 export const getAllUsers: AppRouteQueryImplementation<
   typeof userContract.getAllUsers
-> = async () => {
+> = async ({ req }) => {
   try {
-    const users = await userRepository.getAll();
+    // The contract validates and coerces these to numbers via z.coerce.number()
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
+    const role = req.query.role;
+    const skip = (page - 1) * limit;
+
+    const { data: users, total } = await userRepository.getAll(skip, limit, role);
+    const totalPages = Math.ceil(total / limit);
 
     const formattedUsers = users.map((u) => ({
       _id: u._id.toString(),
@@ -17,7 +25,7 @@ export const getAllUsers: AppRouteQueryImplementation<
       gender: u.gender,
       profile: u.profile,
       citizenship: u.citizenship,
-      liscence: u.liscence,
+      license: u.license,
       certificate: u.certificate,
       role: u.role,
       createdAt: u.createdAt,
@@ -26,7 +34,15 @@ export const getAllUsers: AppRouteQueryImplementation<
 
     return {
       status: 200,
-      body: formattedUsers,
+      body: {
+        data: formattedUsers,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      },
     };
   } catch (error) {
     console.error("Error in getAllUsers:", error);
@@ -68,18 +84,21 @@ export const getUserByID: AppRouteQueryImplementation<
       };
     }
 
+    const businessName = await businessRepository.getByID(user.business_id.toString());
+
     return {
       status: 200,
       body: {
         _id: user._id.toString(),
         business_id: user.business_id.toString(),
+        businessName: businessName?.businessName || "N/A",
         userName: user.userName,
         userEmail: user.userEmail,
         userPhone: user.userPhone,
         gender: user.gender,
         profile: user.profile,
         citizenship: user.citizenship,
-        liscence: user.liscence,
+        license: user.license,
         certificate: user.certificate,
         role: user.role,
         createdAt: user.createdAt,
