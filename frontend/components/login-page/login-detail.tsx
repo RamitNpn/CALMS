@@ -14,18 +14,20 @@ export default function LoginDetails() {
             </div>
 
             <div>
-              <h1 className="text-4xl font-bold tracking-tight">
-                FlowDesk
-              </h1>
+              <h1 className="text-3xl font-bold tracking-tight">FlowDesk</h1>
               <p className="text-sm text-indigo-200">
                 Multi-Tenant Business Operations Platform
               </p>
             </div>
           </div>
 
-          <p className="text-lg leading-relaxed text-indigo-100">
+          <p className="text-md leading-relaxed text-indigo-100">
             A modern modular SaaS platform built with the MERN stack to manage
-            operations, staff, billing, scheduling, clients and analytics <br /><span className="font-bold">All from one centralized dashboard</span>.
+            operations, staff, billing, scheduling, clients and analytics <br />
+            <span className="font-bold">
+              All from one centralized dashboard
+            </span>
+            .
           </p>
         </div>
 
@@ -40,42 +42,42 @@ export default function LoginDetails() {
               <li className="flex items-start gap-3">
                 <span>✔</span>
                 <span>
-                  Multi-business & multi-branch tenant management
+                  Staff management with payroll, leave tracking & employee roles
                 </span>
               </li>
 
               <li className="flex items-start gap-3">
                 <span>✔</span>
                 <span>
-                  Staff, admin, and client portals with RBAC authentication
+                  Real-time attendance tracking with QR check-ins & reports
                 </span>
               </li>
 
               <li className="flex items-start gap-3">
                 <span>✔</span>
                 <span>
-                  Real-time token & queue system powered by Socket.io
+                  Client management with interaction history & billing support
                 </span>
               </li>
 
               <li className="flex items-start gap-3">
                 <span>✔</span>
                 <span>
-                  Billing, invoicing, attendance & scheduling modules
+                  Asset management with maintenance scheduling & tracking
                 </span>
               </li>
 
               <li className="flex items-start gap-3">
                 <span>✔</span>
                 <span>
-                  SaaS subscriptions with Stripe, eSewa & Khalti integration
+                  Analytics dashboards with custom reports & business insights
                 </span>
               </li>
 
               <li className="flex items-start gap-3">
                 <span>✔</span>
                 <span>
-                  Analytics dashboard with reports, exports & insights
+                  Billing & invoicing with automated payment tracking systems
                 </span>
               </li>
             </ul>
@@ -85,12 +87,12 @@ export default function LoginDetails() {
         {/* Footer */}
         <div className="pt-6 border-t border-white/10">
           <p className="text-sm text-indigo-100">
-            Built for driving institutes, coaching centers, clinics,
-            gyms, salons, and enterprise service businesses.
+            Built for driving institutes, coaching centers, clinics, gyms,
+            salons, and enterprise service businesses.
           </p>
 
           <div className="mt-4 text-xs text-indigo-200">
-            © {new Date().getFullYear()} FlowDesk — Cornor Tech Pvt. Ltd.
+            © {new Date().getFullYear()} FlowDesk - Cornor Tech Pvt. Ltd.
           </div>
         </div>
       </div>

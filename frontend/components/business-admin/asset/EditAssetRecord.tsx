@@ -7,10 +7,16 @@ import clsx from "clsx";
 import { X, Plus, Trash2 } from "lucide-react";
 
 import { assetApi } from "@/libs/api/asset.api";
-import { TUpdateAssetSchema, TUpdateAssetFormSchema, updateAssetFormSchema } from "@/libs/validation/asset.validation";
+import {
+  TUpdateAssetSchema,
+  TUpdateAssetFormSchema,
+  updateAssetFormSchema,
+} from "@/libs/validation/asset.validation";
 import { useAssetById } from "@/hooks/business-admin/asset-management/getAssetById";
 import { useToast } from "@/components/ui/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAllAssetTypes } from "@/hooks/business-admin/asset-management/getAllAssetTypes";
+import { TAssetType } from "@/libs/types/assetType.types";
 
 type AssetFormData = TUpdateAssetFormSchema;
 
@@ -21,11 +27,28 @@ type Props = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
-export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Props) {
+export function EditAssetRecord({
+  assetId,
+  onClose,
+  onSuccess,
+  size = "lg",
+}: Props) {
+  const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
+
+  const businessId = storedData?.business_id;
+
   const { data, isLoading, isError } = useAssetById(assetId);
   const asset = data?.data ?? data;
 
   const toast = useToast.getState();
+
+  const { data: assetTypesData } = useAllAssetTypes({
+    page: 1,
+    limit: 100,
+    business_id: businessId,
+  });
+
+  const assetTypes = assetTypesData?.data?.data || assetTypesData?.data || [];
 
   const {
     register,
@@ -60,7 +83,10 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
         }))
       : [{ key: "", value: "" }];
 
-    console.log("ASSET LOADED - CUSTOM FIELDS COUNT:", customFieldsArray.length);
+    console.log(
+      "ASSET LOADED - CUSTOM FIELDS COUNT:",
+      customFieldsArray.length,
+    );
     console.log("ASSET LOADED - CUSTOM FIELDS:", customFieldsArray);
 
     reset({
@@ -70,7 +96,7 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
       status: asset.status ?? "active",
       customFieldsArray,
     });
-    
+
     console.log("FORM RESET WITH", customFieldsArray.length, "CUSTOM FIELDS");
   }, [assetId, asset, reset]);
 
@@ -104,25 +130,31 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
 
   const onSubmit = (values: AssetFormData) => {
     console.log("FORM VALUES:", JSON.stringify(values, null, 2));
-    
+
     const customFieldsArray = values.customFieldsArray || [];
-    console.log("CUSTOM FIELDS ARRAY:", JSON.stringify(customFieldsArray, null, 2));
-    
+    console.log(
+      "CUSTOM FIELDS ARRAY:",
+      JSON.stringify(customFieldsArray, null, 2),
+    );
+
     // Filter out empty fields
     const filteredFields = customFieldsArray.filter((f) => {
       const hasKey = f.key?.trim();
       const hasValue = f.value?.trim();
       return hasKey && hasValue;
     });
-    
+
     console.log("FILTERED FIELDS:", JSON.stringify(filteredFields, null, 2));
-    
+
     // Convert array to object for API
     const customFieldsObject = Object.fromEntries(
-      filteredFields.map((f) => [f.key.trim(), f.value.trim()])
+      filteredFields.map((f) => [f.key.trim(), f.value.trim()]),
     );
 
-    console.log("CUSTOM FIELDS OBJECT:", JSON.stringify(customFieldsObject, null, 2));
+    console.log(
+      "CUSTOM FIELDS OBJECT:",
+      JSON.stringify(customFieldsObject, null, 2),
+    );
 
     const payload: Omit<TUpdateAssetSchema, "_id"> = {
       name: values.name?.trim(),
@@ -189,10 +221,26 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
                 <label className="block text-sm font-medium">
                   Asset Type <span className="text-red-500">*</span>
                 </label>
-                <input
-                  {...register("type", { required: "Asset type is required" })}
+
+                <select
+                  {...register("type", {
+                    required: "Asset type is required",
+                  })}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
+                  defaultValue={asset?.type || ""}
+                >
+                  <option value="" disabled>
+                    Select Asset Type
+                  </option>
+
+                  {Array.isArray(assetTypes) &&
+                    assetTypes.map((type: TAssetType) => (
+                      <option key={type._id} value={type.typeName}>
+                        {type.typeName}
+                      </option>
+                    ))}
+                </select>
+
                 {errors.type && (
                   <p className="text-red-500 text-sm">{errors.type.message}</p>
                 )}
@@ -236,17 +284,13 @@ export function EditAssetRecord({ assetId, onClose, onSuccess, size = "lg" }: Pr
                   >
                     <input
                       placeholder="Key"
-                      {...register(
-                        `customFieldsArray.${index}.key` as const
-                      )}
+                      {...register(`customFieldsArray.${index}.key` as const)}
                       className="col-span-2 w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                     />
 
                     <input
                       placeholder="Value"
-                      {...register(
-                        `customFieldsArray.${index}.value` as const
-                      )}
+                      {...register(`customFieldsArray.${index}.value` as const)}
                       className="col-span-2 w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                     />
 

@@ -14,6 +14,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { AttendanceCalendar } from "@/components/business-admin/attendance/AttendanceCalender";
+import AttendanceStats from "@/components/business-admin/attendance/AttendanceStats";
 
 export interface AttendanceRecord {
   id: string;
@@ -22,7 +23,7 @@ export interface AttendanceRecord {
   date: string;
   checkInTime?: string;
   checkOutTime?: string;
-  status: 'present' | 'absent' | 'leave' | 'half-day' | 'holiday';
+  status: "present" | "absent" | "leave" | "half-day" | "holiday";
   notes?: string;
 }
 
@@ -47,13 +48,55 @@ export default function AttendancePage() {
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 
-    const mockAttendanceRecords: AttendanceRecord[] = [
-    { id: '1', staffId: '1', staffName: 'Alice Johnson', date: '2024-02-01', checkInTime: '09:00 AM', checkOutTime: '06:00 PM', status: 'present' },
-    { id: '2', staffId: '2', staffName: 'Bob Smith', date: '2024-02-02', checkInTime: '08:55 AM', checkOutTime: '05:55 PM', status: 'present' },
-    { id: '3', staffId: '3', staffName: 'Carol Davis', date: '2024-02-03', status: 'holiday' },
-    { id: '4', staffId: '4', staffName: 'David Wilson', date: '2024-02-04', checkInTime: '09:10 AM', checkOutTime: '06:05 PM', status: 'present' },
-    { id: '5', staffId: '5', staffName: 'Emma Brown', date: '2024-02-05', status: 'absent' },
-    { id: '6', staffId: '6', staffName: 'Frank Miller', date: '2024-02-06', status: 'leave' },
+  const mockAttendanceRecords: AttendanceRecord[] = [
+    {
+      id: "1",
+      staffId: "1",
+      staffName: "Alice Johnson",
+      date: "2024-02-01",
+      checkInTime: "09:00 AM",
+      checkOutTime: "06:00 PM",
+      status: "present",
+    },
+    {
+      id: "2",
+      staffId: "2",
+      staffName: "Bob Smith",
+      date: "2024-02-02",
+      checkInTime: "08:55 AM",
+      checkOutTime: "05:55 PM",
+      status: "present",
+    },
+    {
+      id: "3",
+      staffId: "3",
+      staffName: "Carol Davis",
+      date: "2024-02-03",
+      status: "holiday",
+    },
+    {
+      id: "4",
+      staffId: "4",
+      staffName: "David Wilson",
+      date: "2024-02-04",
+      checkInTime: "09:10 AM",
+      checkOutTime: "06:05 PM",
+      status: "present",
+    },
+    {
+      id: "5",
+      staffId: "5",
+      staffName: "Emma Brown",
+      date: "2024-02-05",
+      status: "absent",
+    },
+    {
+      id: "6",
+      staffId: "6",
+      staffName: "Frank Miller",
+      date: "2024-02-06",
+      status: "leave",
+    },
   ];
 
   return (
@@ -69,6 +112,8 @@ export default function AttendancePage() {
           </p>
         </div>
       </div>
+
+      <AttendanceStats />
 
       {/* TAB NAVIGATION */}
       <TabNavigation
@@ -90,7 +135,7 @@ export default function AttendancePage() {
       )}
 
       {activeTab === "calender" && (
-          <AttendanceCalendar records={mockAttendanceRecords} />
+        <AttendanceCalendar records={mockAttendanceRecords} />
       )}
 
       {activeTab === "analysis" && (
@@ -118,6 +163,7 @@ export default function AttendancePage() {
 
       {activeTab === "logs" && (
         <LogDetails
+          userId={attendanceData.businessId}
           module="Attendance"
           onClearLogs={() => {
             console.log("Clearing attendance logs");

@@ -3,8 +3,8 @@ import { z } from "zod";
 export const getActivityLogsSchema = z.object({
   userId: z.string().optional(),
   module: z.string().optional(),
-  page: z.number().int().min(1).optional(),
-  limit: z.number().int().min(1).optional(),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).optional().default(10),
 });
 
 export const clearActivityLogsSchema = z.object({

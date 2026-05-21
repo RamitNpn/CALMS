@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import ClientStats from "@/components/business-admin/client/ClientStats";
 
 const mockClients = [
   {
@@ -67,6 +68,8 @@ export default function ClientPage() {
           </p>
         </div>
       </div>
+
+      <ClientStats />
 
       <TabNavigation
         activeTab={activeTab}
@@ -182,7 +185,8 @@ export default function ClientPage() {
 
       {activeTab === "logs" && (
         <LogDetails
-          module="Clients"
+        userId={clientData?.businessId}
+          module="Client"
           onClearLogs={() => {
             console.log("Clearing clients logs");
           }}

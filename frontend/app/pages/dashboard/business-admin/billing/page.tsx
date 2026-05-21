@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import Button from "@/components/ui/button";
+import BillingStats from "@/components/business-admin/billing/BillingStats";
 
 const billingChartData = [
   { month: 'Jan', revenue: 45000, pending: 12000, paid: 33000 },
@@ -56,6 +57,8 @@ export default function BillingPage() {
           </p>
         </div>
       </div>
+
+      <BillingStats />
 
       {/* TAB NAVIGATION */}
       <TabNavigation
@@ -150,6 +153,7 @@ export default function BillingPage() {
 
       {activeTab === "logs" && (
         <LogDetails
+        userId={billings.businessId}
           module="Billing"
           onClearLogs={() => {
             console.log("Clearing billing logs");

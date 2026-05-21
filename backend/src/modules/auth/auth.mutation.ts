@@ -59,7 +59,8 @@ export const authLogin: AppRouteMutationImplementation<
       module: "Login",
       action: "LOGIN",
       userId: new mongoose.Types.ObjectId(business_id),
-      userName: userName,
+      title: userName,
+      role: role,
       description: `User logged in with email: ${email}`,
     });
 

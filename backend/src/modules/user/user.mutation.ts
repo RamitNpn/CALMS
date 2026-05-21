@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import userRepository from "../../repository/user.repository";
 import { userContract } from "../../contract/user/user.contract";
 import activityLogRepository from "../../repository/activity-log.repository";
+import businessRepository from "../../repository/business.repository";
 
 export const createUser: AppRouteMutationImplementation<
   typeof userContract.createUser
@@ -45,7 +46,8 @@ export const createUser: AppRouteMutationImplementation<
       role,
     });
 
-    const user = await userRepository.getByID(business_id);
+    const user = await businessRepository.getByID(business_id);
+    const userRole = user?.role === "client" ? "Client" : "Staff";
 
     if (!user) {
       return {
@@ -56,11 +58,12 @@ export const createUser: AppRouteMutationImplementation<
 
     if (user) {
       const createLogs = await activityLogRepository.create({
-        module: "Payment",
+        module: userRole,
         action: "CREATE",
         userId: new mongoose.Types.ObjectId(business_id),
-        userName: user.userName,
-        description: `Payment created by user: ${user.userName}`,
+        title: user.businessName,
+        role: user.role,
+        description: `${userRole} added by business admin: ${user.operatorName}`,
       });
     }
 
@@ -175,6 +178,27 @@ export const removeUser: AppRouteMutationImplementation<
           error: "User was not deleted",
         },
       };
+    }
+
+    const user = await businessRepository.getByID(existing.business_id.toString());
+    const userRole = user?.role === "client" ? "Client" : "Staff";
+
+    if (!user) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    if (user) {
+      const createLogs = await activityLogRepository.create({
+        module: userRole,
+        action: "DELETE",
+        userId: new mongoose.Types.ObjectId(existing.business_id.toString()),
+        title: user.businessName,
+        role: user.role,
+        description: `${userRole} removed by business admin: ${user.operatorName}`,
+      });
     }
 
     return {

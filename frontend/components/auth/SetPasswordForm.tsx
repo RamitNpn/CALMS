@@ -82,7 +82,6 @@ export default function SetPasswordForm({
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Password */}
         <div>
           <label className="text-sm font-medium text-gray-700">
             Password
@@ -110,7 +109,6 @@ export default function SetPasswordForm({
           )}
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label className="text-sm font-medium text-gray-700">
             Confirm Password
@@ -137,7 +135,6 @@ export default function SetPasswordForm({
           )}
         </div>
 
-        {/* Password Requirements */}
         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
           <p className="text-xs font-medium text-blue-900 mb-2">Password requirements:</p>
           <ul className="text-xs text-blue-800 space-y-1">
@@ -150,7 +147,6 @@ export default function SetPasswordForm({
           </ul>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isPending}

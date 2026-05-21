@@ -2,49 +2,55 @@
 
 import React, { useState, useMemo } from "react";
 import { Activity, Trash2, Download } from "lucide-react";
-import { allMockLogs, LogEntry } from "@/data/logDetails";
+import { useActivityLogs } from "@/hooks/shared/useLogs";
+import { TLogEntry } from "@/libs/types/log.types";
 
+type ActivityLogFilters = {
+  module?: string;
+  action?: string;
+  userId?: string;
+};
 interface LogDetailsProps {
   module: string;
-  recordId?: string;
+  userId: string;
   onClearLogs?: () => void;
 }
 
 export default function LogDetails({
   module,
-  recordId,
+  userId,
   onClearLogs,
 }: LogDetailsProps) {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [filterAction, setFilterAction] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
 
-  // Filter logs by module
-  const moduleLogs = useMemo(() => {
-    return allMockLogs.filter(log => log.module === module);
-  }, [module]);
+  const filters = useMemo(() => {
+    const f: ActivityLogFilters = {
+      module,
+      userId,
+    };
 
-  React.useEffect(() => {
-    // Simulate API call to fetch logs
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setLogs(moduleLogs);
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [module, moduleLogs]);
+    if (filterAction !== "ALL") {
+      f.action = filterAction;
+    }
 
-  const filteredLogs = logs.filter((log) => {
-    const matchesAction = filterAction === "ALL" || log.action === filterAction;
-    const matchesSearch =
-      log.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (log.recordName &&
-        log.recordName.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesAction && matchesSearch;
-  });
+    return f;
+  }, [module, userId, filterAction]);
+
+  const { data, isLoading } = useActivityLogs(page, 10, filters);
+
+  const logs = data?.data || [];
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter((log: TLogEntry) => {
+      const matchesSearch =
+        log.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.action?.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    });
+  }, [logs, searchQuery]);
 
   const getActionColor = (action: string) => {
     switch (action) {
@@ -82,17 +88,15 @@ export default function LogDetails({
 
   const downloadLogs = () => {
     const csv = [
-      ["ID", "Created At", "Action", "User", "Record", "Description"]
-        .join(","),
-      ...filteredLogs.map((log) =>
+      ["ID", "Created At", "Action", "User", "Record", "Description"].join(","),
+      ...filteredLogs.map((log: TLogEntry) =>
         [
-          log.id,
+          log._id,
           log.timestamp.toLocaleString(),
           log.action,
           log.userName,
-          log.recordName || "-",
           log.description,
-        ].join(",")
+        ].join(","),
       ),
     ].join("\n");
 
@@ -178,9 +182,7 @@ export default function LogDetails({
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <Activity className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-gray-600">
-                No logs found for {module}
-              </p>
+              <p className="text-gray-600">No logs found for {module}</p>
             </div>
           </div>
         ) : (
@@ -206,9 +208,9 @@ export default function LogDetails({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredLogs.map((log) => (
+                {filteredLogs.map((log: TLogEntry) => (
                   <tr
-                    key={log.id}
+                    key={log._id}
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-6 py-4 text-gray-700">
@@ -226,16 +228,16 @@ export default function LogDetails({
                       {log.userName}
                     </td>
                     <td className="px-6 py-4 text-gray-700">
-                      {log.recordName || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-gray-700">
                       {log.description}
                       {log.changes && log.changes.length > 0 && (
                         <div className="mt-2 text-xs text-gray-600 space-y-1">
                           {log.changes.map((change, idx) => (
-                            <div key={idx} className="ml-4 border-l-2 border-blue-300 pl-2">
-                              <strong>{change.field}:</strong> {change.oldValue} →{" "}
-                              {change.newValue}
+                            <div
+                              key={idx}
+                              className="ml-4 border-l-2 border-blue-300 pl-2"
+                            >
+                              <strong>{change.field}:</strong> {change.oldValue}{" "}
+                              → {change.newValue}
                             </div>
                           ))}
                         </div>

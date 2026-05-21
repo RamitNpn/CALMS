@@ -8,6 +8,8 @@ import { TCreateAsset } from "@/libs/types/asset.type";
 import { useMutation } from "@tanstack/react-query";
 import { assetApi } from "@/libs/api/asset.api";
 import { useToast } from "@/components/ui/toast";
+import { useAllAssetTypes } from "@/hooks/business-admin/asset-management/getAllAssetTypes";
+import { TAssetType } from "@/libs/types/assetType.types";
 
 type AssetFormProps = {
   onClose?: () => void;
@@ -24,6 +26,14 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
   const toast = useToast.getState();
 
   const businessId = storedData?.business_id;
+
+  const { data: assetTypesData } = useAllAssetTypes({
+    page: 1,
+    limit: 100,
+    business_id: businessId,
+  });
+
+  const assetTypes = assetTypesData?.data || [];
 
   if (!businessId) {
     console.error("Missing business_id");
@@ -52,7 +62,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: assetApi.createAsset,
-    onSuccess: (data: any) => {
+    onSuccess: (data: { response?: { data?: { error?: string } }; message?: string }) => {
       toast.show({
         message: data?.message || "Asset created successfully",
         type: "success",
@@ -61,8 +71,9 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       reset();
       onClose?.();
     },
-    onError: (err: any) => {
-      const errorMessage = err?.response?.data?.error || err?.message || "Failed to create asset";
+    onError: (err: { response?: { data?: { error?: string } }; message?: string }) => {
+      const errorMessage =
+        err?.response?.data?.error || err?.message || "Failed to create asset";
       toast.show({
         message: errorMessage,
         type: "error",
@@ -149,10 +160,28 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
                 <label className="block text-sm font-medium">
                   Asset Type <span className="text-red-500">*</span>
                 </label>
-                <input
-                  {...register("type", { required: true })}
+
+                <select
+                  {...register("type", {
+                    required: "Asset type is required",
+                  })}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Select Asset Type
+                  </option>
+
+                  {assetTypes.map((type: TAssetType) => (
+                    <option key={type._id} value={type.typeName}>
+                      {type.typeName}
+                    </option>
+                  ))}
+                </select>
+
+                {errors.type && (
+                  <p className="text-red-500 text-sm">{errors.type.message}</p>
+                )}
               </div>
 
               {/* Status */}

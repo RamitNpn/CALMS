@@ -39,20 +39,10 @@ export const createPayment: AppRouteMutationImplementation<
       businessEmail.toLowerCase(),
     );
 
-    if (!businessData) {
-      return {
-        status: 404,
-        body: {
-          success: false,
-          error: "Business with that email does not exist",
-        },
-      };
-    }
-
     const business_id = businessData._id.toString();
 
     const payment = await paymentRepository.create({
-      business_id: new mongoose.Types.ObjectId(business_id),
+      business_id: new mongoose.Types.ObjectId(business_id) || new mongoose.Types.ObjectId(),
       businessName,
       businessEmail,
       package: pkg,
@@ -84,7 +74,8 @@ export const createPayment: AppRouteMutationImplementation<
         module: "Payment",
         action: "CREATE",
         userId: new mongoose.Types.ObjectId(business_id),
-        userName: userName,
+        title: businessName,
+        role: account.role,
         description: `Payment created by user: ${userName}`,
       });
     }

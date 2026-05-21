@@ -42,20 +42,6 @@ export const createBilling: AppRouteMutationImplementation<
       };
     }
 
-    const clientData = await userRepository.getByEmail(
-      clientEmail.toLowerCase(),
-    );
-
-    if (!clientData) {
-      return {
-        status: 404,
-        body: {
-          success: false,
-          error: "Client with that email does not exist",
-        },
-      };
-    }
-
     const files = req.files as {
       recipt?: Express.Multer.File[];
     };
@@ -97,7 +83,8 @@ export const createBilling: AppRouteMutationImplementation<
         module: "Billing",
         action: "CREATE",
         userId: new mongoose.Types.ObjectId(business_id),
-        userName: userName,
+        title: title,
+        role: account.role,
         description: `Billing created for client: ${clientName}`,
       });
     }
@@ -224,6 +211,32 @@ export const removeBilling: AppRouteMutationImplementation<
         },
       };
     }
+
+    const businessUser = await businessRepository.getByID(
+      existing.business_id.toString(),
+    );
+    const user = await userRepository.getByID(existing.business_id.toString());
+    const account = businessUser || user;
+
+    if (!account) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    const isBusiness = "operatorPassword" in account;
+
+    const userName = isBusiness ? account.operatorName : account.userName;
+
+    const createLogs = await activityLogRepository.create({
+      module: "Billing",
+      action: "DELETE",
+      userId: new mongoose.Types.ObjectId(account._id),
+      title: existing?.title,
+      role: account.role,
+      description: `Billing removed by user: ${userName}`,
+    });
 
     return {
       status: 200,

@@ -182,7 +182,6 @@ export default function StaffRecord({
 
       {open && <StaffForm onClose={() => setOpen(false)} />}
 
-
       {/* DELETE CONFIRM */}
       <ConfirmDialog
         open={itemToRemove !== null}

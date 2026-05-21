@@ -81,7 +81,7 @@ export default function RegisterPage() {
         {services.map((service, index) => (
           <div
             key={index}
-            className="bg-white rounded-2xl shadow-sm border p-6 hover:shadow-md transition"
+            className="bg-white rounded-[12px] shadow-sm p-6 hover:shadow-md transition"
           >
             <h3 className="text-lg font-semibold text-indigo-600 mb-3">
               {service.title}
@@ -97,7 +97,7 @@ export default function RegisterPage() {
       </div>
 
       {/* Contact Section */}
-      <div className="max-w-3xl mx-auto bg-white border rounded-2xl shadow-md p-8 text-center">
+      <div className="max-w-3xl mx-auto bg-white border rounded-lg border-gray-200 shadow-md p-8 text-center">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">
           Contact Us for Registration
         </h2>
@@ -134,7 +134,7 @@ export default function RegisterPage() {
         <div className="mt-8">
           <a
             href="/pages/login-page"
-            className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+            className="inline-block bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
           >
             Back to Login
           </a>

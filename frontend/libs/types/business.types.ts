@@ -10,6 +10,7 @@ export interface TBusiness {
   operatorName: string;
   operatorEmail: string;
   businessType: string;
+  profile?: FileList;
   role: "business";
   teams: string;
   branch: Branch;

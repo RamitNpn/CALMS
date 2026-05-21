@@ -3,7 +3,8 @@ import mongoose, { Document } from "mongoose";
 export interface IActivityLog extends Document {
   action: "CREATE" | "UPDATE" | "DELETE" | "LOGIN" | "LOGOUT" | "VIEW" | "EDIT";
   userId: mongoose.Types.ObjectId;
-  userName: string;
+  title: string;
+  role: string;
   module: string;
   description: string;
   changes?: Array<{
@@ -30,7 +31,12 @@ const ActivityLogSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    userName: {
+    title: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    role:{
       type: String,
       required: true,
       index: true,

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
-  Building2,
   Mail,
   ShieldCheck,
   Briefcase,
@@ -14,10 +13,10 @@ import {
   CalendarDays,
   Pencil,
   Save,
-  X,
   User,
   Settings,
   ActivitySquare,
+  Camera,
 } from "lucide-react";
 
 import { useForm } from "react-hook-form";
@@ -27,6 +26,7 @@ import { useToast } from "@/components/ui/toast";
 import { businessApi } from "@/libs/api/business.api";
 import { useBusinessById } from "@/hooks/super-admin/business-records/getBusinessRecordById";
 import { z } from "zod";
+import user from "@/public/user.png";
 
 import {
   TUpdateBusinessSchema,
@@ -52,6 +52,8 @@ export default function BusinessProfilePage({ businessId }: Props) {
   const business = data?.data ?? data;
 
   const [activeTab, setActiveTab] = useState("profile");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const tabs = [
     { id: "profile", label: "Profile Management", icon: <User size={16} /> },
@@ -67,11 +69,13 @@ export default function BusinessProfilePage({ businessId }: Props) {
   } = useForm<BusinessForm>({
     resolver: zodResolver(updateBusinessSchema),
     defaultValues: {
+      _id: "",
       businessName: "",
       operatorName: "",
       operatorEmail: "",
       operatorPassword: "",
       businessType: "",
+      profile: "",
       role: "business",
       teams: "",
       branch: {
@@ -79,6 +83,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
         location: "",
       },
       package: "starter",
+      services: [],
       status: true,
       payment_status: false,
       payment_initiation: "",
@@ -97,6 +102,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
       operatorEmail: business.operatorEmail ?? "",
       operatorPassword: "",
       businessType: business.businessType ?? "",
+      profile: business.profile ?? "",
       role: "business",
       teams: business.teams ?? "",
       branch: {
@@ -104,6 +110,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
         location: business.branch?.location ?? "",
       },
       package: business.package ?? "starter",
+      services: Array.isArray(business.services) ? business.services : [],
       status: business.status ?? true,
       payment_status: business.payment_status ?? false,
       payment_initiation: business.payment_initiation
@@ -113,8 +120,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
   }, [businessId, business, reset]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: Partial<BusinessForm>) => {
-      console.log("SUBMITTING DATA:", data);
+    mutationFn: (data: FormData) => {
       return businessApi.updateBusinessApi(businessId, data);
     },
 
@@ -144,6 +150,38 @@ export default function BusinessProfilePage({ businessId }: Props) {
       });
     },
   });
+
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (previewImage) {
+      URL.revokeObjectURL(previewImage);
+    }
+
+    setSelectedImage(file);
+
+    const imageUrl = URL.createObjectURL(file);
+    setPreviewImage(imageUrl);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
+
+  const cancelImageSelection = () => {
+    if (previewImage) {
+      URL.revokeObjectURL(previewImage);
+    }
+
+    setSelectedImage(null);
+    setPreviewImage(null);
+  };
 
   const onSubmit = async (values: BusinessForm) => {
     console.log("FORM SUBMISSION STARTED");
@@ -178,17 +216,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
         return;
       }
 
-      // Validate services array
-      if (!Array.isArray(values.services) || values.services.length === -1) {
-        const errorMsg = "At least one service must be selected";
-        toast.show({
-          message: errorMsg,
-          type: "error",
-        });
-        console.error(errorMsg);
-        return;
-      }
-
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (values.operatorEmail && !emailRegex.test(values.operatorEmail)) {
@@ -208,6 +235,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
         operatorName: values.operatorName || business.operatorName,
         operatorEmail: values.operatorEmail || business.operatorEmail,
         businessType: values.businessType || business.businessType,
+        profile: business.profile,
         role: values.role || "business",
         teams: values.teams || business.teams,
 
@@ -241,12 +269,27 @@ export default function BusinessProfilePage({ businessId }: Props) {
           });
           return;
         }
+
         submitData.operatorPassword = values.operatorPassword;
       }
 
-      console.log("CLEANED DATA TO SUBMIT:", submitData);
+      const formData = new FormData();
 
-      mutate(submitData);
+      Object.entries(submitData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === "object" && !(value instanceof File)) {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, value);
+          }
+        }
+      });
+
+      if (selectedImage) {
+        formData.append("profile", selectedImage);
+      }
+
+      mutate(formData);
     } catch (err: unknown) {
       console.error("SUBMISSION ERROR:", err);
       toast.show({
@@ -291,17 +334,48 @@ export default function BusinessProfilePage({ businessId }: Props) {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 {/* LEFT */}
                 <div className="flex items-center gap-5">
-                  <div className="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur flex items-center justify-center border border-white/20 shadow-lg overflow-hidden">
-                    {business?.profilePicture ? (
+                  <div className="relative">
+                    <div className="w-28 h-28 rounded-md bg-gray-200 backdrop-blur flex items-center justify-center border border-white/20 shadow-lg overflow-hidden">
                       <Image
-                        src={business.profilePicture}
+                        src={previewImage || business?.profile || user}
                         alt={business.businessName}
-                        width={96}
-                        height={96}
+                        width={100}
+                        height={100}
                         className="w-full h-full object-cover"
                       />
-                    ) : (
-                      <Building2 size={42} />
+                    </div>
+
+                    {/* CAMERA BUTTON */}
+                    {isEditing && !selectedImage && (
+                      <>
+                        <label
+                          htmlFor="profile-upload"
+                          className="absolute -bottom-2 -right-2 w-9 h-9 rounded-full bg-black text-white flex items-center justify-center cursor-pointer shadow-lg hover:scale-105 transition"
+                        >
+                          <Camera size={18} />
+                        </label>
+
+                        <input
+                          id="profile-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleProfileChange}
+                        />
+                      </>
+                    )}
+
+                    {/* UPDATE / CANCEL BUTTONS */}
+                    {selectedImage && (
+                      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={cancelImageSelection}
+                          className="px-3 py-1 text-xs rounded-[2px] cursor-pointer bg-red-500 text-white hover:bg-red-600 transition"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -352,13 +426,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
                       Edit Profile
                     </button>
                   ) : (
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className="flex items-center gap-2 bg-red-500 px-5 py-3 rounded text-white font-semibold shadow-lg hover:bg-red-600 transition cursor-pointer"
-                    >
-                      <X size={18} />
-                      Cancel
-                    </button>
+                    ""
                   )}
                 </div>
               </div>
@@ -489,6 +557,14 @@ export default function BusinessProfilePage({ businessId }: Props) {
                     />
 
                     <InputField
+                      label="Operator Password (Leave empty to keep current)"
+                      register={register("operatorPassword")}
+                      disabled={!isEditing}
+                      type="password"
+                      error={errors.operatorPassword?.message}
+                    />
+
+                    <InputField
                       label="Teams"
                       register={register("teams")}
                       disabled={!isEditing}
@@ -539,7 +615,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
                           reset();
                           setIsEditing(false);
                         }}
-                        className="px-5 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition cursor-pointer"
+                        className="px-5 py-[8px] rounded bg-red-500 text-white hover:bg-red-600 transition cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -547,7 +623,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
                       <button
                         type="submit"
                         disabled={isPending}
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gray-900 text-white font-medium hover:bg-black transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 px-6 py-[8px] rounded bg-gray-900 text-white hover:bg-black transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Save size={18} />
 
@@ -626,11 +702,13 @@ function InputField({
   register,
   disabled,
   error,
+  type = "text",
 }: {
   label: string;
   register: any;
   disabled?: boolean;
   error?: string;
+  type?: string;
 }) {
   return (
     <div>
@@ -640,6 +718,7 @@ function InputField({
 
       <input
         {...register}
+        type={type}
         disabled={disabled}
         className={`w-full p-2 rounded border outline-none transition ${
           disabled

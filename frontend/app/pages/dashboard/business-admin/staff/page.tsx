@@ -13,27 +13,28 @@ import {
   Wrench,
   FileText,
 } from "lucide-react";
+import StaffStats from "@/components/business-admin/staff/StaffStats";
 
 const mockStaffData = [
   {
-    id: '1',
-    name: 'Alice Johnson',
-    email: 'alice@techflow.com',
-    position: 'Senior Engineer',
-    department: 'Engineering',
+    id: "1",
+    name: "Alice Johnson",
+    email: "alice@techflow.com",
+    position: "Senior Engineer",
+    department: "Engineering",
     salary: 95000,
-    joinDate: '2022-01-15',
-    status: 'active',
-    phone: '+1-555-0101',
-    address: '123 Main St, NYC',
-    role: 'manager',
+    joinDate: "2022-01-15",
+    status: "active",
+    phone: "+1-555-0101",
+    address: "123 Main St, NYC",
+    role: "manager",
     permissions: {
       canView: true,
       canEdit: true,
       canDelete: false,
       canCreate: true,
       customFields: true,
-      moduleAccess: ['staff', 'attendance', 'payroll'],
+      moduleAccess: ["staff", "attendance", "payroll"],
     },
   },
 ];
@@ -64,12 +65,16 @@ export default function StaffPage() {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Business Staff Records</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Business Staff Records
+          </h2>
           <p className="text-sm text-gray-500">
             Manage all business staffs in the system
           </p>
         </div>
       </div>
+
+      <StaffStats />
 
       {/* TAB NAVIGATION */}
       <TabNavigation
@@ -92,22 +97,39 @@ export default function StaffPage() {
 
       {activeTab === "permission" && (
         <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Role-Based Access Control</h3>
+          <h3 className="text-lg font-semibold mb-4">
+            Role-Based Access Control
+          </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">Name</th>
-                  <th className="text-center py-3 px-4 font-semibold text-foreground">View</th>
-                  <th className="text-center py-3 px-4 font-semibold text-foreground">Edit</th>
-                  <th className="text-center py-3 px-4 font-semibold text-foreground">Delete</th>
-                  <th className="text-center py-3 px-4 font-semibold text-foreground">Create</th>
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">Module Access</th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                    Name
+                  </th>
+                  <th className="text-center py-3 px-4 font-semibold text-foreground">
+                    View
+                  </th>
+                  <th className="text-center py-3 px-4 font-semibold text-foreground">
+                    Edit
+                  </th>
+                  <th className="text-center py-3 px-4 font-semibold text-foreground">
+                    Delete
+                  </th>
+                  <th className="text-center py-3 px-4 font-semibold text-foreground">
+                    Create
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-foreground">
+                    Module Access
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {mockStaffData.map((staff) => (
-                  <tr key={staff.id} className="border-b border-border hover:bg-muted/50">
+                  <tr
+                    key={staff.id}
+                    className="border-b border-border hover:bg-muted/50"
+                  >
                     <td className="py-3 px-4">{staff.name}</td>
                     <td className="text-center py-3 px-4">
                       <input
@@ -186,13 +208,13 @@ export default function StaffPage() {
 
       {activeTab === "logs" && (
         <LogDetails
+          userId={staffData?.businessId}
           module="Staff"
           onClearLogs={() => {
             console.log("Clearing staff logs");
           }}
         />
       )}
-
     </div>
   );
 }

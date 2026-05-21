@@ -10,7 +10,7 @@ export const createStaffSchema = z.object({
     .max(15, "Phone number is too long"),
   userPassword: z.string().min(6, "Password must be at least 6 characters"),
   gender: z.enum(["male", "female", "other"]),
-  profile: z.any().optional(), // image URL or file path
+  profile: z.any().optional(),
   role: z.string(),
 });
 

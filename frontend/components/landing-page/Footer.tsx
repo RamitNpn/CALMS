@@ -2,14 +2,14 @@ import React from "react";
 
 function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-black/5">
+    <footer className="relative overflow-hidden bg-white">
 
       <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 py-2 md:flex-row lg:px-8">
         {/* LEFT */}
         <div className="text-center md:text-left">
-          <h3 className="text-2xl font-bold text-black">FlowDesk</h3>
+          <h3 className="text-xl font-bold text-black">FlowDesk</h3>
 
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-[14px] text-gray-600">
             © {new Date().getFullYear()} FlowDesk - Cornor Tech Pvt. Ltd.
           </p>
         </div>
@@ -39,7 +39,7 @@ function Footer() {
         </div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <a
             href="#"
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FCF8F1] text-gray-700 transition-all duration-200 hover:bg-yellow-300 hover:text-black"

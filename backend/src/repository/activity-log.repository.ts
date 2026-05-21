@@ -15,16 +15,20 @@ class ActivityLogRepository {
     }
   }
 
-  async getByModule(
-    module: string,
+  async getLogs(
     skip: number = 0,
     limit: number = 10,
-    filters?: { action?: string; userId?: string; recordId?: string }
+    filters?: {
+      module?: string;
+      action?: string;
+      userId?: string;
+      recordId?: string;
+    }
   ) {
     try {
-      const query: any = { module };
+      const query: any = {};
 
-      if(filters?.action) query.action = filters.action;
+      if (filters?.module) query.module = filters.module;
       if (filters?.action) query.action = filters.action;
       if (filters?.userId) query.userId = filters.userId;
       if (filters?.recordId) query.recordId = filters.recordId;
@@ -43,29 +47,13 @@ class ActivityLogRepository {
     }
   }
 
-  async getByUser(
-    userId: string,
-    skip: number = 0,
-    limit: number = 10
-  ) {
-    try {
-      const data = await this.model
-        .find({ userId })
-        .sort({ timestamp: -1 })
-        .skip(skip)
-        .limit(limit);
-
-      const total = await this.model.countDocuments({ userId });
-
-      return { data, total };
-    } catch (error) {
-      throw new Error(`Error fetching user activity logs: ${error}`);
-    }
-  }
-
   async removeLogs(log_id: string, business_id?: string) {
     try {
-      const result = await this.model.findOneAndDelete({ _id: log_id, business_id });
+      const result = await this.model.findOneAndDelete({
+        _id: log_id,
+        business_id,
+      });
+
       return result;
     } catch (error) {
       throw new Error(`Error removing activity logs: ${error}`);

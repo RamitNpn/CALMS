@@ -1,5 +1,6 @@
 type TEnv = {
   PORT: number;
+  WHITE_LISTED_ORIGINS: string;
   JWT_SECRET: string;
   MONGO_URI: string;
   DB_NAME: string;
@@ -13,6 +14,7 @@ type TEnv = {
 
 const env: TEnv = {
   PORT: process.env.PORT ? parseInt(process.env.PORT) : 4000,
+  WHITE_LISTED_ORIGINS: process.env.WHITE_LISTED_ORIGINS || "http://localhost:5173,http://localhost:3000,http://localhost:4000",
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key",
   MONGO_URI: process.env.MONGO_URI || "mongodb+srv://gauravkarki0927:gauravkarki0927@cluster0.lp3l6vb.mongodb.net/flowdesk?appName=Cluster0",
   DB_NAME: process.env.DB_NAME || "flowdesk",
