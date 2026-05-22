@@ -10,6 +10,7 @@ import { serviceContract } from "./service/service.contract";
 import { activityLogContract } from "./activity-log/activity-log.contract";
 import { statsContract } from "./stats/stats.contract";
 import { assetTypeContract } from "./asset-type/type.contract";
+import { inquiryContract } from "./inquiry/inquiry.contract";
 
 const c = initContract();
 
@@ -20,6 +21,7 @@ export const contract = c.router({
     auth: authContract,
     billing: billingContract,
     business: businessContract,
+    inquiry: inquiryContract,
     log: activityLogContract,
     payment: paymentContract,
     service: serviceContract,

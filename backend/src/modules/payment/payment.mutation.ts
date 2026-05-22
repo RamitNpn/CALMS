@@ -39,6 +39,16 @@ export const createPayment: AppRouteMutationImplementation<
       businessEmail.toLowerCase(),
     );
 
+    if(!businessData){
+      return {
+        status: 404,
+        body: {
+          success: false,
+          error: "Business not found",
+        },
+      };
+    }
+
     const business_id = businessData._id.toString();
 
     const payment = await paymentRepository.create({
