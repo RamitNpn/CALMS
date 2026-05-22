@@ -23,24 +23,12 @@ export const createBilling: AppRouteMutationImplementation<
       dueDate,
     } = req.body;
 
-    // Parse items from FormData
     if (typeof items === "string") {
       items = JSON.parse(items);
     }
 
-    // Convert numbers
     totalAmount = Number(totalAmount);
     paidAmount = Number(paidAmount || 0);
-
-    if (!clientEmail) {
-      return {
-        status: 400,
-        body: {
-          success: false,
-          error: "Client email is required",
-        },
-      };
-    }
 
     const files = req.files as {
       recipt?: Express.Multer.File[];
@@ -50,7 +38,6 @@ export const createBilling: AppRouteMutationImplementation<
 
     const billing = await billingRepository.create({
       business_id: new mongoose.Types.ObjectId(business_id),
-      clientId: new mongoose.Types.ObjectId(clientData._id),
       clientName,
       clientEmail,
       title,
@@ -116,6 +103,7 @@ export const updateBilling: AppRouteMutationImplementation<
 
     let {
       clientName,
+      clientEmail,
       title,
       items,
       totalAmount,
@@ -125,12 +113,10 @@ export const updateBilling: AppRouteMutationImplementation<
       dueDate,
     } = req.body;
 
-    // Parse items from FormData
     if (typeof items === "string") {
       items = JSON.parse(items);
     }
 
-    // Convert numbers
     totalAmount = Number(totalAmount);
     paidAmount = Number(paidAmount || 0);
 
@@ -138,11 +124,11 @@ export const updateBilling: AppRouteMutationImplementation<
       recipt?: Express.Multer.File[];
     };
 
-    // Cloudinary URLs
     const reciptUrl = files?.recipt?.[0]?.path;
 
     const updated = await billingRepository.update(billingID, {
       clientName,
+      clientEmail,
       title,
       paymentMethod,
       items,
