@@ -32,7 +32,7 @@ export const createTokenSchema = z.object({
     .number()
     .min(0, "Per round charge cannot be negative"),
 
-  participationDate: z.coerce.date().optional(),
+  participationDate: z.string().optional(),
 
   fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
   email: z.string().trim().email("Invalid email address").optional(),
