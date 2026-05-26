@@ -9,7 +9,6 @@ import swaggerUi from "swagger-ui-express";
 import { createExpressEndpoints } from "@ts-rest/express";
 import morgan from "morgan";
 import { openApiDocument } from "./config/swagger";
-import env from "./config/env";
 
 const app = express();
 
@@ -18,28 +17,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); // IMPORTANT
 app.use(morgan("dev"));
 
-const allowedOrigins =
-  env.WHITE_LISTED_ORIGINS?.split(",").map((o) => o.trim()) || [];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      console.log("CORS Origin:", origin);
-      if (!origin) return callback(null, true);
-      if (origin === `http://localhost:${env.PORT || 4000}`) {
-        return callback(null, true);
-      }
-      if (process.env.NODE_ENV !== "production") {
-        return callback(null, true);
-      }
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("CORS blocked"), false);
-    },
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use("/flowdesk-api", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
