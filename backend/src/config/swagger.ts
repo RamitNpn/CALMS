@@ -7,5 +7,5 @@ export const openApiDocument = generateOpenApi(contract, {
     title: "Flowdesk API",
     version: "1.0.0",
   },
-  baseUrl: "http://localhost:5000", // Your API base URL
+  baseUrl: "http://localhost:4000", // Your API base URL
 });
