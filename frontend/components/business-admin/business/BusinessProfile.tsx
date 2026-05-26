@@ -29,6 +29,7 @@ import { z } from "zod";
 import user from "@/public/user.png";
 
 import {
+  TAdminUpdateBusinessSchema,
   TUpdateBusinessSchema,
   updateBusinessSchema,
 } from "@/libs/validation/business.validation";
@@ -38,8 +39,6 @@ import TabNavigation from "@/components/shared/TabNavigation";
 type Props = {
   businessId: string;
 };
-
-type BusinessForm = z.infer<typeof updateBusinessSchema>;
 
 export default function BusinessProfilePage({ businessId }: Props) {
   const queryClient = useQueryClient();
@@ -66,7 +65,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<BusinessForm>({
+  } = useForm<TAdminUpdateBusinessSchema>({
     resolver: zodResolver(updateBusinessSchema),
     defaultValues: {
       _id: "",
@@ -83,7 +82,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
         location: "",
       },
       package: "starter",
-      services: [],
       status: true,
       payment_status: false,
       payment_initiation: "",
@@ -110,7 +108,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
         location: business.branch?.location ?? "",
       },
       package: business.package ?? "starter",
-      services: Array.isArray(business.services) ? business.services : [],
       status: business.status ?? true,
       payment_status: business.payment_status ?? false,
       payment_initiation: business.payment_initiation
@@ -120,7 +117,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
   }, [businessId, business, reset]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: FormData) => {
+    mutationFn: (data: TAdminUpdateBusinessSchema) => {
       return businessApi.updateBusinessApi(businessId, data);
     },
 
@@ -183,7 +180,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
     setPreviewImage(null);
   };
 
-  const onSubmit = async (values: BusinessForm) => {
+  const onSubmit = async (values: TAdminUpdateBusinessSchema) => {
     console.log("FORM SUBMISSION STARTED");
     console.log("FORM VALUES:", values);
     console.log("FORM ERRORS:", errors);
@@ -245,7 +242,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
         },
 
         package: values.package || business.package,
-        services: values.services,
 
         status: values.status !== undefined ? values.status : business.status,
 
@@ -289,7 +285,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
         formData.append("profile", selectedImage);
       }
 
-      mutate(formData);
+      mutate(submitData);
     } catch (err: unknown) {
       console.error("SUBMISSION ERROR:", err);
       toast.show({

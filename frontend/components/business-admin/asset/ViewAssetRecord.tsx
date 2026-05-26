@@ -1,8 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import { X } from "lucide-react";
 import { useAssetById } from "@/hooks/business-admin/asset-management/getAssetById";
+import { X } from "lucide-react";
 
 type ViewAssetModalProps = {
   assetId: string;

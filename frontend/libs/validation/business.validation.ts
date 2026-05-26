@@ -49,7 +49,7 @@ export const getAllBusinessSchema = z.array(getAllBusinessByIdSchema);
 
 export type TGetAllBusinessSchema = z.infer<typeof getAllBusinessSchema>;
 
-export const updateBusinessSchema = z.object({
+export const updateAdminBusinessSchema = z.object({
   _id: z.string(),
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
@@ -65,6 +65,28 @@ export const updateBusinessSchema = z.object({
   branch: branchSchema.optional(),
   package: packageEnum.optional(),
   services: z.array(z.string()).optional(),
+  status: z.boolean().optional(),
+  payment_status: z.boolean().optional(),
+  payment_initiation: z.string().optional(),
+});
+
+export type TAdminUpdateBusinessSchema = z.infer<typeof updateAdminBusinessSchema>;
+
+export const updateBusinessSchema = z.object({
+  _id: z.string(),
+  businessName: z.string().optional(),
+  operatorName: z.string().optional(),
+  operatorEmail: z.string().email("Invalid email format").optional().or(z.literal("")),
+  operatorPassword: z.string().refine(
+    (val) => !val || val.length >= 6,
+    "Password must be at least 6 characters"
+  ).optional(),
+  businessType: z.string().optional(),
+  profile: z.any().optional(),
+  role: z.enum(["admin", "business", "staff", "client"]).optional(),
+  teams: z.string().optional(),
+  branch: branchSchema.optional(),
+  package: packageEnum.optional(),
   status: z.boolean().optional(),
   payment_status: z.boolean().optional(),
   payment_initiation: z.string().optional(),
