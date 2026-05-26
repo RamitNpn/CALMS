@@ -35,6 +35,7 @@ export const authLogin: AppRouteMutationImplementation<
     const userName = isBusiness ? account.operatorName : account.userName;
     const userEmail = isBusiness ? account.operatorEmail : account.userEmail;
     const business_id = isBusiness ? account._id : account.business_id;
+    const businessName = isBusiness ? account.businessName : null;
 
     // 4. verify password
     const isPasswordValid = await bcrypt.compare(password, passwordHash);
@@ -69,6 +70,7 @@ export const authLogin: AppRouteMutationImplementation<
       body: {
         id: account._id.toString(),
         business_id,
+        businessName,
         userName,
         userEmail,
         role,

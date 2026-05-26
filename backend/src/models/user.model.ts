@@ -45,7 +45,8 @@ const UserSchema = new mongoose.Schema(
 
     userPassword: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
     },
 
     gender: {
@@ -76,7 +77,7 @@ const UserSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const UserModel = mongoose.model<IUser>("User", UserSchema);

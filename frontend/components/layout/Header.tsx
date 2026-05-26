@@ -4,12 +4,11 @@ import { Bell, Mail, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
-
   const pendingCount = 3;
 
-    // This only runs on the client side
-    const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
-    const userRole = storedData?.role || [];
+  // This only runs on the client side
+  const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
+  const userRole = storedData?.role || [];
 
   const { logout } = useAuth();
 
@@ -21,13 +20,22 @@ export default function Header() {
     <header className="flex justify-between items-center px-4 py-1 border-b border-gray-200 bg-white shadow-sm">
       {/* Left: Brand */}
       <h1 className="text-lg font-semibold text-gray-800 px-6">
-       Flowdesk - {userRole.includes("admin") ? "Super Admin" : "Business Admin"}
+        Flowdesk -{" "}
+        {userRole.includes("admin")
+          ? "Super Admin"
+          : userRole.includes("business_admin")
+            ? "Business Admin"
+            : "Staff"}
       </h1>
 
       {/* Right: Actions */}
       <div className="flex items-center gap-3 md:gap-4 text-sm md:text-base pr-6 py-2">
         <span className="hidden lg:block text-sm text-gray-600 ml-2">
-          {userRole.includes("admin") ? "Admin" : "Business"}
+          {userRole.includes("admin")
+            ? "Super Admin"
+            : userRole.includes("business_admin")
+              ? "Business Admin"
+              : "Staff"}
         </span>
 
         {/* Notifications */}

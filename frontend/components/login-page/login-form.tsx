@@ -44,9 +44,7 @@ export default function LoginForm() {
       } else if (data.role === "business") {
         router.push("/pages/dashboard/business-admin");
       } else if (data.role === "staff") {
-        router.push("/pages/dashboard/staff-portal");
-      } else if (data.role === "client") {
-        router.push("/pages/dashboard/client-portal");
+        router.push("/pages/dashboard/business-admin");
       } else {
         router.push("/");
       }

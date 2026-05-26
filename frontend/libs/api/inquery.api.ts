@@ -24,8 +24,8 @@ const getInquiryById = async (id: string) => {
   return response.data;
 };
 
-const deleteInquiry = async ({ _id }: TDeleteDrivingInquirySchema) => {
-  const response = await apiClient.delete(`/inquiry/${_id}`);
+const deleteInquiry = async (inquiryId: TDeleteDrivingInquirySchema['_id']) => {
+  const response = await apiClient.delete(`/inquiry/${inquiryId}`);
 
   return response.data;
 };

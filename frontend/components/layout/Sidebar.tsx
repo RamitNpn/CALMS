@@ -12,6 +12,7 @@ import {
   BarChart,
   ChevronLeft,
   ChevronRight,
+  CardSim,
 } from "lucide-react";
 
 import { useAllService } from "@/hooks/business-admin/service/getAllServiceDatas";
@@ -82,6 +83,15 @@ const menu = [
     serviceKey: "staff_management",
     href: "/pages/dashboard/business-admin/staff",
     icon: Users,
+    roles: ["business"],
+  },
+
+  {
+    id: "token-management",
+    name: "Token Management",
+    href: "/pages/dashboard/business-admin/token",
+    icon: CardSim,
+    exact: true,
     roles: ["business"],
   },
 
