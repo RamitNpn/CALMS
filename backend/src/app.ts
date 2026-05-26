@@ -12,12 +12,20 @@ import { openApiDocument } from "./config/swagger";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://calms-frontend.vercel.app/",
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); // IMPORTANT
 app.use(morgan("dev"));
-
-app.use(cors());
 
 app.use("/flowdesk-api", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
