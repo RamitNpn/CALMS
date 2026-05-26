@@ -16,7 +16,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://calms-frontend.vercel.app/",
+      "https://calms-frontend.vercel.app",
     ],
     credentials: true,
   })
