@@ -8,7 +8,6 @@ export const createStaffSchema = z.object({
     .string()
     .min(7, "Phone number is too short")
     .max(15, "Phone number is too long"),
-  userPassword: z.string().min(6, "Password must be at least 6 characters"),
   gender: z.enum(["male", "female", "other"]),
   profile: z.any().optional(),
   role: z.string(),

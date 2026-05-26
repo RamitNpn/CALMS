@@ -14,6 +14,7 @@ import { logRouter } from "./activity-log/activity-log.router";
 import { statsRouter } from "./stats-data/stats.router";
 import { assetTypeRouter } from "./asset-type/type.router";
 import { inquiryRouter } from "./inquiry/inquiry.router";
+import { tokenRouter } from "./token/token.router";
 
 const s = initServer();
 
@@ -29,5 +30,6 @@ export const router = s.router(contract, {
   payment: paymentRouter,
   service: serviceRouter,
   stats: statsRouter,
+  token: tokenRouter,
   user: userRouter,
 });

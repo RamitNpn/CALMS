@@ -4,6 +4,11 @@ import userRepository from "../../repository/user.repository";
 import { userContract } from "../../contract/user/user.contract";
 import activityLogRepository from "../../repository/activity-log.repository";
 import businessRepository from "../../repository/business.repository";
+import bcrypt from "bcryptjs";
+import { authRepository } from "../../repository/auth.repository";
+import env from "../../config/env";
+import { sendMail } from "../../utils/sendMail";
+import { welcomeTemplate } from "../../template/welcome.template";
 
 export const createUser: AppRouteMutationImplementation<
   typeof userContract.createUser
@@ -14,7 +19,6 @@ export const createUser: AppRouteMutationImplementation<
       userName,
       userEmail,
       userPhone,
-      userPassword,
       gender,
       role,
     } = req.body;
@@ -32,12 +36,26 @@ export const createUser: AppRouteMutationImplementation<
     const licenseUrl = files?.license?.[0]?.path;
     const certificateUrl = files?.certificate?.[0]?.path;
 
+    const existingUser = await userRepository.getByEmail(
+      req.body.userEmail?.toString().toLowerCase() || "",
+    );
+
+    if (existingUser) {
+      return {
+        status: 400,
+        body: {
+          success: false,
+          error: "Email already exists",
+        },
+      };
+    }
+
     const created = await userRepository.create({
       business_id: new mongoose.Types.ObjectId(business_id),
       userName,
       userEmail,
       userPhone,
-      userPassword,
+      userPassword: "",
       gender,
       profile: profileUrl,
       citizenship: citizenshipUrl,
@@ -48,6 +66,38 @@ export const createUser: AppRouteMutationImplementation<
 
     const user = await businessRepository.getByID(business_id);
     const userRole = user?.role === "client" ? "Client" : "Staff";
+
+    if (created) {
+      const setupToken = authRepository.createSetupToken(
+        {
+          accountId: created._id.toString(),
+          setupToken: true,
+        },
+        env.JWT_SECRET,
+        { expiresIn: "24h" },
+      );
+
+      const setupLink = `${env.frontend_url}/pages/welcome?token=${setupToken}`;
+
+      try {
+        await sendMail({
+          to: created.userEmail,
+          subject: "Complete Your FlowDesk Account Setup",
+          html: welcomeTemplate({
+            businessName: user?.businessName || "",
+            operatorName: created.userName,
+            operatorEmail: created.userEmail,
+            setupLink,
+          }),
+        });
+        console.log(`Welcome email sent successfully to ${created.userEmail}`);
+      } catch (emailError) {
+        console.error(
+          `Failed to send welcome email to ${created.userEmail}:`,
+          emailError,
+        );
+      }
+    }
 
     if (!user) {
       return {
@@ -180,7 +230,9 @@ export const removeUser: AppRouteMutationImplementation<
       };
     }
 
-    const user = await businessRepository.getByID(existing.business_id.toString());
+    const user = await businessRepository.getByID(
+      existing.business_id.toString(),
+    );
     const userRole = user?.role === "client" ? "Client" : "Staff";
 
     if (!user) {

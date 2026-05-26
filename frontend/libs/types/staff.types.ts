@@ -17,7 +17,6 @@ export interface TCreateStaff {
   userName: string;
   userEmail: string;
   userPhone: string;
-  userPassword: string;
   gender: Gender;
   profile?: FileList;
   role:string;

@@ -91,7 +91,7 @@ export default function SetPasswordForm({
               {...register("password")}
               type={showPassword ? "text" : "password"}
               placeholder="Enter a strong password"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full mt-1 px-4 py-2 border border-gray-200 rounded focus:border-blue-500 outline-none"
             />
             <button
               type="button"
@@ -118,7 +118,7 @@ export default function SetPasswordForm({
               {...register("confirmPassword")}
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm your password"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full mt-1 px-4 py-2 border border-gray-200 rounded focus:border-blue-500 outline-none"
             />
             <button
               type="button"
@@ -150,7 +150,7 @@ export default function SetPasswordForm({
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-indigo-600 text-white cursor-pointer py-2 rounded hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
           {isPending ? "Setting Password..." : "Set Password"}
