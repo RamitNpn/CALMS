@@ -1,14 +1,14 @@
-"use staff";
+"use client";
 
 import { Trash2, Eye, Pencil, Plus } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { useToast } from "@/components/ui/toast";
-import { TStaff } from "@/libs";
+import type { TStaff } from "@/libs/types/staff.types";
 import { useDeleteStaff } from "@/hooks/business-admin/staff-management/removeStaffData";
-import { ViewStaffRecord } from "./ViewStaffRecord";
 import { EditstaffForm } from "./EditStaffRecord.";
 import Button from "@/components/ui/button";
 import { StaffForm } from "./StaffForm";
@@ -32,7 +32,7 @@ export default function StaffRecord({
 }: StaffTableProps) {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [viewId, setViewId] = useState<string | null>(null);
+  const router = useRouter();
 
   const { mutate: deleteStaff } = useDeleteStaff();
   const [itemToRemove, setItemToRemove] = useState<TStaff | null>(null);
@@ -127,7 +127,11 @@ export default function StaffRecord({
                   <div className="flex items-center gap-2">
                     {/* VIEW */}
                     <button
-                      onClick={() => setViewId(staff._id)}
+                      onClick={() =>
+                        router.push(
+                          `/pages/dashboard/business-admin/staff/${staff._id}`,
+                        )
+                      }
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
                     >
                       <Eye size={16} className="text-yellow-600" />
@@ -165,15 +169,6 @@ export default function StaffRecord({
             onPageChange={onPageChange}
           />
         </div>
-      )}
-
-      {/* VIEW MODAL */}
-      {viewId && (
-        <ViewStaffRecord
-          staffId={viewId}
-          open={!!viewId}
-          onClose={() => setViewId(null)}
-        />
       )}
 
       {editId && (
