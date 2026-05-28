@@ -140,7 +140,7 @@ export default function Features() {
       <Nav />
       <section
         id="services"
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 sm:mt-20 py-16"
       >
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center mb-16">
@@ -198,14 +198,6 @@ export default function Features() {
                     </li>
                   ))}
                 </ul>
-
-                <Link
-                  href="/services"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:gap-3 transition-all"
-                >
-                  Explore Service
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
               </div>
             );
           })}

@@ -225,14 +225,14 @@ export default function DrivingInquiryForm() {
       <div className="mt-16 bg-gray-50">
         {/* Header */}
         <div className="">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 py-5">
+          <div className="max-w-7xl text-center mx-auto px-4 md:px-6 py-5">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
                 Driving Institute Inquiry
               </h1>
 
               <p className="text-sm text-gray-500 mt-1">
-                Submit inquiry for driving course enrollment
+                Submit details for business inquery
               </p>
             </div>
           </div>

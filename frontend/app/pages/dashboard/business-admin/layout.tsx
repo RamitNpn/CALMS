@@ -7,6 +7,7 @@ import { useState } from "react";
 
 type AuthData = {
   role: string[];
+  userName?: string;
 };
 
 export default function BusinessAdminLayout({
@@ -27,6 +28,7 @@ export default function BusinessAdminLayout({
 
     return {
       role: storedData?.role || [],
+      userName: storedData?.userName,
     };
   });
 
@@ -35,6 +37,7 @@ export default function BusinessAdminLayout({
       <div className="flex min-h-screen bg-gray-100">
         <Sidebar
           userRole={authData.role}
+          userName={authData.userName}
         />
 
         <div className="flex-1 flex flex-col ">

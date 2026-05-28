@@ -43,9 +43,9 @@ function Nav() {
             </Link>
           </div>
 
-          <button
+          {/* <button
             type="button"
-            className="inline-flex p-2 text-black transition-all duration-200 rounded-md lg:hidden focus:bg-gray-100 hover:bg-gray-100"
+            className="inline-flex p-2 text-black transition-all duration-200 rounded-md hidden focus:bg-gray-100 hover:bg-gray-100"
           >
             <svg
               className="block w-6 h-6"
@@ -76,7 +76,7 @@ function Nav() {
                 d="M6 18L18 6M6 6l12 12"
               ></path>
             </svg>
-          </button>
+          </button> */}
 
           {/* <div className="hidden lg:flex lg:items-center lg:justify-center lg:space-x-10">
             <a
@@ -119,7 +119,7 @@ function Nav() {
           <a
             href="/pages/login-page"
             title=""
-            className="hidden lg:inline-flex items-center justify-center px-3 py-[6px] text-base transition-all duration-200 hover:bg-blue-700 hover:text-white font-semibold text-white bg-blue-600 rounded"
+            className="lg:inline-flex items-center justify-center px-3 py-[6px] text-base transition-all duration-200 hover:bg-blue-700 hover:text-white font-semibold text-white bg-blue-600 rounded"
             role="button"
           >
             {" "}
