@@ -7,12 +7,14 @@ import { allMockLogs, LogEntry } from "@/data/logDetails";
 interface LogDetailsProps {
   module: string;
   recordId?: string;
+  recordName?: string;
   onClearLogs?: () => void;
 }
 
 export default function LogDetails({
   module,
   recordId,
+  recordName,
   onClearLogs,
 }: LogDetailsProps) {
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -26,15 +28,39 @@ export default function LogDetails({
     return allMockLogs.filter(log => log.module === module);
   }, [module]);
 
+  const scopedLogs = useMemo(() => {
+    if (!recordId && !recordName) {
+      return moduleLogs;
+    }
+
+    const normalizedRecordId = recordId?.trim().toLowerCase();
+    const normalizedRecordName = recordName?.trim().toLowerCase();
+
+    const matches = moduleLogs.filter((log) => {
+      const candidates = [log.recordId, log.recordName, log.userId, log.userName]
+        .filter(Boolean)
+        .map((value) => value!.toLowerCase());
+
+      return candidates.some((candidate) => {
+        return Boolean(
+          (normalizedRecordId && candidate.includes(normalizedRecordId)) ||
+          (normalizedRecordName && candidate.includes(normalizedRecordName)),
+        );
+      });
+    });
+
+    return matches;
+  }, [moduleLogs, recordId, recordName]);
+
   React.useEffect(() => {
     // Simulate API call to fetch logs
     setIsLoading(true);
     const timer = setTimeout(() => {
-      setLogs(moduleLogs);
+      setLogs(scopedLogs);
       setIsLoading(false);
     }, 500);
     return () => clearTimeout(timer);
-  }, [module, moduleLogs]);
+  }, [module, scopedLogs]);
 
   const filteredLogs = logs.filter((log) => {
     const matchesAction = filterAction === "ALL" || log.action === filterAction;

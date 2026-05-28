@@ -3,12 +3,12 @@
 import { Trash2, Eye, Pencil, Plus } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { useToast } from "@/components/ui/toast";
 import { TClient } from "@/libs/types/client.types";
 import { useDeleteClient } from "@/hooks/business-admin/client-management/removeClientData";
-import { ViewClientRecord } from "./ViewClientRecord";
 import { EditClientForm } from "./EditClientRecord";
 import Button from "@/components/ui/button";
 import { ClientForm } from "./ClientForm";
@@ -32,7 +32,7 @@ export default function ClientRecord({
 }: ClientTableProps) {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [viewId, setViewId] = useState<string | null>(null);
+  const router = useRouter();
 
   const { mutate: deleteClient } = useDeleteClient();
   const [itemToRemove, setItemToRemove] = useState<TClient | null>(null);
@@ -127,7 +127,11 @@ export default function ClientRecord({
                   <div className="flex items-center gap-2">
                     {/* VIEW */}
                     <button
-                      onClick={() => setViewId(client._id)}
+                      onClick={() =>
+                        router.push(
+                          `/pages/dashboard/business-admin/clients/${client._id}`,
+                        )
+                      }
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
                     >
                       <Eye size={16} className="text-yellow-600" />
@@ -165,15 +169,6 @@ export default function ClientRecord({
             onPageChange={onPageChange}
           />
         </div>
-      )}
-
-      {/* VIEW MODAL */}
-      {viewId && (
-        <ViewClientRecord
-          clientId={viewId}
-          open={!!viewId}
-          onClose={() => setViewId(null)}
-        />
       )}
 
       {editId && (
