@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ClientRecord from "@/components/business-admin/client/ClientRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
@@ -16,23 +16,21 @@ import {
 import Button from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import ClientStats from "@/components/business-admin/client/ClientStats";
-
-const mockClients = [
-  {
-    id: "1",
-    name: "Acme Corporation",
-    email: "contact@acme.com",
-    phone: "+1-555-0101",
-    industry: "Technology",
-    companyName: "Acme Corp Inc",
-    status: "active",
-    contractValue: 50000,
-    startDate: "2023-01-15",
-    endDate: "2024-01-15",
-    address: "123 Business St, NYC",
-    notes: "Key account, quarterly reviews required",
-  },
-];
+import { TClient } from "@/libs/types/client.types";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 
 export default function ClientPage() {
   const [page, setPage] = useState(1);
@@ -46,8 +44,55 @@ export default function ClientPage() {
     isError,
   } = useAllClients({ page, limit: 10 });
 
+  const { summary } = useBusinessAnalytics();
+
   const clients = clientData?.data ?? clientData ?? [];
   const pagination = clientData?.pagination;
+
+  const clientGenderData = useMemo(() => {
+    const counts: Record<string, number> = clients.reduce(
+      (acc: Record<string, number>, client: TClient) => {
+      const key = client.gender || "other";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+      },
+      {},
+    );
+
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [clients]);
+
+  const clientGrowth = useMemo(() => {
+    const monthly: Record<string, number> = clients.reduce(
+      (acc: Record<string, number>, client: TClient) => {
+      const createdAt = new Date(client.createdAt);
+      if (Number.isNaN(createdAt.getTime())) return acc;
+
+      const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+      },
+      {},
+    );
+
+    return Object.entries(monthly)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, value]) => {
+        const [year, month] = key.split("-").map(Number);
+        return {
+          label: new Date(year, month - 1, 1).toLocaleDateString("en-US", {
+            month: "short",
+            year: "2-digit",
+          }),
+          value,
+        };
+      });
+  }, [clients]);
+
+  const totalClients = summary?.users.totalClients ?? clients.length;
+  const activeClients = summary?.users.totalActiveClients ?? clients.length;
+  const inactiveClients = summary?.users.totalInactiveClients ?? 0;
+  const activeRate = totalClients > 0 ? (activeClients / totalClients) * 100 : 0;
 
   const tabs = [
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
@@ -69,7 +114,12 @@ export default function ClientPage() {
         </div>
       </div>
 
-      <ClientStats />
+      <ClientStats
+        totalClients={totalClients}
+        totalActiveClients={activeClients}
+        totalInactiveClients={inactiveClients}
+        activeRate={activeRate}
+      />
 
       <TabNavigation
         activeTab={activeTab}
@@ -90,81 +140,63 @@ export default function ClientPage() {
 
       {activeTab === "analysis" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Revenue by Industry</h3>
-            <div className="space-y-3">
-              {[
-                { name: "Technology", value: 180000, percentage: 33 },
-                { name: "Finance", value: 150000, percentage: 28 },
-                { name: "Healthcare", value: 120000, percentage: 22 },
-                { name: "Retail", value: 92000, percentage: 17 },
-              ].map((item, idx) => (
-                <div key={idx}>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium text-foreground">
-                      {item.name}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      ${(item.value / 1000).toFixed(0)}K
-                    </span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full"
-                      style={{ width: `${item.percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <h3 className="text-lg font-semibold mb-4">Client Growth</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={clientGrowth}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="label" stroke="var(--muted-foreground)" />
+                <YAxis stroke="var(--muted-foreground)" />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
 
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              Client Status Distribution
-            </h3>
-            <div className="space-y-3">
-              {[
-                { name: "Active", value: 67, color: "bg-green-500" },
-                { name: "Inactive", value: 15, color: "bg-gray-500" },
-                { name: "Suspended", value: 7, color: "bg-red-500" },
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                  <span className="text-sm text-foreground">{item.name}</span>
-                  <span className="ml-auto text-sm font-semibold text-foreground">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <div className="p-6 bg-white rounded-lg shadow-md">
+            <h3 className="text-lg font-semibold mb-4">Gender Distribution</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={clientGenderData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+                <YAxis stroke="var(--muted-foreground)" />
+                <Tooltip />
+                <Bar dataKey="value" fill="var(--secondary)">
+                  {clientGenderData.map((entry, index) => (
+                    <Cell
+                      key={`client-gender-${entry.name}-${index}`}
+                      fill={index % 2 === 0 ? "#2563eb" : "#10b981"}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
-          <div className="p-6 lg:col-span-2">
+          <div className="p-6 lg:col-span-2 bg-white rounded-lg shadow-md">
             <h3 className="text-lg font-semibold mb-4">Recent Clients</h3>
             <div className="space-y-3">
-              {mockClients.map((client) => (
+              {clients.slice(0, 5).map((client) => (
                 <div
-                  key={client.id}
+                  key={client._id}
                   className="flex items-center justify-between p-3 hover:bg-muted/50 rounded"
                 >
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">{client.name}</p>
+                    <p className="font-medium text-foreground">{client.userName}</p>
                     <p className="text-sm text-muted-foreground">
-                      {client.industry}
+                      {client.userEmail}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-foreground">
-                      ${(client.contractValue / 1000).toFixed(0)}K
+                    <p className="font-semibold text-foreground capitalize">
+                      {client.gender || "other"}
                     </p>
-                    <p className="text-xs text-green-600">{client.status}</p>
+                    <p className="text-xs text-green-600">
+                      {new Date(client.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
-                  <Button
-                    onClick={() =>
-                      router.push(`/business/clients/${client.id}`)
-                    }
-                  >
+                  <Button onClick={() => router.push(`/business/clients/${client._id}`)}>
                     <Eye className="w-4 h-4" />
                   </Button>
                 </div>
@@ -185,7 +217,7 @@ export default function ClientPage() {
 
       {activeTab === "logs" && (
         <LogDetails
-        userId={clientData?.businessId}
+          userId={clients?.[0]?.business_id ?? ""}
           module="Client"
           onClearLogs={() => {
             console.log("Clearing clients logs");

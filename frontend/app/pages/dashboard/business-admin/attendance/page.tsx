@@ -1,6 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import moment from "moment";
+import {
+  BarChart,
+  Bar,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useAllAttendances } from "@/hooks/business-admin/attendance-management/getAllAttendances";
 import AttendanceRecord from "@/components/business-admin/attendance/AttendanceRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
@@ -15,21 +30,41 @@ import {
 } from "lucide-react";
 import { AttendanceCalendar } from "@/components/business-admin/attendance/AttendanceCalender";
 import AttendanceStats from "@/components/business-admin/attendance/AttendanceStats";
+import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
+import type { TAttendance } from "@/libs/types/attendance.types";
 
-export interface AttendanceRecord {
-  id: string;
-  staffId: string;
-  staffName: string;
+const ATTENDANCE_COLORS = ["#16a34a", "#dc2626", "#2563eb", "#f59e0b"];
+
+type CalendarAttendanceRecord = {
   date: string;
+  status: "present" | "absent" | "leave" | "half-day" | "holiday";
   checkInTime?: string;
   checkOutTime?: string;
-  status: "present" | "absent" | "leave" | "half-day" | "holiday";
-  notes?: string;
-}
+};
+
+const getAttendanceStatus = (attendance: TAttendance) => {
+  if (attendance.checkIn && attendance.checkOut) {
+    return "present" as const;
+  }
+
+  if (attendance.checkIn && !attendance.checkOut) {
+    return "half-day" as const;
+  }
+
+  if (!attendance.checkIn && attendance.checkOut) {
+    return "leave" as const;
+  }
+
+  return "absent" as const;
+};
+
+const formatMonthKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
 export default function AttendancePage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const { summary } = useBusinessAnalytics();
 
   const {
     data: attendanceData,
@@ -37,8 +72,91 @@ export default function AttendancePage() {
     isError,
   } = useAllAttendances({ page, limit: 10 });
 
-  const attendances = attendanceData?.data ?? attendanceData ?? [];
+  const attendances: TAttendance[] = attendanceData?.data ?? attendanceData ?? [];
   const pagination = attendanceData?.pagination;
+
+  const attendanceOverview = summary?.attendance;
+
+  const attendanceStats = {
+    presentCount: attendanceOverview?.totalAttendance ?? 0,
+    absentCount: attendanceOverview?.totalAbsent ?? 0,
+    leaveCount: attendanceOverview?.totalOnLeave ?? 0,
+    lateCount: attendanceOverview?.lateToday ?? 0,
+    attendanceRate: attendanceOverview?.attendanceRate ?? 0,
+  };
+
+  const calendarRecords = useMemo<CalendarAttendanceRecord[]>(
+    () =>
+      attendances.map((attendance) => {
+        const createdAt = new Date(attendance.createdAt);
+
+        return {
+          date: createdAt.toISOString().slice(0, 10),
+          status: getAttendanceStatus(attendance),
+          checkInTime: attendance.checkIn
+            ? moment(attendance.checkIn).format("hh:mm A")
+            : undefined,
+          checkOutTime: attendance.checkOut
+            ? moment(attendance.checkOut).format("hh:mm A")
+            : undefined,
+        };
+      }),
+    [attendances],
+  );
+
+  const calendarMonth = useMemo(() => {
+    if (attendances.length === 0) {
+      return new Date();
+    }
+
+    const latestAttendance = [...attendances].sort(
+      (left, right) =>
+        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+    )[0];
+
+    return new Date(latestAttendance.createdAt);
+  }, [attendances]);
+
+  const attendanceTrend = useMemo(() => {
+    const byMonth = attendances.reduce<Record<string, number>>((acc, item) => {
+      const monthKey = formatMonthKey(new Date(item.createdAt));
+      acc[monthKey] = (acc[monthKey] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(byMonth)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([month, total]) => ({
+        month,
+        total,
+      }));
+  }, [attendances]);
+
+  const attendanceMethodData = useMemo(() => {
+    const byMethod = attendances.reduce<Record<string, number>>((acc, item) => {
+      acc[item.method] = (acc[item.method] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return ["QR", "Manual"].map((method) => ({
+      name: method,
+      value: byMethod[method] ?? 0,
+    }));
+  }, [attendances]);
+
+  const attendanceBreakdown = useMemo(() => {
+    const present = attendanceOverview?.totalAttendance ?? 0;
+    const absent = attendanceOverview?.totalAbsent ?? 0;
+    const leave = attendanceOverview?.totalOnLeave ?? 0;
+    const late = attendanceOverview?.lateToday ?? 0;
+
+    return [
+      { name: "Present", value: present },
+      { name: "Absent", value: absent },
+      { name: "Leave", value: leave },
+      { name: "Late", value: late },
+    ];
+  }, [attendanceOverview]);
 
   const tabs = [
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
@@ -46,57 +164,6 @@ export default function AttendancePage() {
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     { id: "customize", label: "Customize", icon: <Settings size={16} /> },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
-  ];
-
-  const mockAttendanceRecords: AttendanceRecord[] = [
-    {
-      id: "1",
-      staffId: "1",
-      staffName: "Alice Johnson",
-      date: "2024-02-01",
-      checkInTime: "09:00 AM",
-      checkOutTime: "06:00 PM",
-      status: "present",
-    },
-    {
-      id: "2",
-      staffId: "2",
-      staffName: "Bob Smith",
-      date: "2024-02-02",
-      checkInTime: "08:55 AM",
-      checkOutTime: "05:55 PM",
-      status: "present",
-    },
-    {
-      id: "3",
-      staffId: "3",
-      staffName: "Carol Davis",
-      date: "2024-02-03",
-      status: "holiday",
-    },
-    {
-      id: "4",
-      staffId: "4",
-      staffName: "David Wilson",
-      date: "2024-02-04",
-      checkInTime: "09:10 AM",
-      checkOutTime: "06:05 PM",
-      status: "present",
-    },
-    {
-      id: "5",
-      staffId: "5",
-      staffName: "Emma Brown",
-      date: "2024-02-05",
-      status: "absent",
-    },
-    {
-      id: "6",
-      staffId: "6",
-      staffName: "Frank Miller",
-      date: "2024-02-06",
-      status: "leave",
-    },
   ];
 
   return (
@@ -113,7 +180,7 @@ export default function AttendancePage() {
         </div>
       </div>
 
-      <AttendanceStats />
+      <AttendanceStats {...attendanceStats} />
 
       {/* TAB NAVIGATION */}
       <TabNavigation
@@ -135,19 +202,117 @@ export default function AttendancePage() {
       )}
 
       {activeTab === "calender" && (
-        <AttendanceCalendar records={mockAttendanceRecords} />
+        <AttendanceCalendar records={calendarRecords} month={calendarMonth} />
       )}
 
       {activeTab === "analysis" && (
-        <div className="bg-white rounded-lg border border-gray-200 p-8">
-          <div className="text-center">
-            <BarChart3 size={48} className="mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Attendance Analysis
-            </h3>
-            <p className="text-gray-600">
-              View detailed attendance patterns and reports
-            </p>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Attendance Trend
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={attendanceTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="month" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#2563eb"
+                    strokeWidth={3}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Attendance Breakdown
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={attendanceBreakdown}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Bar dataKey="value" fill="#10b981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Check-in Method Split
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={attendanceMethodData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {attendanceMethodData.map((entry, index) => (
+                      <Cell
+                        key={entry.name}
+                        fill={ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 8,
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Live Insight
+              </h3>
+              <div className="space-y-4 text-sm text-gray-600">
+                <p>
+                  Attendance rate is {attendanceStats.attendanceRate.toFixed(1)}%
+                  with {attendanceStats.presentCount.toLocaleString()} present
+                  records currently in the system.
+                </p>
+                <p>
+                  {attendanceStats.absentCount.toLocaleString()} absences,
+                  {" "}
+                  {attendanceStats.leaveCount.toLocaleString()} leave records,
+                  and {attendanceStats.lateCount.toLocaleString()} late check-ins
+                  are visible from the current stats feed.
+                </p>
+                <p>
+                  The calendar view below uses the same live attendance records,
+                  so it updates as soon as new check-ins are saved.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -163,7 +328,7 @@ export default function AttendancePage() {
 
       {activeTab === "logs" && (
         <LogDetails
-          userId={attendanceData.businessId}
+          userId={attendances[0]?.business_id ?? ""}
           module="Attendance"
           onClearLogs={() => {
             console.log("Clearing attendance logs");

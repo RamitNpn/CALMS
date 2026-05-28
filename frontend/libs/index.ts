@@ -9,6 +9,7 @@ export * from "./api/client.api";
 export * from "./api/log.api";
 export * from "./api/service.api";
 export * from "./api/token.api";
+export * from "./api/stats.api";
 
 export * from "./types/asset.type";
 export * from "./types/attendance.types";
@@ -21,6 +22,7 @@ export * from "./types/client.types";
 export * from "./types/log.types";
 export * from "./types/service.types";
 export * from "./types/token.types";
+export * from "./types/stats.types";
 
 export * from "./validation/asset.validation";
 export * from "./validation/attendance.validation";

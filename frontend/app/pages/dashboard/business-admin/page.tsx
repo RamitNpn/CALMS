@@ -16,27 +16,52 @@ import {
 import Link from "next/link";
 import { DistributionChart } from "@/components/ui/widgets";
 import Card from "@/components/ui/card";
-
-const kpiData = [
-  { icon: Users, label: "Total Staff", value: "127", change: "+12%" },
-  { icon: Package, label: "Assets", value: "543", change: "+8%" },
-  { icon: Briefcase, label: "Clients", value: "89", change: "+5%" },
-  { icon: Clock, label: "Attendance Rate", value: "94%", change: "+2%" },
-];
-
-const chartData = [
-  { month: "Jan", revenue: 4000, expenses: 2400 },
-  { month: "Feb", revenue: 3000, expenses: 1398 },
-  { month: "Mar", revenue: 2000, expenses: 9800 },
-  { month: "Apr", revenue: 2780, expenses: 3908 },
-  { month: "May", revenue: 1890, expenses: 4800 },
-  { month: "Jun", revenue: 2390, expenses: 3800 },
-];
+import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 
 export default function DashboardPage() {
+  const {
+    summary,
+    growthTrend,
+    attendanceBreakdown,
+    assetHealth,
+    billingMix,
+    userMix,
+    recentLogs,
+    isLoading,
+    isError,
+  } = useBusinessAnalytics();
+
+  const kpiData = summary
+    ? [
+        {
+          icon: Users,
+          label: "Total Staff",
+          value: summary.dashboard.totalStaff.toLocaleString(),
+          change: `${summary.dashboard.staffRate >= 0 ? "+" : ""}${summary.dashboard.staffRate}%`,
+        },
+        {
+          icon: Package,
+          label: "Assets",
+          value: summary.dashboard.totalAssets.toLocaleString(),
+          change: `${summary.dashboard.assetRate >= 0 ? "+" : ""}${summary.dashboard.assetRate}%`,
+        },
+        {
+          icon: Briefcase,
+          label: "Clients",
+          value: summary.dashboard.totalClients.toLocaleString(),
+          change: `${summary.dashboard.clientRate >= 0 ? "+" : ""}${summary.dashboard.clientRate}%`,
+        },
+        {
+          icon: Clock,
+          label: "Attendance",
+          value: summary.dashboard.totalAttendance.toLocaleString(),
+          change: `${summary.attendance.attendanceRate >= 0 ? "+" : ""}${summary.attendance.attendanceRate}%`,
+        },
+      ]
+    : [];
+
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
         <p className="text-muted-foreground mt-2">
@@ -44,7 +69,12 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* KPI Cards */}
+      {isError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Analysis data could not be loaded right now.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiData.map((kpi) => {
           const Icon = kpi.icon;
@@ -67,15 +97,13 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Chart */}
         <Card>
-          <h3 className="text-lg font-semibold mb-4">Revenue vs Expenses</h3>
+          <h3 className="text-lg font-semibold mb-4">Growth Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
+            <LineChart data={growthTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis stroke="var(--muted-foreground)" />
+              <XAxis dataKey="label" stroke="var(--muted-foreground)" />
               <YAxis stroke="var(--muted-foreground)" />
               <Tooltip
                 contentStyle={{
@@ -87,27 +115,20 @@ export default function DashboardPage() {
               <Legend />
               <Line
                 type="monotone"
-                dataKey="revenue"
+                dataKey="value"
                 stroke="var(--primary)"
-                strokeWidth={2}
-              />
-              <Line
-                type="monotone"
-                dataKey="expenses"
-                stroke="var(--destructive)"
                 strokeWidth={2}
               />
             </LineChart>
           </ResponsiveContainer>
         </Card>
 
-        {/* Activity Chart */}
         <Card>
-          <h3 className="text-lg font-semibold mb-4">Monthly Activity</h3>
+          <h3 className="text-lg font-semibold mb-4">Attendance Breakdown</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartData}>
+            <BarChart data={attendanceBreakdown}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis stroke="var(--muted-foreground)" />
+              <XAxis dataKey="label" stroke="var(--muted-foreground)" />
               <YAxis stroke="var(--muted-foreground)" />
               <Tooltip
                 contentStyle={{
@@ -116,53 +137,47 @@ export default function DashboardPage() {
                   borderRadius: "8px",
                 }}
               />
-              <Bar dataKey="revenue" fill="var(--primary)" />
+              <Bar dataKey="value" fill="var(--secondary)" />
             </BarChart>
           </ResponsiveContainer>
         </Card>
       </div>
 
-      {/* Advanced Analytics Section */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-foreground">
-          Advanced Analytics
-        </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <DistributionChart title="Asset Health" data={assetHealth} variant="donut" />
+        </Card>
 
-        {/* Distribution Charts */}
+        <Card>
+          <DistributionChart title="Billing Mix" data={billingMix} variant="bar" />
+        </Card>
+      </div>
+
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-foreground">Advanced Analytics</h2>
+          {isLoading && <p className="text-sm text-muted-foreground">Loading live metrics...</p>}
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
-            <DistributionChart
-              title="Staff Distribution by Department"
-              data={[
-                {
-                  name: "Engineering",
-                  value: 45,
-                  percentage: (45 / 127) * 100,
-                },
-                { name: "Sales", value: 32, percentage: (32 / 127) * 100 },
-                { name: "Operations", value: 28, percentage: (28 / 127) * 100 },
-                { name: "HR", value: 15, percentage: (15 / 127) * 100 },
-                { name: "Marketing", value: 7, percentage: (7 / 127) * 100 },
-              ]}
-              variant="bar"
-            />
+            <DistributionChart title="User Mix" data={userMix} variant="donut" />
           </Card>
           <Card>
-            <DistributionChart
-              title="Client Acquisition Channels"
-              data={[
-                { name: "Referral", value: 32, percentage: (32 / 89) * 100 },
-                { name: "Direct", value: 28, percentage: (28 / 89) * 100 },
-                { name: "Marketing", value: 18, percentage: (18 / 89) * 100 },
-                { name: "Partnership", value: 11, percentage: (11 / 89) * 100 },
-              ]}
-              variant="donut"
-            />
+            <h3 className="text-lg font-semibold mb-4">More Analysis</h3>
+            <p className="text-sm text-muted-foreground">
+              Open the Analysis tab for a dedicated view of the live charts.
+            </p>
+            <Link
+              className="mt-4 inline-flex rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-emerald-600 hover:text-white"
+              href="/pages/dashboard/business-admin/analytics"
+            >
+              Go to Analysis
+            </Link>
           </Card>
         </div>
       </div>
 
-      {/* Quick Actions */}
       <div className="px-6 py-2">
         <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -193,7 +208,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activity */}
       <div className="px-6 py-2 h-[50vh] overflow-y-scroll bg-white shadow-md rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Recent Activity</h3>
@@ -205,43 +219,29 @@ export default function DashboardPage() {
           </a>
         </div>
         <div className="space-y-4">
-          {[
-            {
-              action: "New staff member added",
-              time: "2 hours ago",
-              icon: Users,
-            },
-            {
-              action: "Invoice #1234 generated",
-              time: "4 hours ago",
-              icon: Package,
-            },
-            { action: "Attendance marked", time: "6 hours ago", icon: Clock },
-            {
-              action: "New client registered",
-              time: "1 day ago",
-              icon: Briefcase,
-            },
-          ].map((item, idx) => {
-            const Icon = item.icon;
-            return (
+          {recentLogs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No recent activity yet.</p>
+          ) : (
+            recentLogs.map((log) => (
               <div
-                key={idx}
+                key={log._id}
                 className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0 hover:bg-muted/50 rounded-lg transition-colors"
               >
                 <div className="p-2 bg-muted rounded-lg">
-                  <Icon className="w-4 h-4 text-foreground" />
+                  <Activity className="w-4 h-4 text-foreground" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-foreground">
-                    {item.action}
+                    {log.title}
                   </p>
-                  <p className="text-xs text-muted-foreground">{item.time}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {log.description}
+                  </p>
                 </div>
                 <Activity className="w-4 h-4 text-muted-foreground" />
               </div>
-            );
-          })}
+            ))
+          )}
         </div>
       </div>
     </div>
