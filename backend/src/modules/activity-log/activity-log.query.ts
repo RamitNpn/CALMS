@@ -12,20 +12,23 @@ export const getActivityLogs: AppRouteQueryImplementation<
       limit = 10,
       userId,
       recordId,
+      action,
     } = query as any;
 
-    console.log("Fetching logs for module:", module);
+    const skip = (Number(page) - 1) * Number(limit);
 
-    const skip = (page - 1) * limit;
-
-    const { data, total } = await activityLogRepository.getByModule(
-      module,
+    const { data, total } = await activityLogRepository.getLogs(
       skip,
-      limit,
-      { userId, recordId }
+      Number(limit),
+      {
+        module,
+        userId,
+        recordId,
+        action,
+      }
     );
 
-    const totalPages = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / Number(limit));
 
     return {
       status: 200,
@@ -33,8 +36,8 @@ export const getActivityLogs: AppRouteQueryImplementation<
         success: true,
         data,
         pagination: {
-          page,
-          limit,
+          page: Number(page),
+          limit: Number(limit),
           total,
           totalPages,
         },
@@ -42,13 +45,19 @@ export const getActivityLogs: AppRouteQueryImplementation<
     };
   } catch (error) {
     console.error("Error while fetching logs:", error);
+
     return {
       status: 500,
       body: {
         success: false,
         error: "Error while fetching logs records",
         data: [],
-        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+        },
       },
     };
   }

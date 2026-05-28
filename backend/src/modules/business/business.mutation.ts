@@ -3,15 +3,15 @@ import { businessContract } from "../../contract/business/business.contract";
 import businessRepository from "../../repository/business.repository";
 import bcrypt from "bcryptjs";
 
-import { Services } from "../../models/business.model";
 import { welcomeTemplate } from "../../template/welcome.template";
 import { sendMail } from "../../utils/sendMail";
 import env from "../../config/env";
 import { authRepository } from "../../repository/auth.repository";
 import serviceRepository from "../../repository/service.repository";
 import businessServiceConfigRepository from "../../repository/business-service-config.repository";
+import activityLogRepository from "../../repository/activity-log.repository";
+import mongoose from "mongoose";
 
-// Mock data for default services
 const MOCK_SERVICES = [
   {
     service_key: "asset_management",
@@ -39,24 +39,23 @@ const MOCK_SERVICES = [
   },
 ];
 
-// Ensure master services are initialized
 async function ensureServicesInitialized() {
   try {
     const existingCount = await serviceRepository.count();
-    console.log("🔍 Checking master services - Count:", existingCount);
+    console.log("Checking master services - Count:", existingCount);
 
     if (existingCount === 0) {
-      console.log("📋 Master services not found. Initializing...");
+      console.log("Master services not found. Initializing...");
       for (const serviceData of MOCK_SERVICES) {
-        console.log("💾 Creating master service:", serviceData.service_key);
+        console.log("Creating master service:", serviceData.service_key);
         await serviceRepository.create(serviceData);
       }
-      console.log("✅ Master services initialized successfully");
+      console.log("Master services initialized successfully");
     } else {
-      console.log("✅ Master services already exist");
+      console.log("Master services already exist");
     }
   } catch (error) {
-    console.error("❌ Error initializing master services:", error);
+    console.error("Error initializing master services:", error);
     throw error;
   }
 }
@@ -90,7 +89,6 @@ export const createBusiness: AppRouteMutationImplementation<
       };
     }
 
-    // Create business with empty password (will be set by user via welcome link)
     const business = await businessRepository.create({
       businessName,
       operatorName,
@@ -105,7 +103,6 @@ export const createBusiness: AppRouteMutationImplementation<
     });
 
     if (business) {
-      // Generate setup token
       const setupToken = authRepository.createSetupToken(
         {
           accountId: business._id.toString(),
@@ -115,10 +112,8 @@ export const createBusiness: AppRouteMutationImplementation<
         { expiresIn: "24h" },
       );
 
-      // Create welcome link
       const setupLink = `${env.frontend_url}/pages/welcome?token=${setupToken}`;
 
-      // Send welcome email with setup link
       try {
         await sendMail({
           to: operatorEmail,
@@ -136,12 +131,9 @@ export const createBusiness: AppRouteMutationImplementation<
           `Failed to send welcome email to ${operatorEmail}:`,
           emailError,
         );
-        // Don't fail the business creation if email fails
-        // but log it for debugging
       }
     }
 
-    // no Services type anymore
     let normalizedServices: string[] = ["asset_management"];
 
     if (services) {
@@ -152,21 +144,15 @@ export const createBusiness: AppRouteMutationImplementation<
       }
     }
 
-    // Fetch master services
-    console.log("📋 Fetching master services for business creation...");
-    
-    // Ensure master services are initialized before using them
-    await ensureServicesInitialized();
-    
-    const masterServices = await serviceRepository.getAll();
-    console.log("✅ Master services fetched:", masterServices.length);
 
-    // Filter selected services
+    await ensureServicesInitialized();
+
+    const masterServices = await serviceRepository.getAll();
+
     const enabledServices = masterServices.filter((service) =>
       normalizedServices.includes(service.service_key),
     );
 
-    // NOW create business service config
     await businessServiceConfigRepository.create({
       business_id: business._id,
       services: enabledServices.map((service) => ({
@@ -181,6 +167,15 @@ export const createBusiness: AppRouteMutationImplementation<
           view: true,
         },
       })),
+    });
+
+    const createLogs = await activityLogRepository.create({
+      module: "Business",
+      action: "CREATE",
+      userId: new mongoose.Types.ObjectId(business._id),
+      title: business.businessName,
+      role: "admin",
+      description: `Business created by Admin`,
     });
 
     return {
@@ -221,6 +216,12 @@ export const updateBusiness: AppRouteMutationImplementation<
 
     const { operatorPassword, package: pkg, ...rest } = req.body;
 
+    const files = req.files as {
+      profile?: Express.Multer.File[];
+    };
+
+    const profileUrl = files?.profile?.[0]?.path || "";
+
     const updateData: Record<string, any> = {};
 
     Object.entries(rest).forEach(([key, value]) => {
@@ -240,6 +241,26 @@ export const updateBusiness: AppRouteMutationImplementation<
 
     if (operatorPassword) {
       updateData.operatorPassword = await bcrypt.hash(operatorPassword, 10);
+    }
+
+    if (profileUrl) {
+      updateData.profile = profileUrl;
+    }
+
+    if (updateData.branch) {
+      updateData.branch = JSON.parse(updateData.branch);
+    }
+
+    if (updateData.services) {
+      updateData.services = JSON.parse(updateData.services);
+    }
+
+    if (updateData.status !== undefined) {
+      updateData.status = updateData.status === "true";
+    }
+
+    if (updateData.payment_status !== undefined) {
+      updateData.payment_status = updateData.payment_status === "true";
     }
 
     const updatedBusiness = await businessRepository.update(
@@ -264,6 +285,7 @@ export const updateBusiness: AppRouteMutationImplementation<
     };
   }
 };
+
 export const removeBusiness: AppRouteMutationImplementation<
   typeof businessContract.removeBusiness
 > = async ({ req }) => {
@@ -292,11 +314,20 @@ export const removeBusiness: AppRouteMutationImplementation<
       };
     }
 
+    const createLogs = await activityLogRepository.create({
+      module: "Business",
+      action: "DELETE",
+      userId: new mongoose.Types.ObjectId(req.params.businessID),
+      title: existing.businessName,
+      role: existing.role,
+      description: `Business account removed by Admin`,
+    });
+
     return {
       status: 200,
       body: {
         success: true,
-        message: "Business deleted",
+        message: "Business account deleted successfully",
       },
     };
   } catch (error) {

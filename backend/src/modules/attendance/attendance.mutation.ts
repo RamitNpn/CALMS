@@ -73,7 +73,8 @@ export const createAttendance: AppRouteMutationImplementation<
         module: "Attendance",
         action: "CREATE",
         userId: new mongoose.Types.ObjectId(business_id),
-        userName: userName,
+        title: "Business Attendance",
+        role: account.role,
         description: `Attendance created for client: ${clientName}`,
       });
     }
@@ -146,6 +147,32 @@ export const removeAttendance: AppRouteMutationImplementation<
         body: { success: false, error: "Attendance was not deleted" },
       };
     }
+
+    const businessUser = await businessRepository.getByID(
+      search.business_id.toString(),
+    );
+    const user = await userRepository.getByID(search.business_id.toString());
+    const account = businessUser || user;
+
+    if (!account) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    const isBusiness = "operatorPassword" in account;
+
+    const userName = isBusiness ? account.operatorName : account.userName;
+
+    const createLogs = await activityLogRepository.create({
+      module: "Attendance",
+      action: "DELETE",
+      userId: new mongoose.Types.ObjectId(account._id),
+      title: "Business Attendance",
+      role: account.role,
+      description: `Attendance removed by user: ${userName}`,
+    });
 
     return {
       status: 200,

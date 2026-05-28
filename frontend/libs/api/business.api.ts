@@ -3,7 +3,7 @@ import {
   TCreateBusinessSchema,
   TDeleteBusinessSchema,
   TGetAllBusinessByIdSchema,
-  TUpdateBusinessSchema,
+  TAdminUpdateBusinessSchema,
 } from "../validation/business.validation";
 
 const createBusiness = async (data: TCreateBusinessSchema) => {
@@ -27,7 +27,7 @@ const getBusinessByIdApi = async (
 
 const updateBusinessApi = async (
   businessId: string,
-  data: Partial<TUpdateBusinessSchema>,
+  data: TAdminUpdateBusinessSchema,
 ) => {
   const response = await apiClient.put(`/business/${businessId}`, data);
   return response.data;

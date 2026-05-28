@@ -1,9 +1,10 @@
 import Hero from "@/components/landing-page/Hero";
 import About from "@/components/landing-page/About";
-import Service from "@/components/landing-page/Service";
 import Contact from "@/components/landing-page/Contact";
 import Footer from "@/components/landing-page/Footer";
 import Nav from "@/components/landing-page/Nav";
+import Stats from "@/components/landing-page/Stats";
+import Features from "@/components/landing-page/Features";
 
 export default function Home() {
 
@@ -11,8 +12,9 @@ export default function Home() {
     <main>
       <Nav />
       <Hero />
+      <Stats />
       <About />
-      <Service />
+      <Features />
       <Contact />
       <Footer />
     </main>

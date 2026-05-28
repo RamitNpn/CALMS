@@ -1,4 +1,6 @@
-import AttendanceModel, { IAttendance } from "../models/attendance.model";
+import AttendanceModel, {
+  IAttendance,
+} from "../models/attendance.model";
 
 class AttendanceRepository {
   private model;
@@ -7,21 +9,37 @@ class AttendanceRepository {
     this.model = AttendanceModel;
   }
 
-  async createAttendance(data: Partial<IAttendance>) {
+  async createAttendance(
+    data: Partial<IAttendance>
+  ) {
     try {
       return await this.model.create(data);
     } catch (error) {
-      throw new Error(`Error creating attendance: ${error}`);
+      throw new Error(
+        `Error creating attendance: ${error}`
+      );
     }
   }
 
-  async getAllAttendance(skip: number = 0, limit: number = 10) {
+  async getAllAttendance(
+    skip: number = 0,
+    limit: number = 10
+  ) {
     try {
-      const data = await this.model.find().sort({ createdAt: -1 }).skip(skip).limit(limit);
-      const total = await this.model.countDocuments();
+      const data = await this.model
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const total =
+        await this.model.countDocuments();
+
       return { data, total };
     } catch (error) {
-      throw new Error(`Error fetching attendance: ${error}`);
+      throw new Error(
+        `Error fetching attendance: ${error}`
+      );
     }
   }
 
@@ -29,15 +47,26 @@ class AttendanceRepository {
     try {
       return await this.model.findById(id);
     } catch (error) {
-      throw new Error(`Error fetching attendance: ${error}`);
+      throw new Error(
+        `Error fetching attendance: ${error}`
+      );
     }
   }
 
-  async updateAttendance(id: string, data: Partial<IAttendance>) {
+  async updateAttendance(
+    id: string,
+    data: Partial<IAttendance>
+  ) {
     try {
-      return await this.model.findByIdAndUpdate(id, data, { new: true });
+      return await this.model.findByIdAndUpdate(
+        id,
+        data,
+        { new: true }
+      );
     } catch (error) {
-      throw new Error(`Error updating attendance: ${error}`);
+      throw new Error(
+        `Error updating attendance: ${error}`
+      );
     }
   }
 
@@ -45,7 +74,29 @@ class AttendanceRepository {
     try {
       return await this.model.findByIdAndDelete(id);
     } catch (error) {
-      throw new Error(`Error removing attendance: ${error}`);
+      throw new Error(
+        `Error removing attendance: ${error}`
+      );
+    }
+  }
+
+  async count(filter: Record<string, any> = {}) {
+    try {
+      return await this.model.countDocuments(filter);
+    } catch (error) {
+      throw new Error(
+        `Error counting attendance: ${error}`
+      );
+    }
+  }
+
+  async aggregate(pipeline: any[]) {
+    try {
+      return await this.model.aggregate(pipeline);
+    } catch (error) {
+      throw new Error(
+        `Error aggregating attendance: ${error}`
+      );
     }
   }
 }

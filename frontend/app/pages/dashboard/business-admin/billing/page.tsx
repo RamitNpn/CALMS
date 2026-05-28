@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import BillingRecord from "@/components/business-admin/billing/BillingRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
@@ -12,22 +12,33 @@ import {
   ActivitySquare,
   FileText,
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import Button from "@/components/ui/button";
+import {
+  BarChart,
+  Bar,
+  CartesianGrid,
+  Cell,
+  LineChart,
+  Line,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import BillingStats from "@/components/business-admin/billing/BillingStats";
+import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
+import type { TBilling } from "@/libs/types/billing.types";
 
-const billingChartData = [
-  { month: 'Jan', revenue: 45000, pending: 12000, paid: 33000 },
-  { month: 'Feb', revenue: 52000, pending: 18000, paid: 34000 },
-  { month: 'Mar', revenue: 48000, pending: 8000, paid: 40000 },
-  { month: 'Apr', revenue: 61000, pending: 15000, paid: 46000 },
-  { month: 'May', revenue: 55000, pending: 20000, paid: 35000 },
-  { month: 'Jun', revenue: 67000, pending: 7200, paid: 59800 },
-];
+const BILLING_COLORS = ["#16a34a", "#f59e0b", "#ef4444", "#3b82f6"];
+
+const formatMonthKey = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
 export default function BillingPage() {
   const [activeTab, setActiveTab] = useState("inventory");
   const [page, setPage] = useState(1);
-  const [timePeriod, setTimePeriod] = useState<'week' | 'month' | 'year'>('month');
+  const { summary } = useBusinessAnalytics();
 
   const {
     data: billingData,
@@ -35,8 +46,76 @@ export default function BillingPage() {
     isError,
   } = useAllBillings({ page, limit: 10 });
 
-  const billings = billingData?.data ?? billingData ?? [];
+  const billings: TBilling[] = billingData?.data ?? billingData ?? [];
   const pagination = billingData?.pagination;
+
+  const billingOverview = summary?.billing;
+
+  const billingStats = {
+    totalRevenue: billingOverview?.totalRevenue ?? 0,
+    pendingPayments: billingOverview?.totalOutstanding ?? 0,
+    overdueCount: billings.filter((billing) => {
+      const dueDate = billing.dueDate ? new Date(billing.dueDate) : null;
+      const isOverdue = dueDate ? dueDate.getTime() < Date.now() : false;
+      return isOverdue && billing.status !== "paid";
+    }).length,
+    averageInvoiceValue:
+      billings.length > 0
+        ? billings.reduce((sum, billing) => sum + billing.totalAmount, 0) /
+          billings.length
+        : 0,
+    invoiceCount: billings.length,
+  };
+
+  const billingTrend = useMemo(() => {
+    const byMonth = billings.reduce<
+      Record<string, { month: string; revenue: number; paid: number }>
+    >((acc, billing) => {
+      const monthKey = formatMonthKey(new Date(billing.createdAt));
+
+      if (!acc[monthKey]) {
+        acc[monthKey] = {
+          month: new Date(billing.createdAt).toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+          }),
+          revenue: 0,
+          paid: 0,
+        };
+      }
+
+      acc[monthKey].revenue += billing.totalAmount;
+      acc[monthKey].paid += billing.paidAmount;
+      return acc;
+    }, {});
+
+    return Object.entries(byMonth)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([, value]) => value);
+  }, [billings]);
+
+  const billingStatusData = useMemo(() => {
+    const byStatus = billings.reduce<Record<string, number>>((acc, billing) => {
+      const status = billing.status ?? "pending";
+      acc[status] = (acc[status] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return ["paid", "partial", "pending"].map((status) => ({
+      name: status.charAt(0).toUpperCase() + status.slice(1),
+      value: byStatus[status] ?? 0,
+    }));
+  }, [billings]);
+
+  const paymentMethodData = useMemo(() => {
+    const byMethod = billings.reduce<Record<string, number>>((acc, billing) => {
+      const method = billing.paymentMethod ?? "not specified";
+      acc[method] = (acc[method] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return Object.entries(byMethod).map(([name, value]) => ({ name, value }));
+  }, [billings]);
 
   const tabs = [
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
@@ -56,6 +135,8 @@ export default function BillingPage() {
           </p>
         </div>
       </div>
+
+      <BillingStats {...billingStats} />
 
       {/* TAB NAVIGATION */}
       <TabNavigation
@@ -78,63 +159,111 @@ export default function BillingPage() {
 
       {activeTab === "analysis" && (
         <div className="space-y-6">
-          <div className="flex gap-4">
-            {[
-              { label: 'Week', value: 'week' },
-              { label: 'Month', value: 'month' },
-              { label: 'Year', value: 'year' },
-            ].map((option) => (
-              <Button
-                key={option.value}
-                variant={timePeriod === option.value ? 'primary' : 'secondary'}
-                onClick={() => setTimePeriod(option.value as 'week' | 'month' | 'year')}
-              >
-                {option.label}
-              </Button>
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Revenue Trend
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={billingTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="month" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#2563eb"
+                    strokeWidth={3}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="paid"
+                    stroke="#16a34a"
+                    strokeWidth={3}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Billing Status Distribution
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={billingStatusData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="name" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Bar dataKey="value" fill="#f59e0b" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Revenue Trends</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={billingChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis stroke="var(--muted-foreground)" />
-                <YAxis stroke="var(--muted-foreground)" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'vardiv)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Legend />
-                <Line type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={2} />
-                <Line type="monotone" dataKey="paid" stroke="var(--chart-1)" strokeWidth={2} />
-                <Line type="monotone" dataKey="pending" stroke="var(--chart-2)" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Payment Method Mix
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={paymentMethodData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {paymentMethodData.map((entry, index) => (
+                      <Cell
+                        key={entry.name}
+                        fill={BILLING_COLORS[index % BILLING_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: 8,
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
 
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Payment Status Distribution</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={billingChartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis stroke="var(--muted-foreground)" />
-                <YAxis stroke="var(--muted-foreground)" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'var(--card)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="paid" fill="var(--chart-1)" />
-                <Bar dataKey="pending" fill="var(--chart-2)" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Live Snapshot
+              </h3>
+              <div className="space-y-4 text-sm text-gray-600">
+                <p>
+                  Revenue is currently ${billingStats.totalRevenue.toLocaleString()}.
+                </p>
+                <p>
+                  Outstanding balance sits at ${billingStats.pendingPayments.toLocaleString()} with {billingStats.overdueCount.toLocaleString()} overdue invoices.
+                </p>
+                <p>
+                  Average invoice value is ${billingStats.averageInvoiceValue.toFixed(0)} across {billingStats.invoiceCount.toLocaleString()} live billing records.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -150,6 +279,7 @@ export default function BillingPage() {
 
       {activeTab === "logs" && (
         <LogDetails
+          userId={billings[0]?.business_id ?? ""}
           module="Billing"
           onClearLogs={() => {
             console.log("Clearing billing logs");

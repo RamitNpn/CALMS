@@ -41,27 +41,27 @@ function About() {
               About FlowDesk
             </p>
 
-            <h2 className="mt-5 text-4xl font-bold leading-tight text-black sm:text-5xl lg:text-6xl">
+            <h2 className="mt-5 text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">
               Built for Modern Businesses & Growing Teams
             </h2>
 
-            <p className="mt-6 text-lg leading-relaxed text-gray-600">
+            <p className="mt-6 text-md leading-relaxed text-gray-600">
               FlowDesk is a powerful multi-tenant SaaS platform created to help
-              businesses automate operations, manage teams, track payments, and
-              streamline workflows — all from one modern dashboard.
+              businesses automate operations, manage teams, track payments and
+              streamline workflows, all from one modern dashboard.
             </p>
 
-            <p className="mt-4 text-lg leading-relaxed text-gray-600">
-              Whether you run a clinic, coaching center, gym, consultancy, or
+            <p className="mt-4 text-md leading-relaxed text-gray-600">
+              Whether you run a clinic, coaching center, gym, consultancy or
               enterprise, FlowDesk adapts to your workflow with scalable and
               secure architecture.
             </p>
 
-            <button className="group mt-10 inline-flex items-center rounded-full bg-yellow-300 px-7 py-4 font-semibold text-black transition-all duration-200 hover:bg-yellow-400">
+            <a href="/pages/register-page" className="group mt-10 inline-flex items-center rounded outline-none bg-blue-600 px-4 py-[6px] font-semibold text-white transition-all duration-200 hover:bg-blue-700">
               Explore Platform
 
               <ArrowRight className="ml-3 h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-            </button>
+            </a>
           </div>
 
           {/* RIGHT IMAGE */}
@@ -94,8 +94,8 @@ function About() {
                 key={item.title}
                 className="rounded-3xl border border-black/5 bg-white p-8 shadow-lg transition-all duration-300"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-300">
-                  <Icon className="h-7 w-7 text-black" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600">
+                  <Icon className="h-7 w-7 text-white" />
                 </div>
 
                 <h3 className="mt-6 text-2xl font-semibold text-black">

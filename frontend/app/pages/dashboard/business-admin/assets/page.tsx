@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAllAssets } from "@/hooks/business-admin/asset-management/getAllAssets";
 import AssetRecord from "@/components/business-admin/asset/AssetRecords";
 import TabNavigation from "@/components/shared/TabNavigation";
@@ -11,10 +11,26 @@ import {
   BarChart3,
   Settings,
   ActivitySquare,
-  Wrench,
   FileText,
+  PlusCircleIcon,
 } from "lucide-react";
-import Button from "@/components/ui/button";
+import { useAllAssetTypes } from "@/hooks/business-admin/asset-management/getAllAssetTypes";
+import AssetTypeRecord from "@/components/business-admin/asset/AssetTypeRecrds";
+import { TAsset } from "@/libs/types/asset.type";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 
 export default function BusinessesPage() {
   const [page, setPage] = useState(1);
@@ -26,12 +42,102 @@ export default function BusinessesPage() {
     isError,
   } = useAllAssets({ page, limit: 10 });
 
-  const assets = assetData?.data ?? assetData ?? [];
-  const pagination = assetData?.pagination;
+  const assets: TAsset[] = assetData?.data ?? assetData ?? [];
+  const assetPagination = assetData?.pagination;
+  const { summary, assetHealth } = useBusinessAnalytics();
+
+  const { data: assetTypeData } = useAllAssetTypes({
+    page: 1,
+    limit: 100,
+    business_id: assets?.[0]?.business_id,
+  });
+
+  const assetTypes = assetTypeData?.data ?? assetTypeData ?? [];
+  const assetTypePagination = assetData?.pagination;
+
+  const assetTypeBreakdown = useMemo(() => {
+    const counts: Record<string, number> = assets.reduce(
+      (acc: Record<string, number>, asset: TAsset) => {
+      const key = asset.type || "Uncategorized";
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+      },
+      {},
+    );
+
+    return Object.entries(counts)
+      .sort((left, right) => right[1] - left[1])
+      .map(([name, value]) => ({ name, value }));
+  }, [assets]);
+
+  const assetStatusBreakdown = useMemo(() => {
+    const statusOrder = ["active", "inactive", "maintenance"];
+
+    const counts: Record<string, number> = assets.reduce(
+      (acc: Record<string, number>, asset: TAsset) => {
+      const key = (asset.status || "unknown").toLowerCase();
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+      },
+      {},
+    );
+
+    const remaining = Object.entries(counts)
+      .filter(([status]) => !statusOrder.includes(status))
+      .sort((left, right) => right[1] - left[1]);
+
+    return [
+      ...statusOrder
+        .filter((status) => counts[status] !== undefined)
+        .map((status) => ({ name: status, value: counts[status] })),
+      ...remaining.map(([name, value]) => ({ name, value })),
+    ];
+  }, [assets]);
+
+  const assetGrowth = useMemo(() => {
+    const monthly: Record<string, number> = assets.reduce(
+      (acc: Record<string, number>, asset: TAsset) => {
+      const createdAt = new Date(asset.createdAt);
+      if (Number.isNaN(createdAt.getTime())) return acc;
+
+      const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+      },
+      {},
+    );
+
+    return Object.entries(monthly)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, value]) => {
+        const [year, month] = key.split("-").map(Number);
+        return {
+          label: new Date(year, month - 1, 1).toLocaleDateString("en-US", {
+            month: "short",
+            year: "2-digit",
+          }),
+          value,
+        };
+      });
+  }, [assets]);
+
+  const totalAssets = summary?.assets.totalAssets ?? assets.length;
+  const totalValue = summary?.assets.totalAssetValue ?? 0;
+  const activeAssets =
+    summary?.assets.totalActiveAssets ??
+    assets.filter((asset: TAsset) => asset.status.toLowerCase() === "active")
+      .length;
+  const inactiveAssets =
+    summary?.assets.totalInactiveAssets ??
+    assets.filter((asset: TAsset) => asset.status.toLowerCase() === "inactive")
+      .length;
+  const maintenanceAssets = assets.filter((asset: TAsset) =>
+    asset.status.toLowerCase().includes("maint"),
+  ).length;
 
   const tabs = [
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
-    // { id: "maintenance", label: "Maintenance", icon: <Wrench size={16} /> },
+    { id: "types", label: "Add Types", icon: <PlusCircleIcon size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     { id: "customize", label: "Customize", icon: <Settings size={16} /> },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
@@ -54,25 +160,39 @@ export default function BusinessesPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <p className="text-muted-foreground text-sm">Total Assets</p>
-            <p className="text-3xl font-bold text-foreground mt-2">543</p>
-            <p className="text-xs text-green-600 mt-2">+25 this month</p>
+            <p className="text-3xl font-bold text-foreground mt-2">
+              {totalAssets.toLocaleString()}
+            </p>
+            <p className="text-xs text-green-600 mt-2">
+              {assetGrowth.at(-1)?.value ?? 0} added this month
+            </p>
           </Card>
           <Card>
             <p className="text-muted-foreground text-sm">Total Value</p>
-            <p className="text-3xl font-bold text-foreground mt-2">$287K</p>
+            <p className="text-3xl font-bold text-foreground mt-2">
+              ${Math.round(totalValue / 1000).toLocaleString()}K
+            </p>
             <p className="text-xs text-muted-foreground mt-2">
-              Inventory value
+              Live inventory value
             </p>
           </Card>
           <Card>
             <p className="text-muted-foreground text-sm">Active Assets</p>
-            <p className="text-3xl font-bold text-foreground mt-2">521</p>
-            <p className="text-xs text-green-600 mt-2">95.9% utilization</p>
+            <p className="text-3xl font-bold text-foreground mt-2">
+              {activeAssets.toLocaleString()}
+            </p>
+            <p className="text-xs text-green-600 mt-2">
+              {totalAssets > 0 ? `${((activeAssets / totalAssets) * 100).toFixed(1)}% utilization` : "No assets yet"}
+            </p>
           </Card>
           <Card>
             <p className="text-muted-foreground text-sm">In Maintenance</p>
-            <p className="text-3xl font-bold text-foreground mt-2">12</p>
-            <p className="text-xs text-orange-600 mt-2">Scheduled</p>
+            <p className="text-3xl font-bold text-foreground mt-2">
+              {maintenanceAssets.toLocaleString()}
+            </p>
+            <p className="text-xs text-orange-600 mt-2">
+              {inactiveAssets.toLocaleString()} inactive
+            </p>
           </Card>
         </div>
       </div>
@@ -91,97 +211,86 @@ export default function BusinessesPage() {
           isLoading={isLoading}
           error={isError ? "Failed to load asset records" : null}
           page={page}
-          totalPages={pagination?.totalPages || 1}
+          totalPages={assetPagination?.totalPages || 1}
           onPageChange={setPage}
         />
       )}
 
-      {/* {activeTab === "maintenance" && (
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Maintenance Schedule</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">Asset Name</th>
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">Category</th>
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">Last Maintenance</th>
-                  <th className="text-left py-3 px-4 font-semibold text-foreground">Next Maintenance</th>
-                  <th className="text-center py-3 px-4 font-semibold text-foreground">Days Until</th>
-                  <th className="text-center py-3 px-4 font-semibold text-foreground">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockAssets.map((asset) => {
-                  const nextDate = new Date(asset.nextMaintenanceDate);
-                  const today = new Date();
-                  const daysUntil = Math.ceil((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                  const urgency = daysUntil <= 7 ? 'text-red-600' : daysUntil <= 30 ? 'text-orange-600' : 'text-green-600';
-
-                  return (
-                    <tr key={asset.id} className="border-b border-border hover:bg-muted/50">
-                      <td className="py-3 px-4 font-medium text-foreground">{asset.name}</td>
-                      <td className="py-3 px-4 text-muted-foreground">{asset.category}</td>
-                      <td className="py-3 px-4 text-muted-foreground">
-                        {new Date(asset.lastMaintenanceDate).toLocaleDateString()}
-                      </td>
-                      <td className="py-3 px-4 text-muted-foreground">
-                        {new Date(asset.nextMaintenanceDate).toLocaleDateString()}
-                      </td>
-                      <td className={`py-3 px-4 text-center font-semibold ${urgency}`}>{daysUntil}d</td>
-                      <td className="py-3 px-4 text-center">
-                        <Button className="px-2 py-1 border border-gray-200 rounded">
-                          Schedule
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )} */}
+      {activeTab === "types" && (
+        <AssetTypeRecord
+          assetTypeData={assetTypes}
+          isLoading={isLoading}
+          error={isError ? "Failed to load asset type records" : null}
+          page={page}
+          totalPages={assetTypePagination?.totalPages || 1}
+          onPageChange={setPage}
+        />
+      )}
 
       {activeTab === "analysis" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Assets by Category</h3>
-            <div className="space-y-3">
-              {[
-                { name: 'Electronics', count: 180, value: 95000 },
-                { name: 'Furniture', count: 140, value: 42000 },
-                { name: 'Vehicles', count: 15, value: 75000 },
-                { name: 'Equipment', count: 120, value: 52000 },
-              ].map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center p-3 hover:bg-muted/50 rounded">
-                  <div>
-                    <p className="font-medium text-foreground">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{item.count} assets</p>
-                  </div>
-                  <span className="font-semibold text-foreground">${(item.value / 1000).toFixed(0)}K</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <Card>
+            <h3 className="text-lg font-semibold mb-4">Assets by Type</h3>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={assetTypeBreakdown}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+                <YAxis stroke="var(--muted-foreground)" />
+                <Tooltip />
+                <Bar dataKey="value" fill="var(--primary)" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
 
-          <div className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Asset Conditions</h3>
-            <div className="space-y-3">
-              {[
-                { name: 'Excellent', count: 280, color: 'bg-green-500' },
-                { name: 'Good', count: 180, color: 'bg-blue-500' },
-                { name: 'Fair', count: 70, color: 'bg-yellow-500' },
-                { name: 'Poor', count: 13, color: 'bg-red-500' },
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                  <span className="text-sm text-foreground flex-1">{item.name}</span>
-                  <span className="text-sm font-semibold text-foreground">{item.count}</span>
-                </div>
-              ))}
+          <Card>
+            <h3 className="text-lg font-semibold mb-4">Asset Status</h3>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={assetStatusBreakdown}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+                <YAxis stroke="var(--muted-foreground)" />
+                <Tooltip />
+                <Bar dataKey="value" fill="var(--secondary)">
+                  {assetStatusBreakdown.map((entry, index) => (
+                    <Cell
+                      key={`cell-${entry.name}-${index}`}
+                      fill={
+                        entry.name === "active"
+                          ? "#22c55e"
+                          : entry.name === "inactive"
+                            ? "#ef4444"
+                            : "#f59e0b"
+                      }
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Card>
+
+          <Card>
+            <h3 className="text-lg font-semibold mb-4">Asset Growth</h3>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={assetGrowth}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="label" stroke="var(--muted-foreground)" />
+                <YAxis stroke="var(--muted-foreground)" />
+                <Tooltip />
+                <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </Card>
+
+          <Card>
+            <h3 className="text-lg font-semibold mb-4">Asset Summary</h3>
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p>Total asset types: {assetTypes.length.toLocaleString()}</p>
+              <p>Active assets: {activeAssets.toLocaleString()}</p>
+              <p>Inactive assets: {inactiveAssets.toLocaleString()}</p>
+              <p>Maintenance assets: {maintenanceAssets.toLocaleString()}</p>
+              <p>Total value: ${Math.round(totalValue).toLocaleString()}</p>
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
@@ -196,7 +305,8 @@ export default function BusinessesPage() {
 
       {activeTab === "logs" && (
         <LogDetails
-          module="Assets"
+          userId={assets?.[0]?.business_id ?? ""}
+          module="Asset"
           onClearLogs={() => {
             console.log("Clearing asset logs");
           }}

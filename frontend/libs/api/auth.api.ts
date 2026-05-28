@@ -20,3 +20,8 @@ export const setPassword = async (token: string, password: string, confirmPasswo
   });
   return response.data;
 };
+
+export const userLogoutApi = async (userId: string) => {
+  const response = await apiClient.get(`/auth/logout/${userId}`);
+  return response.data;
+};

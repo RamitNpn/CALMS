@@ -27,7 +27,7 @@ export function ProtectedRoute({
 
     // Check if user has allowed role
     if (allowedRoles && authData && !allowedRoles.includes(authData.role)) {
-      router.push("/pages/dashboard");
+      router.push("/pages/dashboard/business-admin");
       return;
     }
   }, [isAuthenticated, isLoading, authData, allowedRoles, router]);

@@ -82,7 +82,6 @@ export default function SetPasswordForm({
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Password */}
         <div>
           <label className="text-sm font-medium text-gray-700">
             Password
@@ -92,7 +91,7 @@ export default function SetPasswordForm({
               {...register("password")}
               type={showPassword ? "text" : "password"}
               placeholder="Enter a strong password"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full mt-1 px-4 py-2 border border-gray-200 rounded focus:border-blue-500 outline-none"
             />
             <button
               type="button"
@@ -110,7 +109,6 @@ export default function SetPasswordForm({
           )}
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label className="text-sm font-medium text-gray-700">
             Confirm Password
@@ -120,7 +118,7 @@ export default function SetPasswordForm({
               {...register("confirmPassword")}
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Confirm your password"
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full mt-1 px-4 py-2 border border-gray-200 rounded focus:border-blue-500 outline-none"
             />
             <button
               type="button"
@@ -137,7 +135,6 @@ export default function SetPasswordForm({
           )}
         </div>
 
-        {/* Password Requirements */}
         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
           <p className="text-xs font-medium text-blue-900 mb-2">Password requirements:</p>
           <ul className="text-xs text-blue-800 space-y-1">
@@ -150,11 +147,10 @@ export default function SetPasswordForm({
           </ul>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-indigo-600 text-white cursor-pointer py-2 rounded hover:bg-indigo-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
           {isPending ? "Setting Password..." : "Set Password"}

@@ -39,7 +39,6 @@ export const createBillingSchema = z.object({
 export const billingSchema = z.object({
   _id: z.string(),
   business_id: z.string(),
-  clientId: z.string(),
   clientName: z.string(),
   clientEmail: z.string().email(),
   title: z.string().min(1, "Title is required"),
@@ -61,6 +60,7 @@ export const getBillingByIDSchema = billingSchema;
 export const updateBillingSchema = z.object({
   _id: z.string().min(1, "Billing ID is required"),
   clientName: z.string().min(2, "Client name is required").max(100).optional(),
+  clientEmail: z.string().email().optional(),
   title: z.string().min(1, "Title is required").optional(),
   items: z.preprocess(
     (val) => {

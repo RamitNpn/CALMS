@@ -8,7 +8,6 @@ import {
   getBusinessByIdSchema,
   createBusinessSchema,
   updateBusinessSchema,
-  removeBusinessSchema,
 } from "./business.schema";
 
 const c = initContract();

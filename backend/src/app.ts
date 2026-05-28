@@ -12,33 +12,20 @@ import { openApiDocument } from "./config/swagger";
 
 const app = express();
 
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://calms-frontend.vercel.app",
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); // IMPORTANT
 app.use(morgan("dev"));
-
-const allowedOrigins =
-  process.env.WHITE_LISTED_ORIGINS?.split(",").map((o) => o.trim()) || [];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      console.log("CORS Origin:", origin);
-      if (!origin) return callback(null, true);
-      if (origin === `http://localhost:${process.env.PORT || 4000}`) {
-        return callback(null, true);
-      }
-      if (process.env.NODE_ENV !== "production") {
-        return callback(null, true);
-      }
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("CORS blocked"), false);
-    },
-    credentials: true,
-  })
-);
 
 app.use("/flowdesk-api", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 

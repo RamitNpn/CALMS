@@ -39,7 +39,7 @@ export const businessSchema = z.object({
   operatorName: z.string().min(1),
   operatorEmail: z.string().email(),
   businessType: z.string(),
-  profilePicture: z.any().optional(),
+  profile: z.string().url(),
   role: teamRoleEnum,
   teams: z.string().optional(),
   branch: branchSchema,
@@ -63,14 +63,40 @@ export const updateBusinessSchema = z.object({
   operatorEmail: z.string().email().optional(),
   operatorPassword: z.string().min(6).optional(),
   businessType: z.string().optional(),
-  profilePicture: z.any().optional(),
+  profile: z.string(),
   role: teamRoleEnum.optional(),
   teams: z.string().optional(),
-  branch: branchSchema.optional(),
+  branch: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        return JSON.parse(val);
+      }
+      return val;
+    },
+    z.object({
+      name: z.string(),
+      location: z.string(),
+    }),
+  ),
   package: packageEnum.optional(),
-  services: z.array(z.string()).optional(),
-  status: z.boolean().optional(),
-  payment_status: z.boolean().optional(),
+  services: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return JSON.parse(val);
+    }
+    return val;
+  }, z.array(z.string())),
+  status: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return val === "true";
+    }
+    return val;
+  }, z.boolean()),
+  payment_status: z.preprocess((val) => {
+    if (typeof val === "string") {
+      return val === "true";
+    }
+    return val;
+  }, z.boolean()),
   payment_initiation: z.coerce.date().optional(),
 });
 

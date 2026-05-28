@@ -2,7 +2,6 @@ import mongoose, { Document } from "mongoose";
 
 export interface IBilling extends Document {
   business_id: mongoose.Types.ObjectId;
-  clientId: mongoose.Types.ObjectId;
   clientName: string;
   clientEmail: string;
   title: string;
@@ -26,12 +25,6 @@ const BillingSchema = new mongoose.Schema(
     business_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Business",
-      required: true,
-    },
-
-    clientId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Client",
       required: true,
     },
 

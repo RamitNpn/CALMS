@@ -71,7 +71,7 @@ export default function StaffRecord({
           className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
         >
           <Plus size={18} />
-          Create Business Clients
+          Add Business Staff
         </Button>
       </div>
       <table className="w-full table-auto">
@@ -176,7 +176,6 @@ export default function StaffRecord({
       )}
 
       {open && <StaffForm onClose={() => setOpen(false)} />}
-
 
       {/* DELETE CONFIRM */}
       <ConfirmDialog

@@ -33,7 +33,6 @@ export function StaffForm({ onClose, size = "lg" }: StaffFormProps) {
       userName: "",
       userEmail: "",
       userPhone: "",
-      userPassword: "",
       gender: undefined,
       profile: "",
       role: "staff",
@@ -66,7 +65,6 @@ export function StaffForm({ onClose, size = "lg" }: StaffFormProps) {
     formData.append("userName", data.userName);
     formData.append("userEmail", data.userEmail);
     formData.append("userPhone", data.userPhone);
-    formData.append("userPassword", data.userPassword);
     formData.append("role", data.role);
 
     if (data.gender) {
@@ -177,27 +175,6 @@ export function StaffForm({ onClose, size = "lg" }: StaffFormProps) {
                 {errors.userPhone && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.userPhone.message}
-                  </p>
-                )}
-              </div>
-
-              {/* PASSWORD */}
-              <div>
-                <label className="block text-sm font-medium">
-                  Password <span className="text-red-500">*</span>
-                </label>
-
-                <input
-                  type="password"
-                  {...register("userPassword", {
-                    required: "Password is required",
-                  })}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-
-                {errors.userPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.userPassword.message}
                   </p>
                 )}
               </div>

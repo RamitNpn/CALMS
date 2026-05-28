@@ -1,12 +1,17 @@
-export interface TLog {
+export interface TLogEntry {
   _id: string;
   timestamp: string;
-  action: string;
+  action: "CREATE" | "UPDATE" | "DELETE" | "LOGIN" | "LOGOUT" | "VIEW" | "EDIT";
   userId: string;
-  userName: string;
-  recordId?: string;
-  recordName?: string;
+  title: string;
+  changes?: {
+    field: string;
+    oldValue: string;
+    newValue: string;
+  }[];
   module: string;
+  role: string;
   description: string;
-  ipAddress?: string;
+  createdAt: string;
+  updatedAt: string;
 }

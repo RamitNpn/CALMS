@@ -6,6 +6,10 @@ export * from "./api/auth.api";
 export * from "./api/payment.api";
 export * from "./api/staff.api";
 export * from "./api/client.api";
+export * from "./api/log.api";
+export * from "./api/service.api";
+export * from "./api/token.api";
+export * from "./api/stats.api";
 
 export * from "./types/asset.type";
 export * from "./types/attendance.types";
@@ -15,6 +19,10 @@ export * from "./types/payment.types";
 export * from "./types/shared.types";
 export * from "./types/staff.types";
 export * from "./types/client.types";
+export * from "./types/log.types";
+export * from "./types/service.types";
+export * from "./types/token.types";
+export * from "./types/stats.types";
 
 export * from "./validation/asset.validation";
 export * from "./validation/attendance.validation";
@@ -24,3 +32,6 @@ export * from "./validation/login.validation";
 export * from "./validation/payment.validation";
 export * from "./validation/staff.validation";
 export * from "./validation/client.validation";
+export * from "./validation/service.validation";
+export * from "./validation/log.validation";
+export * from "./validation/token.validation";

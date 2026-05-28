@@ -40,7 +40,8 @@ export const createAsset: AppRouteMutationImplementation<
         module: "Asset",
         action: "CREATE",
         userId: new mongoose.Types.ObjectId(business_id),
-        userName: userName,
+        role: account.role,
+        title: name,
         description: `Asset created with name: ${name}`,
       });
     }
@@ -71,15 +72,15 @@ export const updateAsset: AppRouteMutationImplementation<
     const { assetID } = req.params;
     const { name, type, customFields, status } = req.body;
 
-    console.log("📝 UPDATING ASSET:", assetID);
-    console.log("📝 NAME:", name);
-    console.log("📝 TYPE:", type);
-    console.log("📝 STATUS:", status);
+    console.log("UPDATING ASSET:", assetID);
+    console.log("NAME:", name);
+    console.log("TYPE:", type);
+    console.log("STATUS:", status);
     console.log(
-      "📝 CUSTOM FIELDS RECEIVED:",
+      "CUSTOM FIELDS RECEIVED:",
       JSON.stringify(customFields, null, 2),
     );
-    console.log("📝 FULL REQ BODY:", JSON.stringify(req.body, null, 2));
+    console.log("FULL REQ BODY:", JSON.stringify(req.body, null, 2));
 
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
@@ -87,13 +88,13 @@ export const updateAsset: AppRouteMutationImplementation<
     if (status !== undefined) updateData.status = status;
     if (customFields !== undefined) {
       console.log(
-        "📝 SETTING CUSTOM FIELDS TO:",
+        "SETTING CUSTOM FIELDS TO:",
         JSON.stringify(customFields, null, 2),
       );
       updateData.customFields = customFields;
     }
 
-    console.log("📝 FINAL UPDATE DATA:", JSON.stringify(updateData, null, 2));
+    console.log("FINAL UPDATE DATA:", JSON.stringify(updateData, null, 2));
 
     const updated = await assetRepository.update(assetID, updateData);
 
@@ -108,7 +109,7 @@ export const updateAsset: AppRouteMutationImplementation<
     }
 
     console.log(
-      "✅ ASSET UPDATED SUCCESSFULLY. NEW CUSTOM FIELDS:",
+      "ASSET UPDATED SUCCESSFULLY. NEW CUSTOM FIELDS:",
       JSON.stringify(updated.customFields, null, 2),
     );
 
@@ -158,6 +159,34 @@ export const removeAsset: AppRouteMutationImplementation<
           error: "Asset was not deleted",
         },
       };
+    }
+
+    const businessUser = await businessRepository.getByID(
+      existing.business_id.toString(),
+    );
+    const user = await userRepository.getByID(existing.business_id.toString());
+    const account = businessUser || user;
+
+    if (!account) {
+      return {
+        status: 404,
+        body: { success: false, error: "User not found" },
+      };
+    }
+
+    const isBusiness = "operatorPassword" in account;
+
+    const userName = isBusiness ? account.operatorName : account.userName;
+
+    if (deleted) {
+      const createLogs = await activityLogRepository.create({
+        module: "Asset",
+        action: "DELETE",
+        userId: new mongoose.Types.ObjectId(existing.business_id),
+        role: account.role,
+        title: existing.name,
+        description: `Asset deleted by ${userName}`,
+      });
     }
 
     return {

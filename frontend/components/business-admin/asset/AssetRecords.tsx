@@ -62,7 +62,7 @@ export default function AssetRecord({
   }
 
   return (
-    <div className="w-full h-[75vh] overflow-y-scroll ">
+    <div className="w-full h-[76vh] overflow-y-scroll ">
       <div className="flex justify-end mb-2">
         <Button
           onClick={() => setOpen(true)}

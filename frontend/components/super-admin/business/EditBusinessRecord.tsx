@@ -5,15 +5,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/toast";
-import { z } from "zod";
 import clsx from "clsx";
 
 import { useBusinessById } from "@/hooks/super-admin/business-records/getBusinessRecordById";
 import { businessApi } from "@/libs/api/business.api";
-import { updateBusinessSchema } from "@/libs";
+import { TAdminUpdateBusinessSchema, updateAdminBusinessSchema } from "@/libs";
 import { X } from "lucide-react";
 
-type BusinessForm = z.infer<typeof updateBusinessSchema>;
 
 type BusinessFormProps = {
   onClose: () => void;
@@ -34,8 +32,8 @@ export function EditBusinessForm({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<BusinessForm>({
-    resolver: zodResolver(updateBusinessSchema),
+  } = useForm<TAdminUpdateBusinessSchema>({
+    resolver: zodResolver(updateAdminBusinessSchema),
     defaultValues: {
       businessName: "",
       operatorName: "",
@@ -88,7 +86,7 @@ export function EditBusinessForm({
   }, [businessId, business, reset]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (payload: BusinessForm) =>
+    mutationFn: (payload: TAdminUpdateBusinessSchema) =>
       businessApi.updateBusinessApi(businessId, payload),
     onSuccess: (data: any) => {
       toast.show({
@@ -106,7 +104,7 @@ export function EditBusinessForm({
     },
   });
 
-  const onSubmit = (values: BusinessForm) => {
+  const onSubmit = (values: TAdminUpdateBusinessSchema) => {
     mutate({
       ...values,
       _id: businessId,
