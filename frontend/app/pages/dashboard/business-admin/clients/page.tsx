@@ -46,7 +46,7 @@ export default function ClientPage() {
 
   const { summary } = useBusinessAnalytics();
 
-  const clients = clientData?.data ?? clientData ?? [];
+  const clients: TClient[] = clientData?.data ?? clientData ?? [];
   const pagination = clientData?.pagination;
 
   const clientGenderData = useMemo(() => {
