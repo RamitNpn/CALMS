@@ -46,7 +46,8 @@ export default function LogDetails({
     return logs.filter((log: TLogEntry) => {
       const matchesSearch =
         log.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        log.role?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         log.action?.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
@@ -94,7 +95,8 @@ export default function LogDetails({
           log._id,
           log.timestamp.toLocaleString(),
           log.action,
-          log.userName,
+          log.title,
+          log.role,
           log.description,
         ].join(","),
       ),
@@ -197,10 +199,10 @@ export default function LogDetails({
                     Action
                   </th>
                   <th className="px-6 py-3 text-left font-semibold text-gray-900">
-                    User
+                    Title
                   </th>
                   <th className="px-6 py-3 text-left font-semibold text-gray-900">
-                    Record
+                    Role
                   </th>
                   <th className="px-6 py-3 text-left font-semibold text-gray-900">
                     Description
@@ -225,7 +227,10 @@ export default function LogDetails({
                       </span>
                     </td>
                     <td className="px-6 py-4 text-gray-700 font-medium">
-                      {log.userName}
+                      {log.title}
+                    </td>
+                    <td className="px-6 py-4 text-gray-700 font-medium capitalize">
+                      {log.role}
                     </td>
                     <td className="px-6 py-4 text-gray-700">
                       {log.description}

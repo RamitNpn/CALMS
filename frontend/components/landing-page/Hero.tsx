@@ -1,7 +1,7 @@
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden min-h-screen">
-      <section className="py-8 sm:py-14 lg:py-20">
+    <section className="relative overflow-hidden">
+      <section className="py-8 mt-10 sm:mt-2 sm:py-14 lg:py-20">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="grid items-center grid-cols-1 gap-12 lg:grid-cols-2">
             
@@ -20,7 +20,7 @@ export default function Hero() {
                 operations, all from one centralized dashboard.
               </p>
 
-              <div className="mt-8 rounded-3xl border border-gray-200 bg-gray-50 p-6">
+              <div className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-6">
                 <p className="text-lg italic leading-relaxed text-black">
                   “Technology should empower businesses to grow faster,
                   operate smarter and serve better.”
@@ -71,7 +71,7 @@ export default function Hero() {
                   ].map(([title, value]) => (
                     <div
                       key={title}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+                      className="rounded-xl bg-gray-100 p-5"
                     >
                       <p className="text-sm text-gray-600">
                         {title}
@@ -84,7 +84,7 @@ export default function Hero() {
                   ))}
                 </div>
 
-                <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+                <div className="mt-6 rounded-xl bg-blue-100 p-5">
                   <p className="text-sm leading-relaxed text-blue-900">
                     Real-time scheduling, token systems, analytics,
                     subscriptions and business management modules integrated

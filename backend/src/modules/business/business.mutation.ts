@@ -144,12 +144,10 @@ export const createBusiness: AppRouteMutationImplementation<
       }
     }
 
-    console.log("Fetching master services for business creation...");
 
     await ensureServicesInitialized();
 
     const masterServices = await serviceRepository.getAll();
-    console.log("Master services fetched:", masterServices.length);
 
     const enabledServices = masterServices.filter((service) =>
       normalizedServices.includes(service.service_key),

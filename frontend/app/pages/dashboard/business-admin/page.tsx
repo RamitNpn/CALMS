@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import Link from "next/link";
 import { DistributionChart } from "@/components/ui/widgets";
+import Card from "@/components/ui/card";
 
 const kpiData = [
   { icon: Users, label: "Total Staff", value: "127", change: "+12%" },
@@ -69,7 +70,7 @@ export default function DashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Chart */}
-        <div className="p-6">
+        <Card>
           <h3 className="text-lg font-semibold mb-4">Revenue vs Expenses</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
@@ -98,10 +99,10 @@ export default function DashboardPage() {
               />
             </LineChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
 
         {/* Activity Chart */}
-        <div className="p-6">
+        <Card>
           <h3 className="text-lg font-semibold mb-4">Monthly Activity</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>
@@ -118,7 +119,7 @@ export default function DashboardPage() {
               <Bar dataKey="revenue" fill="var(--primary)" />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </Card>
       </div>
 
       {/* Advanced Analytics Section */}
@@ -129,28 +130,35 @@ export default function DashboardPage() {
 
         {/* Distribution Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DistributionChart
-            title="Staff Distribution by Department"
-            data={[
-              { name: "Engineering", value: 45, percentage: (45 / 127) * 100 },
-              { name: "Sales", value: 32, percentage: (32 / 127) * 100 },
-              { name: "Operations", value: 28, percentage: (28 / 127) * 100 },
-              { name: "HR", value: 15, percentage: (15 / 127) * 100 },
-              { name: "Marketing", value: 7, percentage: (7 / 127) * 100 },
-            ]}
-            variant="bar"
-          />
-
-          <DistributionChart
-            title="Client Acquisition Channels"
-            data={[
-              { name: "Referral", value: 32, percentage: (32 / 89) * 100 },
-              { name: "Direct", value: 28, percentage: (28 / 89) * 100 },
-              { name: "Marketing", value: 18, percentage: (18 / 89) * 100 },
-              { name: "Partnership", value: 11, percentage: (11 / 89) * 100 },
-            ]}
-            variant="donut"
-          />
+          <Card>
+            <DistributionChart
+              title="Staff Distribution by Department"
+              data={[
+                {
+                  name: "Engineering",
+                  value: 45,
+                  percentage: (45 / 127) * 100,
+                },
+                { name: "Sales", value: 32, percentage: (32 / 127) * 100 },
+                { name: "Operations", value: 28, percentage: (28 / 127) * 100 },
+                { name: "HR", value: 15, percentage: (15 / 127) * 100 },
+                { name: "Marketing", value: 7, percentage: (7 / 127) * 100 },
+              ]}
+              variant="bar"
+            />
+          </Card>
+          <Card>
+            <DistributionChart
+              title="Client Acquisition Channels"
+              data={[
+                { name: "Referral", value: 32, percentage: (32 / 89) * 100 },
+                { name: "Direct", value: 28, percentage: (28 / 89) * 100 },
+                { name: "Marketing", value: 18, percentage: (18 / 89) * 100 },
+                { name: "Partnership", value: 11, percentage: (11 / 89) * 100 },
+              ]}
+              variant="donut"
+            />
+          </Card>
         </div>
       </div>
 
@@ -186,7 +194,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="px-6 py-2 h-[50vh] overflow-y-scroll">
+      <div className="px-6 py-2 h-[50vh] overflow-y-scroll bg-white shadow-md rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Recent Activity</h3>
           <a
@@ -219,7 +227,7 @@ export default function DashboardPage() {
             return (
               <div
                 key={idx}
-                className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0"
+                className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0 hover:bg-muted/50 rounded-lg transition-colors"
               >
                 <div className="p-2 bg-muted rounded-lg">
                   <Icon className="w-4 h-4 text-foreground" />

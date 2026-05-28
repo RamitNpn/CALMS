@@ -145,9 +145,9 @@ export default function TokenRecord({
 
       {/* VIEW + PRINT */}
       {viewToken && (
-        <div className="fixed inset-0 bg-black/20 flex items-center justify-center">
+        <div className="absolute fixed inset-0 bg-black/20 flex flex-col items-center justify-center">
           {/* ACTION BAR (NOT PRINTED) */}
-          <div className="absolute top-18 right-144 flex gap-2 print:hidden">
+          <div className="relative bottom-1 left-34 flex gap-2 print:hidden">
             <button
               onClick={() => window.print()}
               className="bg-black text-white px-3 py-2 rounded outline-none cursor-pointer flex items-center gap-2"

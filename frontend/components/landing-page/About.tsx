@@ -94,8 +94,8 @@ function About() {
                 key={item.title}
                 className="rounded-3xl border border-black/5 bg-white p-8 shadow-lg transition-all duration-300"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-yellow-300">
-                  <Icon className="h-7 w-7 text-black" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600">
+                  <Icon className="h-7 w-7 text-white" />
                 </div>
 
                 <h3 className="mt-6 text-2xl font-semibold text-black">
