@@ -26,12 +26,22 @@ export function ViewPaymentRecord({
   const companyPan = "PAN No: 123456789";
   const companyAddress = "Main Road, Kathmandu, Nepal";
   const companyPhone = "+977-9800000000";
-  const companyLogo = "/user.png";
+  const companyEmail = "info@calmsdriving.com";
 
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `Payment-Receipt-${payment?.businessName || "payment"}`,
+    documentTitle: `Payment-Invoice-${payment?.businessName || "payment"}`,
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    `,
   });
 
   if (isLoading) {
@@ -54,261 +64,168 @@ export function ViewPaymentRecord({
 
   if (!payment) return null;
 
-  const paymentStatusLabel = payment.paymentStatus
+  const invoiceNumber = `PAY-${String(payment._id).slice(-6).toUpperCase()}`;
+  const totalAmount = Number(payment.paidAmount || 0) + Number(payment.dueAmount || 0);
+  const paidAmount = Number(payment.paidAmount || 0);
+  // const dueAmount = Number(payment.dueAmount || 0);
+  const statusLabel = payment.paymentStatus
     ? payment.paymentStatus.charAt(0).toUpperCase() + payment.paymentStatus.slice(1)
     : "Pending";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 print:static print:bg-white print:p-0">
-      <div className="absolute inset-0 print:hidden" onClick={onClose} />
-
-      <div className="relative z-10 w-full max-w-6xl">
-        <div className="mb-3 flex items-center justify-between print:hidden">
-          <div>
-            <h2 className="text-lg font-semibold text-white">
-              Payment Receipt Preview
-            </h2>
-            <p className="text-sm text-slate-200">{payment.businessName}</p>
-          </div>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 print:bg-white">
+      <div
+        className={clsx(
+          "bg-white rounded-lg shadow-lg w-full h-[90vh] overflow-y-auto print:shadow-none print:h-auto print:max-w-full",
+          {
+            "max-w-md": size === "sm",
+            "max-w-lg": size === "md",
+            "max-w-5xl": size === "lg",
+            "max-w-6xl": size === "xl",
+          },
+        )}
+      >
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-100 sticky top-0 print:hidden">
+          <h2 className="text-lg font-semibold">Payment Invoice - {payment.businessName}</h2>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100 cursor-pointer"
+              className="bg-black cursor-pointer text-white px-3 py-2 rounded flex items-center gap-2"
             >
-              <Printer size={16} />
-              Print Receipt
+              <Printer size={18} />
+              Print
             </button>
 
-            <button
-              onClick={onClose}
-              className="rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20 cursor-pointer"
-            >
-              <X size={18} />
+            <button onClick={onClose}>
+              <X className="text-red-500 cursor-pointer" />
             </button>
           </div>
         </div>
 
         <div
           ref={printRef}
-          className={clsx(
-            "mx-auto max-h-[88vh] w-full overflow-y-auto rounded-[28px] bg-white shadow-2xl print:max-h-none print:rounded-none print:shadow-none",
-            {
-              "max-w-md": size === "sm",
-              "max-w-lg": size === "md",
-              "max-w-4xl": size === "lg",
-              "max-w-6xl": size === "xl",
-            },
-          )}
+          className="bg-white print:bg-white"
+          style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
         >
-          <div className="bg-black px-6 py-8 text-white sm:px-10 print:bg-black">
-            <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="border-b border-gray-200 px-6 py-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="flex h-24 w-44 items-center justify-center rounded-sm bg-white px-4 py-3 text-slate-900 shadow-sm">
-                  <img
-                    src={companyLogo}
-                    alt="CALMS Driving Institute logo"
-                    className="h-full w-full object-contain"
-                  />
+                <div className="flex h-20 w-36 items-center justify-center rounded border border-gray-300 bg-white px-3 py-2">
+                  <img src="/user.png" alt="Company Logo" className="max-h-full max-w-full object-contain" />
                 </div>
 
-                <div>
-                <p className="text-xs uppercase tracking-[0.35em] text-slate-300">
-                  Payment Receipt
-                </p>
-                <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                  {companyName}
-                </h1>
-                <p className="mt-3 max-w-xl text-sm text-slate-300">
-                  {companyAddress}
-                </p>
-                <div className="mt-4 space-y-1 text-sm text-slate-300">
-                  <p>{companyPan}</p>
-                  <p>{companyPhone}</p>
-                </div>
+                <div className="space-y-1 text-gray-800">
+                  <h1 className="text-xl font-bold">{companyName}</h1>
+                  <p className="text-[12px] leading-5">{companyAddress}</p>
+                  <p className="text-[12px] leading-5">Mobile: {companyPhone}</p>
+                  <p className="text-[12px] leading-5">Email: {companyEmail}</p>
+                  <p className="text-[12px] leading-5">{companyPan}</p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/20 bg-black p-4">
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-300">
-                  Receipt Status
-                </p>
-                <p className="mt-2 text-2xl font-bold">{paymentStatusLabel}</p>
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                  <Meta value={moment(payment.createdAt).format("ll")} label="Created" />
-                  <Meta value={moment(payment.endAt).format("ll")} label="End Date" />
-                  <Meta value={payment.package} label="Package" />
-                  <Meta value={payment.isActive ? "Active" : "Inactive"} label="Account" />
-                </div>
+              <div className="lg:text-right">
+                <p className="text-2xl font-black tracking-wide text-black">INVOICE</p>
               </div>
             </div>
           </div>
 
-          <div className="grid gap-6 px-6 py-6 sm:px-10 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-                      Billed To
-                    </p>
-                    <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                      {payment.businessName}
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-600">
-                      {payment.businessEmail}
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                    <p className="text-xs uppercase tracking-[0.25em] text-slate-500">
-                      Package
-                    </p>
-                    <p className="mt-1 font-semibold capitalize text-slate-900">
-                      {payment.package}
-                    </p>
-                  </div>
+          <div className="px-6 py-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-md font-bold text-gray-900">Bill To</p>
+                <div className="mt-2 space-y-1 text-[12px] leading-6 text-gray-700">
+                  <p className="font-medium text-gray-900">{payment.businessName}</p>
+                  <p>{payment.businessEmail}</p>
+                  <p className="capitalize">Package: {payment.package}</p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-                      Payment Summary
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Subscription billing overview
-                    </p>
-                  </div>
-                  <div
-                    className={clsx(
-                      "rounded-full px-3 py-1 text-xs font-semibold",
-                      {
-                        "bg-slate-100 text-slate-700":
-                          payment.paymentStatus === "paid",
-                        "bg-slate-200 text-slate-700":
-                          payment.paymentStatus === "partial",
-                        "bg-slate-300 text-slate-800":
-                          payment.paymentStatus === "pending",
-                      },
-                    )}
-                  >
-                    {paymentStatusLabel}
-                  </div>
-                </div>
-
-                <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  <KeyValue
-                    label="Paid Amount"
-                    value={`Rs. ${Number(payment.paidAmount || 0).toLocaleString()}`}
-                  />
-                  <KeyValue
-                    label="Due Amount"
-                    value={`Rs. ${Number(payment.dueAmount || 0).toLocaleString()}`}
-                  />
-                  <KeyValue
-                    label="Started At"
-                    value={payment.startedAt ? moment(payment.startedAt).format("LL") : "-"}
-                  />
-                  <KeyValue
-                    label="End At"
-                    value={payment.endAt ? moment(payment.endAt).format("LL") : "-"}
-                  />
+              <div className="w-full max-w-[360px] rounded-md border border-gray-200 bg-white p-4">
+                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-[12px]">
+                  <p className="font-bold text-gray-900">Invoice No :</p>
+                  <p className="text-right font-bold text-gray-900">{invoiceNumber}</p>
+                  <p className="text-gray-700">Invoice Date :</p>
+                  <p className="text-right text-gray-700">
+                    {moment(payment.createdAt).format("ll")}
+                  </p>
+                  <p className="text-gray-700">Due Date :</p>
+                  <p className="text-right text-gray-700">
+                    {moment(payment.endAt).format("ll")}
+                  </p>
+                  <p className="text-gray-700">Status :</p>
+                  <p className="text-right text-gray-700">{statusLabel}</p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="rounded-2xl bg-black p-5 text-white shadow-lg">
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-300">
-                  Amount Overview
-                </p>
-                <div className="mt-4 space-y-4">
-                  <SummaryRow label="Paid" value={`Rs. ${Number(payment.paidAmount || 0).toLocaleString()}`} />
-                  <SummaryRow label="Due" value={`Rs. ${Number(payment.dueAmount || 0).toLocaleString()}`} />
-                  <SummaryRow label="Status" value={paymentStatusLabel} strong />
+            <div className="mt-5 overflow-hidden rounded-sm border border-gray-200">
+              <table className="w-full border-collapse text-[12px]">
+                <thead>
+                  <tr className="bg-black text-white">
+                    <th className="px-4 py-2 text-left font-bold">Sl.</th>
+                    <th className="px-4 py-2 text-left font-bold">Description</th>
+                    <th className="px-4 py-2 text-right font-bold">Qty</th>
+                    <th className="px-4 py-2 text-right font-bold">Rate</th>
+                    <th className="px-4 py-2 text-right font-bold">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t border-gray-200">
+                    <td className="px-4 py-2 text-left text-gray-900">1</td>
+                    <td className="px-4 py-2 text-left text-gray-900 capitalize">
+                      {payment.package} subscription package
+                    </td>
+                    <td className="px-4 py-2 text-right text-gray-900">1</td>
+                    <td className="px-4 py-2 text-right text-gray-900">Rs. {totalAmount.toLocaleString()}</td>
+                    <td className="px-4 py-2 text-right text-gray-900">Rs. {totalAmount.toLocaleString()}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
+              <div>
+                <p className="text-md font-bold text-gray-900">Payment Instructions</p>
+                <div className="mt-2 space-y-1 text-[12px] leading-6 text-gray-700">
+                  <p>Please clear due amount before subscription end date.</p>
+                  <p>Keep this invoice for audit and record keeping.</p>
+                  <p>Account Status: {payment.isActive ? "Active" : "Inactive"}</p>
+                  <p>Started At: {payment.startedAt ? moment(payment.startedAt).format("LL") : "-"}</p>
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-1">
-                <InfoCard label="Business" value={payment.businessName} />
-                <InfoCard label="Email" value={payment.businessEmail} />
-                <InfoCard label="Account" value={payment.isActive ? "Active" : "Inactive"} />
-                <InfoCard label="Created" value={moment(payment.createdAt).format("LLL")} />
-                <InfoCard label="Updated" value={moment(payment.updatedAt).format("LLL")} />
+              <div className="space-y-3 text-[12px] text-gray-900">
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2 font-semibold">
+                  <span>Subtotal</span>
+                  <span>Rs. {totalAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2 font-semibold">
+                  <span>Total</span>
+                  <span>Rs. {totalAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2">
+                  <span>Paid ({moment(payment.createdAt).format("ll")})</span>
+                  <span>Rs. {paidAmount.toLocaleString()}</span>
+                </div>
+                {/* <div className="flex items-stretch overflow-hidden rounded-full border border-black">
+                  <div className="flex min-w-0 flex-1 items-center justify-center bg-black px-4 py-3 text-lg font-bold text-white">
+                    Balance Due
+                  </div>
+                  <div className="flex w-[180px] items-center justify-center bg-white px-4 py-3 text-lg font-bold text-black">
+                    Rs. {dueAmount.toLocaleString()}
+                  </div>
+                </div> */}
               </div>
+            </div>
 
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
-                <p className="text-sm font-semibold text-slate-900">Notes</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  This receipt confirms the subscription payment for the driving institute system. Keep it with your financial records.
-                </p>
-              </div>
+            <div className="mt-1 flex flex-col items-end gap-3">
+              <div className="h-20 w-54 border-b border-gray-500/40" />
+              <p className="text-[12px] font-semibold text-gray-900">Authorized Signatory</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-/* Helper Component */
-function Section({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string;
-}) {
-  return (
-    <div>
-      <p className="font-medium">{label}</p>
-      <p className="text-gray-600">{value || "-"}</p>
-    </div>
-  );
-}
-
-function Meta({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-white/20 bg-black px-3 py-2">
-      <p className="text-[11px] uppercase tracking-[0.25em] text-slate-300">{label}</p>
-      <p className="mt-1 font-semibold text-white">{value}</p>
-    </div>
-  );
-}
-
-function SummaryRow({
-  label,
-  value,
-  strong = false,
-}: {
-  label: string;
-  value: string;
-  strong?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between border-b border-white/20 pb-3 last:border-b-0 last:pb-0">
-      <span className={`text-sm ${strong ? "font-semibold" : "text-slate-300"}`}>{label}</span>
-      <span className={`text-sm ${strong ? "font-bold" : "font-medium"}`}>{value}</span>
-    </div>
-  );
-}
-
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-xs uppercase tracking-[0.22em] text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold text-slate-900">{value}</p>
-    </div>
-  );
-}
-
-function KeyValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-slate-50 p-4">
-      <p className="text-xs uppercase tracking-[0.22em] text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold text-slate-900">{value}</p>
     </div>
   );
 }
