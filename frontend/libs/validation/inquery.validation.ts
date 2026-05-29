@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createDrivingInquirySchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().min(7, "Phone number is required"),
+  phone: z.string().optional(),
   age: z.number().optional(),
   gender: z.string().optional(),
   state: z.string().min(1, "State is required"),
@@ -31,16 +31,8 @@ export const createDrivingInquirySchema = z.object({
     phone: z.string().optional(),
     relation: z.string().optional(),
   }),
-
-  documents: z.array(
-    z.enum([
-      "citizenship_copy",
-      "passport_photo",
-      "medical_report",
-      "previous_license_copy",
-    ]),
-  ),
-
+  document: z.string().optional(),
+  documentType: z.string().optional(),
   agreeTerms: z.boolean().refine((val) => val === true, {
     message: "You must agree to terms",
   }),
@@ -54,13 +46,11 @@ export const getDrivingInquiryByIdSchema = z.object({
   _id: z.string(),
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().min(7, "Phone number is required"),
+  phone: z.string().optional(),
   age: z.number().optional(),
   gender: z.string().optional(),
   state: z.string().min(1, "State is required"),
-
   district: z.string().min(1, "District is required"),
-
   street: z.string().min(2, "Street is required"),
   occupation: z.string().optional(),
   inquiryType: z.enum([
@@ -84,20 +74,12 @@ export const getDrivingInquiryByIdSchema = z.object({
     phone: z.string().optional(),
     relation: z.string().optional(),
   }),
-
-  documents: z.array(
-    z.enum([
-      "citizenship_copy",
-      "passport_photo",
-      "medical_report",
-      "previous_license_copy",
-    ]),
-  ),
-
+  document: z.string().optional(),
+  documentType: z.string().optional(),
   agreeTerms: z.boolean().refine((val) => val === true, {
     message: "You must agree to terms",
   }),
-  createdAt: z.string().optional(),
+  createdAt: z.date().optional(),
 });
 
 export type TGetDrivingInquiryByIdSchema = z.infer<

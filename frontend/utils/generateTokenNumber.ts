@@ -19,5 +19,4 @@ export function generateTokenNumber(latestToken?: string) {
 
   return `DRV-${date}-TKN-${String(serial).padStart(3, "0")}`;
 }
-bjhhbssvhsbhs sg s gs dgbdg vsgd
 
