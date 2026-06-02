@@ -152,19 +152,19 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">
             Flowdesk - Edit Client Details
           </h2>
 
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* FORM */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             <p className="text-xl font-semibold">Edit Client Account</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

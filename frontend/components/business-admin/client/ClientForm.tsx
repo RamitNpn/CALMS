@@ -35,7 +35,6 @@ export function ClientForm({ onClose, size = "lg" }: ClientFormProps) {
       userName: "",
       userEmail: "",
       userPhone: "",
-      userPassword: "",
       gender: undefined,
       certificate: "",
       citizenship: "",
@@ -71,7 +70,6 @@ export function ClientForm({ onClose, size = "lg" }: ClientFormProps) {
     formData.append("userName", data.userName);
     formData.append("userEmail", data.userEmail);
     formData.append("userPhone", data.userPhone);
-    formData.append("userPassword", data.userPassword);
     formData.append("role", data.role);
 
     if (data.gender) {
@@ -111,25 +109,19 @@ export function ClientForm({ onClose, size = "lg" }: ClientFormProps) {
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">
             Flowdesk - Create Client
           </h2>
 
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-200 rounded-lg transition"
-          >
-            <X
-              size={22}
-              className="text-red-500 border border-gray-200 rounded cursor-pointer"
-            />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* CONTENT */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             {/* TITLE */}
             <div>
               <p className="text-xl font-semibold">Create Client Account</p>
@@ -194,27 +186,6 @@ export function ClientForm({ onClose, size = "lg" }: ClientFormProps) {
                 {errors.userPhone && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.userPhone.message}
-                  </p>
-                )}
-              </div>
-
-              {/* PASSWORD */}
-              <div>
-                <label className="block text-sm font-medium">
-                  Password <span className="text-red-500">*</span>
-                </label>
-
-                <input
-                  type="password"
-                  {...register("userPassword", {
-                    required: "Password is required",
-                  })}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-
-                {errors.userPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.userPassword.message}
                   </p>
                 )}
               </div>

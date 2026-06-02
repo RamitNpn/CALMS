@@ -1,9 +1,9 @@
 "use client";
 
-import BusinessProfilePage from "@/components/business-admin/business/BusinessProfile";
+import BusinessProfilePage from "@/components/business-admin/profile/BusinessProfile";
 import { useState } from "react";
 
-export default function ClientPage() {
+export default function ProfilePage() {
 
   const [businessId] = useState<string>(() => {
     const storedData = JSON.parse(
@@ -18,10 +18,10 @@ export default function ClientPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">
-            Business Profile Records
+            Business Profile
           </h2>
           <p className="text-sm text-gray-500">
-            Manage business/staff/clients profile  in the system
+            Manage your business profile
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -117,14 +117,14 @@ export default function TokenForm({ onClose, size = "lg" }: TokenFormProps) {
         <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-100 sticky top-0">
           <h2 className="text-xl font-semibold">Generate Driving Token</h2>
 
-          <button onClick={onClose}>
-            <X className="text-red-500 border border-gray-200 cursor-pointer hover:bg-red-500 hover:text-white rounded" />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* FORM */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* TOKEN */}
               <div>

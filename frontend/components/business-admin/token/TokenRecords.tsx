@@ -76,18 +76,18 @@ export default function TokenRecord({
       </div>
       <table className="w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
-            <th className="py-2 px-6 text-left">SN</th>
-            <th className="py-2 px-6 text-left">Token</th>
-            <th className="py-2 px-6 text-left">Name</th>
-            <th className="py-2 px-6 text-left">Phone</th>
-            <th className="py-2 px-6 text-left">Vehicle</th>
-            <th className="py-2 px-6 text-left">Date</th>
-            <th className="py-2 px-6 text-left">Action</th>
+          <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">
+            <th className="py-2 px-2 text-left">SN</th>
+            <th className="py-2 px-2 text-left">Token</th>
+            <th className="py-2 px-2 text-left">Name</th>
+            <th className="py-2 px-2 text-left">Phone</th>
+            <th className="py-2 px-2 text-left">Vehicle</th>
+            <th className="py-2 px-2 text-left">Date</th>
+            <th className="py-2 px-2 text-left">Action</th>
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm">
+        <tbody className="text-gray-700 text-[13px]">
           {tokens.length === 0 ? (
             <tr>
               <td colSpan={7} className="py-6 px-6 text-center text-gray-500">
@@ -98,18 +98,18 @@ export default function TokenRecord({
             tokens.map((t, i) => (
               <tr
                 key={t._id}
-                className="border-b border-gray-200 hover:bg-gray-100 transition"
+                className="border-b border-gray-200 hover:bg-white transition rounded hover:translate-x-1"
               >
-                <td className="py-2 px-6 text-left">{i + 1}</td>
-                <td className="py-2 px-6 text-left">{t.tokenNumber}</td>
-                <td className="py-2 px-6 text-left">{t.fullName}</td>
-                <td className="py-2 px-6 text-left">{t.phone}</td>
-                <td className="py-2 px-6 text-left">{t.vehicleCategory}</td>
-                <td className="py-2 px-6 text-left">
+                <td className="py-2 px-2 text-left">{i + 1}</td>
+                <td className="py-2 px-2 text-left">{t.tokenNumber}</td>
+                <td className="py-2 px-2 text-left">{t.fullName}</td>
+                <td className="py-2 px-2 text-left">{t.phone}</td>
+                <td className="py-2 px-2 text-left">{t.vehicleCategory}</td>
+                <td className="py-2 px-2 text-left">
                   {moment(t.participationDate).format("YYYY-MM-DD")}
                 </td>
 
-                <td className="py-2 px-6 text-left flex gap-2">
+                <td className="py-2 px-2 text-left flex gap-2">
                   <button
                     onClick={() => setViewToken(t)}
                     className="p-2 border border-gray-200 rounded hover:bg-gray-200 text-yellow-500 transition cursor-pointer"

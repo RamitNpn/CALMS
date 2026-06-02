@@ -92,25 +92,19 @@ export function StaffForm({ onClose, size = "lg" }: StaffFormProps) {
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-gray-100">
           <h2 className="text-xl font-semibold text-gray-900">
             Flowdesk - Create Staff
           </h2>
 
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-200 rounded-lg transition"
-          >
-            <X
-              size={22}
-              className="text-red-500 border border-gray-200 rounded cursor-pointer"
-            />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* CONTENT */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             {/* TITLE */}
             <div>
               <p className="text-xl font-semibold">Create Staff Account</p>

@@ -1,27 +1,25 @@
 "use client";
 
+import { useFinanceById } from "@/hooks/business-admin/business-management/getFinanceById";
 import clsx from "clsx";
-import { useAssetById } from "@/hooks/business-admin/asset-management/getAssetById";
 import { X } from "lucide-react";
 
-type ViewAssetModalProps = {
-  assetId: string;
+type ViewFinanceModalProps = {
+  financeId: string;
   open: boolean;
   onClose: () => void;
   size?: "sm" | "md" | "lg" | "xl";
 };
 
-export function ViewAssetRecord({
-  assetId,
+export function ViewFinanceRecord({
+  financeId,
   open,
   onClose,
   size = "lg",
-}: ViewAssetModalProps) {
-  const { data, isLoading, isError } = useAssetById(assetId);
+}: ViewFinanceModalProps) {
+  const { data, isLoading, isError } = useFinanceById(financeId);
 
-  const asset = data?.data ?? data;
-
-  console.log(assetId, asset);
+  const finance = data?.data ?? data;
 
   if (isLoading) {
     return (
@@ -35,16 +33,16 @@ export function ViewAssetRecord({
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
         <div className="bg-white p-6 rounded text-red-500">
-          Failed to load asset
+          Failed to load financial record
         </div>
       </div>
     );
   }
 
-  if (!asset) {
+  if (!finance) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-        <div className="bg-white p-6 rounded">No asset found</div>
+        <div className="bg-white p-6 rounded">No record found</div>
       </div>
     );
   }
@@ -55,7 +53,7 @@ export function ViewAssetRecord({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div
         className={clsx(
-          "bg-white rounded-lg shadow-lg w-full h-auto overflow-y-auto",
+          "bg-white rounded-lg shadow-lg w-full h-[95vh] overflow-y-scroll",
           {
             "max-w-md": size === "sm",
             "max-w-lg": size === "md",
@@ -66,7 +64,12 @@ export function ViewAssetRecord({
       >
         {/* HEADER */}
         <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-100 sticky top-0">
-          <h2 className="text-lg font-semibold">Asset Details - <span className="italic text-red-500 text-sm font-md">{asset.name}</span></h2>
+          <h2 className="text-lg font-semibold">
+            Financial Record -{" "}
+            <span className="italic text-red-500 text-sm font-medium">
+              {finance.title}
+            </span>
+          </h2>
 
           <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
             <X className="w-4 h-4 text-red-500" />
@@ -75,43 +78,54 @@ export function ViewAssetRecord({
 
         {/* CONTENT */}
         <div className="p-6 space-y-4 text-sm">
-          <Section label="Asset Name" value={asset.name} />
-          <Section label="Asset Type" value={asset.type} />
-          <Section label="Status" value={asset.status} />
+          <Section label="Title" value={finance.title} />
+          <Section label="Type" value={finance.type} />
+          <Section label="Category" value={finance.category} />
+          <Section label="Amount" value={`Rs. ${finance.amount}`} />
+          <Section label="Payment Method" value={finance.paymentMethod} />
+
+          <Section
+            label="Transaction Date"
+            value={
+              finance.transactionDate
+                ? new Date(finance.transactionDate).toDateString()
+                : "-"
+            }
+          />
+
+          <Section label="Description" value={finance.description} />
 
           <Section
             label="Created At"
             value={
-              asset.createdAt ? new Date(asset.createdAt).toDateString() : "-"
+              finance.createdAt
+                ? new Date(finance.createdAt).toDateString()
+                : "-"
             }
           />
 
           <Section
             label="Updated At"
             value={
-              asset.updatedAt ? new Date(asset.updatedAt).toDateString() : "-"
+              finance.updatedAt
+                ? new Date(finance.updatedAt).toDateString()
+                : "-"
             }
           />
 
-          {/* CUSTOM FIELDS */}
+          {/* TYPE BADGE */}
           <div>
-            <p className="font-medium">Custom Fields</p>
-
-            {asset.customFields &&
-            Object.keys(asset.customFields).length > 0 ? (
-              <div className="mt-2 grid grid-cols-2 gap-2">
-                {Object.entries(asset.customFields ?? {}).map(
-                  ([key, value]: [string, any]) => (
-                    <div key={key} className="border border-gray-100 p-1 rounded">
-                      <p className="font-medium">{key}</p>
-                      <p className="text-xs text-gray-500">{value}</p>
-                    </div>
-                  ),
-                )}
-              </div>
-            ) : (
-              <p className="text-gray-500">No custom fields</p>
-            )}
+            <p className="font-medium">Status Type</p>
+            <span
+              className={clsx(
+                "inline-block mt-1 px-2 py-1 text-xs rounded",
+                finance.type === "income"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700",
+              )}
+            >
+              {finance.type}
+            </span>
           </div>
         </div>
       </div>

@@ -8,7 +8,6 @@ export const createClientSchema = z.object({
     .string()
     .min(10, "Invalid Number Format")
     .max(10, "Invalid Number Format"),
-  userPassword: z.string().min(6, "Password must be at least 6 characters"),
   gender: z.enum(["male", "female", "other"]).optional(),
   profile: z.any().optional(),
   citizenship: z.any().optional(),
@@ -49,9 +48,6 @@ export const updateClientSchema = z.object({
   userName: z.string().optional(),
   userEmail: z.string().email().optional(),
   userPhone: z.string().optional(),
-  userPassword: z
-  .string()
-  .optional(),
   gender: z.enum(["male", "female", "other"]).optional(),
   profile: z.any().optional(),
   citizenship: z.any().optional(),

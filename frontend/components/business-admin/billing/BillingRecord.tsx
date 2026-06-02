@@ -86,19 +86,19 @@ export default function BillingRecord({
       </div>
       <table className="w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Client</th>
-            <th className="py-3 px-6 text-left">Total Amount</th>
-            <th className="py-3 px-6 text-left">Paid Amount</th>
-            <th className="py-3 px-6 text-left">Status</th>
-            <th className="py-3 px-6 text-left">Due Date</th>
-            <th className="py-3 px-6 text-left">Created At</th>
-            <th className="py-3 px-6 text-left">Action</th>
+          <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">
+            <th className="py-3 px-2 text-left">SN</th>
+            <th className="py-3 px-2 text-left">Client</th>
+            <th className="py-3 px-2 text-left">Total Amount</th>
+            <th className="py-3 px-2 text-left">Paid Amount</th>
+            <th className="py-3 px-2 text-left">Status</th>
+            <th className="py-3 px-2 text-left">Due Date</th>
+            <th className="py-3 px-2 text-left">Created At</th>
+            <th className="py-3 px-2 text-left">Action</th>
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm">
+        <tbody className="text-gray-700 text-[13px]">
           {billings.length === 0 ? (
             <tr>
               <td colSpan={9} className="py-6 px-6 text-center text-gray-500">
@@ -109,13 +109,13 @@ export default function BillingRecord({
             billings.map((billing, index) => (
               <tr
                 key={billing._id}
-                className="border-b border-gray-200 hover:bg-gray-100 transition"
+                className="border-b border-gray-200 hover:bg-white transition rounded hover:translate-x-1"
               >
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {(page - 1) * 10 + index + 1}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <div className="flex flex-col">
                     <span className="font-medium">{billing.clientName}</span>
 
@@ -125,15 +125,15 @@ export default function BillingRecord({
                   </div>
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   Rs. {billing.totalAmount}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   Rs. {billing.paidAmount}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
                       billing.status === "paid"
@@ -147,15 +147,15 @@ export default function BillingRecord({
                   </span>
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {moment(billing.dueDate).format("ll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {moment(billing.createdAt).format("lll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <div className="flex items-center gap-2">
                     {/* VIEW */}
                     <button

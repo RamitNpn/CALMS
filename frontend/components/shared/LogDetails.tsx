@@ -20,8 +20,6 @@ interface LogDetailsProps {
 
 export default function LogDetails({
   module,
-  recordId,
-  recordName,
   userId,
   onClearLogs,
 }: LogDetailsProps) {
@@ -137,10 +135,10 @@ export default function LogDetails({
             Track all changes and activities for {module}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 text-[13px]">
           <button
             onClick={downloadLogs}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition"
+            className="flex items-center gap-2 px-4 py-2 bg-white shadow-md cursor-pointer text-gray-700 rounded-md transition"
           >
             <Download size={16} />
             Export
@@ -148,7 +146,7 @@ export default function LogDetails({
           {onClearLogs && (
             <button
               onClick={onClearLogs}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"
+              className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 shadow-md cursor-pointer rounded-md transition"
             >
               <Trash2 size={16} />
               Clear
@@ -158,20 +156,20 @@ export default function LogDetails({
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 text-[13px]">
         <div className="flex-1">
           <input
             type="text"
             placeholder={`Search ${module} logs by user, record, or action...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 border border-gray-200 bg-white rounded-md outline-none"
           />
         </div>
         <select
           value={filterAction}
           onChange={(e) => setFilterAction(e.target.value)}
-          className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="px-4 py-2 border border-gray-200 bg-white rounded-md outline-none"
         >
           <option value="ALL">All Actions</option>
           <option value="CREATE">Create</option>

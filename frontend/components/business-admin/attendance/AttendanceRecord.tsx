@@ -72,19 +72,19 @@ export default function AttendanceRecord({
       </div>
       <table className="w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-800 uppercase text-sm">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Client Name</th>
-            <th className="py-3 px-6 text-left">Client Email</th>
-            <th className="py-3 px-6 text-left">User Type</th>
-            <th className="py-3 px-6 text-left">Method</th>
-            <th className="py-3 px-6 text-left">Check In</th>
-            <th className="py-3 px-6 text-left">Check Out</th>
-            <th className="py-3 px-6 text-left">Action</th>
+          <tr className="bg-gray-200 text-gray-800 text-sm">
+            <th className="py-3 px-2 text-left">SN</th>
+            <th className="py-3 px-2 text-left">Client Name</th>
+            <th className="py-3 px-2 text-left">Client Email</th>
+            <th className="py-3 px-2 text-left">User Type</th>
+            <th className="py-3 px-2 text-left">Method</th>
+            <th className="py-3 px-2 text-left">Check In</th>
+            <th className="py-3 px-2 text-left">Check Out</th>
+            <th className="py-3 px-2 text-left">Action</th>
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm">
+        <tbody className="text-gray-700 text-[13px]">
           {attendances.length === 0 ? (
             <tr>
               <td colSpan={7} className="py-6 text-center text-gray-500">
@@ -95,21 +95,21 @@ export default function AttendanceRecord({
             attendances.map((att, index) => (
               <tr
                 key={att._id}
-                className="border-b border-gray-200 hover:bg-gray-100 transition"
+                className="border-b border-gray-200 hover:bg-white transition rounded hover:translate-x-1"
               >
                 {/* SN */}
-                <td className="py-3 px-6">{(page - 1) * 10 + index + 1}</td>
+                <td className="py-3 px-2">{(page - 1) * 10 + index + 1}</td>
 
                 {/* CLIENT */}
-                <td className="py-3 px-6 font-medium">{att.clientName}</td>
+                <td className="py-3 px-2 font-medium">{att.clientName}</td>
 
-                <td className="py-3 px-6 font-medium">{att.clientEmail}</td>
+                <td className="py-3 px-2 font-medium">{att.clientEmail}</td>
 
                 {/* USER TYPE */}
-                <td className="py-3 px-6">{att.userType}</td>
+                <td className="py-3 px-2">{att.userType}</td>
 
                 {/* METHOD */}
-                <td className="py-3 px-6">
+                <td className="py-3 px-2">
                   <span
                     className={`px-2 py-1 rounded text-xs ${
                       att.method === "QR"
@@ -122,17 +122,17 @@ export default function AttendanceRecord({
                 </td>
 
                 {/* CHECK IN */}
-                <td className="py-3 px-6">
+                <td className="py-3 px-2">
                   {att.checkIn ? moment(att.checkIn).format("lll") : "-"}
                 </td>
 
                 {/* CHECK OUT */}
-                <td className="py-3 px-6">
+                <td className="py-3 px-2">
                   {att.checkOut ? moment(att.checkOut).format("lll") : "-"}
                 </td>
 
                 {/* ACTIONS */}
-                <td className="py-3 px-6">
+                <td className="py-3 px-2">
                   <div className="flex gap-2">
                     {/* VIEW */}
                     <button

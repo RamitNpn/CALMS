@@ -19,7 +19,7 @@ export default function Button({
     <button
       disabled={loading || props.disabled}
       className={clsx(
-        'px-4 py-2 rounded font-medium transition',
+        'px-4 py-2 text-[13px] rounded font-medium transition',
         variant === 'primary' && 'bg-black text-white',
         variant === 'secondary' && 'bg-gray-200 text-black',
         variant === 'danger' && 'bg-red-600 text-white',
