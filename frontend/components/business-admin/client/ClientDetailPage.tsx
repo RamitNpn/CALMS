@@ -18,11 +18,12 @@ import {
 } from "lucide-react";
 import { toPng } from "html-to-image";
 
+import { AttendanceCalendar } from "@/components/business-admin/attendance/AttendanceCalender";
 import DetailTabNavigation from "@/components/business-admin/shared/DetailTabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import { useAllAttendances } from "@/hooks/business-admin/attendance-management/getAllAttendances";
 import { useClientById } from "@/hooks/business-admin/client-management/getClientDataById";
-import { TBilling } from "@/libs/types/billing.types";
+import { TAttendance } from "@/libs/types/attendance.types";
 
 type ClientRecord = {
   _id: string;
@@ -39,6 +40,13 @@ type ClientRecord = {
   businessName?: string;
   createdAt?: string;
   updatedAt?: string;
+};
+
+type CalendarAttendanceRecord = {
+  date: string;
+  status: "present" | "absent" | "leave" | "half-day" | "holiday";
+  checkInTime?: string;
+  checkOutTime?: string;
 };
 
 type Props = {
@@ -75,23 +83,55 @@ export default function ClientDetailPage({ clientId }: Props) {
   });
 
   const attendances = useMemo(() => {
-    const records = (attendanceData?.data ?? attendanceData ?? []) as any[];
+    const records = (attendanceData?.data ?? attendanceData ?? []) as TAttendance[];
 
     if (!client) return records;
+
+    const clientId = client._id?.toString?.() ?? client._id;
 
     const clientName = normalize(client.userName);
     const clientEmail = normalize(client.userEmail);
 
     return records.filter((att) => {
+      const attendanceClientId = att.clientId?.toString?.() ?? att.clientId;
       const aName = normalize(att.clientName);
       const aEmail = normalize(att.clientEmail);
 
       return (
+        (clientId && attendanceClientId === clientId) ||
         (clientName && aName.includes(clientName)) ||
         (clientEmail && aEmail.includes(clientEmail))
       );
     });
   }, [attendanceData, client]);
+
+  const attendanceCalendarRecords = useMemo<CalendarAttendanceRecord[]>(
+    () =>
+      attendances.map((attendance) => ({
+        date: getAttendanceDate(attendance),
+        status: getAttendanceStatus(attendance),
+        checkInTime: attendance.checkIn
+          ? moment(attendance.checkIn).format("hh:mm A")
+          : undefined,
+        checkOutTime: attendance.checkOut
+          ? moment(attendance.checkOut).format("hh:mm A")
+          : undefined,
+      })),
+    [attendances],
+  );
+
+  const attendanceCalendarMonth = useMemo(() => {
+    if (attendances.length === 0) {
+      return new Date();
+    }
+
+    const latestAttendance = [...attendances].sort(
+      (left, right) =>
+        new Date(getAttendanceDate(right)).getTime() - new Date(getAttendanceDate(left)).getTime(),
+    )[0];
+
+    return new Date(getAttendanceDate(latestAttendance));
+  }, [attendances]);
 
   const handleExportCertificate = async () => {
     if (!certificateRef.current || isExporting) return;
@@ -333,6 +373,11 @@ export default function ClientDetailPage({ clientId }: Props) {
             </div>
           </div>
 
+          <AttendanceCalendar
+            records={attendanceCalendarRecords}
+            month={attendanceCalendarMonth}
+          />
+
           {isAttendanceLoading ? (
             <EmptyState icon={<CalendarDays size={22} />} title="Loading attendances..." description="Fetching attendance records for this client" />
           ) : attendances.length === 0 ? (
@@ -494,10 +539,29 @@ function formatDate(value?: string) {
   return value ? moment(value).format("ll") : "-";
 }
 
+function getAttendanceStatus(attendance: TAttendance) {
+  if (attendance.checkIn && attendance.checkOut) {
+    return "present" as const;
+  }
+
+  if (attendance.checkIn && !attendance.checkOut) {
+    return "half-day" as const;
+  }
+
+  if (!attendance.checkIn && attendance.checkOut) {
+    return "leave" as const;
+  }
+
+  return "absent" as const;
+}
+
+function getAttendanceDate(attendance: TAttendance) {
+  const source = attendance.checkIn || attendance.createdAt;
+  return new Date(source).toISOString().slice(0, 10);
+}
+
 
 
 const FALLBACK_PROFILE =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIPCfcvp9e7k8T4Wi3kZ0wyY5EeA1BOsEqp3Uqmn79ww&s";
 
-const FALLBACK_CERTIFICATE =
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCoUtOal33JWLqals1Wq7p6GGCnr3o-lwpQ&s";

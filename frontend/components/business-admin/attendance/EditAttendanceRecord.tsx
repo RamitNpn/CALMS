@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,6 +35,7 @@ export function EditAttendanceRecord({
   const attendance = data?.data ?? data;
 
   const toast = useToast.getState();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -81,6 +82,7 @@ export function EditAttendanceRecord({
     }) => attendanceApi.updateAttendanceApi(attendanceId, data),
 
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attendances"] });
       toast.show({
         message: "Attendance updated successfully",
         type: "success",

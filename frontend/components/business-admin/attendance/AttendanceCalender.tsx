@@ -22,7 +22,7 @@ export function AttendanceCalendar({
   month = new Date(),
   onMonthChange,
 }: AttendanceCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(month);
+  const [currentMonth, setCurrentMonth] = useState(() => month);
 
   const handlePrevMonth = () => {
     const prev = new Date(currentMonth);

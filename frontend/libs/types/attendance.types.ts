@@ -3,6 +3,7 @@ type GetMethod = "QR" | "Manual";
 export interface TAttendance {
   _id: string;
   business_id: string;
+  clientId?: string;
   clientName: string;
   clientEmail: string;
   userType: string;

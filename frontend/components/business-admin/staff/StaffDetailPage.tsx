@@ -15,6 +15,7 @@ import {
   Users2,
 } from "lucide-react";
 
+import { AttendanceCalendar } from "@/components/business-admin/attendance/AttendanceCalender";
 import DetailTabNavigation from "@/components/business-admin/shared/DetailTabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import { useAllAttendances } from "@/hooks/business-admin/attendance-management/getAllAttendances";
@@ -32,6 +33,13 @@ type StaffRecord = {
   role?: string;
   createdAt?: string;
   updatedAt?: string;
+};
+
+type CalendarAttendanceRecord = {
+  date: string;
+  status: "present" | "absent" | "leave" | "half-day" | "holiday";
+  checkInTime?: string;
+  checkOutTime?: string;
 };
 
 type Props = {
@@ -63,16 +71,20 @@ export default function StaffDetailPage({ staffId }: Props) {
 
     if (!staff) return records;
 
+    const staffId = staff._id?.toString?.() ?? staff._id;
+
     const staffName = normalize(staff.userName);
     const staffEmail = normalize(staff.userEmail);
     const staffRole = normalize(staff.role);
 
     return records.filter((attendance) => {
+      const attendanceClientId = attendance.clientId?.toString?.() ?? attendance.clientId;
       const attendanceName = normalize(attendance.clientName);
       const attendanceEmail = normalize(attendance.clientEmail);
       const attendanceUserType = normalize(attendance.userType);
 
       return (
+        (staffId && attendanceClientId === staffId) ||
         (staffName && attendanceName.includes(staffName)) ||
         (staffEmail && attendanceEmail.includes(staffEmail)) ||
         (staffRole && attendanceUserType.includes(staffRole))
@@ -90,6 +102,34 @@ export default function StaffDetailPage({ staffId }: Props) {
     ).length;
 
     return { total, completed, active };
+  }, [attendanceRecords]);
+
+  const attendanceCalendarRecords = useMemo<CalendarAttendanceRecord[]>(
+    () =>
+      attendanceRecords.map((attendance) => ({
+        date: getAttendanceDate(attendance),
+        status: getAttendanceStatus(attendance),
+        checkInTime: attendance.checkIn
+          ? moment(attendance.checkIn).format("hh:mm A")
+          : undefined,
+        checkOutTime: attendance.checkOut
+          ? moment(attendance.checkOut).format("hh:mm A")
+          : undefined,
+      })),
+    [attendanceRecords],
+  );
+
+  const attendanceCalendarMonth = useMemo(() => {
+    if (attendanceRecords.length === 0) {
+      return new Date();
+    }
+
+    const latestAttendance = [...attendanceRecords].sort(
+      (left, right) =>
+        new Date(getAttendanceDate(right)).getTime() - new Date(getAttendanceDate(left)).getTime(),
+    )[0];
+
+    return new Date(getAttendanceDate(latestAttendance));
   }, [attendanceRecords]);
 
   if (isLoading) {
@@ -200,6 +240,11 @@ export default function StaffDetailPage({ staffId }: Props) {
               <SummaryTile label="Open" value={`${attendanceSummary.active}`} />
             </div>
           </div>
+
+          <AttendanceCalendar
+            records={attendanceCalendarRecords}
+            month={attendanceCalendarMonth}
+          />
 
           {isAttendanceLoading ? (
             <EmptyState icon={<CalendarDays size={22} />} title="Loading attendance..." description="Fetching attendance records for this staff member" />
@@ -379,6 +424,27 @@ function normalize(value?: string) {
 
 function formatDate(value?: string) {
   return value ? moment(value).format("ll") : "-";
+}
+
+function getAttendanceStatus(attendance: TAttendance) {
+  if (attendance.checkIn && attendance.checkOut) {
+    return "present" as const;
+  }
+
+  if (attendance.checkIn && !attendance.checkOut) {
+    return "half-day" as const;
+  }
+
+  if (!attendance.checkIn && attendance.checkOut) {
+    return "leave" as const;
+  }
+
+  return "absent" as const;
+}
+
+function getAttendanceDate(attendance: TAttendance) {
+  const source = attendance.checkIn || attendance.createdAt;
+  return new Date(source).toISOString().slice(0, 10);
 }
 
 function methodClass(method?: string) {

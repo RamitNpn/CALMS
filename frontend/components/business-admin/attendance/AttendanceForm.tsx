@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +26,7 @@ export function AttendanceForm({ onClose, size = "lg" }: AttendanceFormProps) {
   const businessId = storedData?.business_id;
 
   const toast = useToast.getState();
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -48,6 +49,7 @@ export function AttendanceForm({ onClose, size = "lg" }: AttendanceFormProps) {
   const { mutate, isPending } = useMutation({
     mutationFn: attendanceApi.createAttendance,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attendances"] });
       toast.show({
         message: "Attendance created successfully",
         type: "success",

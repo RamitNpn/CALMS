@@ -8,5 +8,10 @@ export function useAllAttendances({ page = 1, limit = 10 }: UsePaginationParams)
   return useQuery({
     queryKey: ["attendances", page, limit],
     queryFn: () => attendanceApi.getAllAttendanceApi(page, limit),
+    staleTime: 0,
+    refetchInterval: 15000,
+    refetchIntervalInBackground: false,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
