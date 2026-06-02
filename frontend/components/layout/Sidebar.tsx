@@ -14,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   CardSim,
+  Book,
+  FileQuestion,
 } from "lucide-react";
 
 import { useAllService } from "@/hooks/business-admin/service/getAllServiceDatas";
@@ -70,12 +72,19 @@ const menu = [
     exact: true,
     roles: ["business", "staff"],
   },
-
+    {
+    id: "business-inquiry",
+    name: "Client Inquiries",
+    href: "/pages/dashboard/business-admin/inquiry",
+    icon: FileQuestion,
+    exact: true,
+    roles: ["business", "staff"],
+  },
   {
     id: "profile",
-    name: "Business Profile",
-    serviceKey: "business_management",
-    href: "/pages/dashboard/business-admin/business",
+    name: "Revenue Management",
+    serviceKey: "revenue_management",
+    href: "/pages/dashboard/business-admin/finance",
     icon: Building2,
     roles: ["business", "staff"],
   },
@@ -132,6 +141,14 @@ const menu = [
     href: "/pages/dashboard/business-admin/billing",
     icon: CreditCard,
     roles: ["business"],
+  },
+    {
+    id: "profile-management",
+    name: "Profile Management",
+    href: "/pages/dashboard/business-admin/profile",
+    icon: Book,
+    exact: true,
+    roles: ["business", "staff"],
   },
 ];
 

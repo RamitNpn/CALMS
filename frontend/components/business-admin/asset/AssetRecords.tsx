@@ -74,17 +74,17 @@ export default function AssetRecord({
       </div>
       <table className="w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Asset Name</th>
-            <th className="py-3 px-6 text-left">Asset Type</th>
-            <th className="py-3 px-6 text-left">Status</th>
-            <th className="py-3 px-6 text-left">Created At</th>
-            <th className="py-3 px-6 text-left">Action</th>
+          <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">
+            <th className="py-3 px-2 text-left">SN</th>
+            <th className="py-3 px-2 text-left">Asset Name</th>
+            <th className="py-3 px-2 text-left">Asset Type</th>
+            <th className="py-3 px-2 text-left">Status</th>
+            <th className="py-3 px-2 text-left">Created At</th>
+            <th className="py-3 px-2 text-left">Action</th>
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm">
+        <tbody className="text-gray-700 text-sm text-[13px]">
           {assets.length === 0 ? (
             <tr>
               <td colSpan={6} className="py-6 px-6 text-center text-gray-500">
@@ -95,25 +95,25 @@ export default function AssetRecord({
             assets.map((asset, index) => (
               <tr
                 key={asset._id}
-                className="border-b border-gray-200 hover:bg-gray-100 transition"
+                className="border-b border-gray-200 hover:bg-white transition rounded hover:translate-x-1"
               >
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {(page - 1) * 10 + index + 1}
                 </td>
 
-                <td className="py-3 px-6 text-left font-medium">
+                <td className="py-3 px-2 text-left font-medium">
                   {asset.name}
                 </td>
 
-                <td className="py-3 px-6 text-left">{asset.type}</td>
+                <td className="py-3 px-2 text-left">{asset.type}</td>
 
-                <td className="py-3 px-6 text-left">{asset.status}</td>
+                <td className="py-3 px-2 text-left">{asset.status}</td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {moment(asset.createdAt).format("lll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {

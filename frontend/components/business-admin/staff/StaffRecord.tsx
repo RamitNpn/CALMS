@@ -76,19 +76,19 @@ export default function StaffRecord({
       </div>
       <table className="w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Staff Name</th>
-            <th className="py-3 px-6 text-left">Email</th>
-            <th className="py-3 px-6 text-left">Phone</th>
-            <th className="py-3 px-6 text-left">Gender</th>
-            <th className="py-3 px-6 text-left">Role</th>
-            <th className="py-3 px-6 text-left">Created At</th>
-            <th className="py-3 px-6 text-left">Action</th>
+          <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">
+            <th className="py-3 px-2 text-left">SN</th>
+            <th className="py-3 px-2 text-left">Staff Name</th>
+            <th className="py-3 px-2 text-left">Email</th>
+            <th className="py-3 px-2 text-left">Phone</th>
+            <th className="py-3 px-2 text-left">Gender</th>
+            <th className="py-3 px-2 text-left">Role</th>
+            <th className="py-3 px-2 text-left">Created At</th>
+            <th className="py-3 px-2 text-left">Action</th>
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm">
+        <tbody className="text-gray-700 text-[13px]">
           {staffs.length === 0 ? (
             <tr>
               <td colSpan={8} className="py-6 px-6 text-center text-gray-500">
@@ -99,31 +99,31 @@ export default function StaffRecord({
             staffs.map((staff, index) => (
               <tr
                 key={staff._id}
-                className="border-b border-gray-200 hover:bg-gray-100 transition"
+                className="border-b border-gray-200 hover:bg-white transition rounded hover:translate-x-1"
               >
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {(page - 1) * 10 + index + 1}
                 </td>
 
-                <td className="py-3 px-6 text-left font-medium">
+                <td className="py-3 px-2 text-left font-medium">
                   {staff.userName}
                 </td>
 
-                <td className="py-3 px-6 text-left">{staff.userEmail}</td>
+                <td className="py-3 px-2 text-left">{staff.userEmail}</td>
 
-                <td className="py-3 px-6 text-left">{staff.userPhone}</td>
+                <td className="py-3 px-2 text-left">{staff.userPhone}</td>
 
-                <td className="py-3 px-6 text-left capitalize">
+                <td className="py-3 px-2 text-left capitalize">
                   {staff.gender || "-"}
                 </td>
 
-                <td className="py-3 px-6 text-left capitalize">{staff.role}</td>
+                <td className="py-3 px-2 text-left capitalize">{staff.role}</td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {moment(staff.createdAt).format("lll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <div className="flex items-center gap-2">
                     {/* VIEW */}
                     <button
