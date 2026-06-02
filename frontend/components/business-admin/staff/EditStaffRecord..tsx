@@ -11,7 +11,7 @@ import { z } from "zod";
 
 import { staffApi } from "@/libs/api/staff.api";
 import Image from "next/image";
-import { updateStaffSchema } from "@/libs";
+import { updateStaffSchema } from "@/libs/validation/staff.validation";
 import { useStaffById } from "@/hooks/business-admin/staff-management/getStaffDataById";
 
 type StaffForm = z.infer<typeof updateStaffSchema>;

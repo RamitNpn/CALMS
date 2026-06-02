@@ -12,6 +12,7 @@ import TablePagination from "@/components/shared/Pagination";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { useToast } from "@/components";
 import { useDeleteToken } from "@/hooks/business-admin/token-management/removeTokenData";
+import { printToken } from "@/utils/printToken";
 
 interface TokenTableProps {
   tokens: TToken[];
@@ -149,7 +150,7 @@ export default function TokenRecord({
           {/* ACTION BAR (NOT PRINTED) */}
           <div className="relative bottom-1 left-34 flex gap-2 print:hidden">
             <button
-              onClick={() => window.print()}
+              onClick={printToken}
               className="bg-black text-white px-3 py-2 rounded outline-none cursor-pointer flex items-center gap-2"
             >
               <PrinterIcon size={14} />

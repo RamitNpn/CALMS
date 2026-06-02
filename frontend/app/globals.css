@@ -88,15 +88,16 @@
     padding: 0 !important;
   }
 
-  body * {
+  body.token-print-mode * {
     visibility: hidden;
   }
 
-  #print-token, #print-token * {
+  body.token-print-mode #print-token,
+  body.token-print-mode #print-token * {
     visibility: visible;
   }
 
-  #print-token {
+  body.token-print-mode #print-token {
     position: absolute;
     top: 0;
     left: 0;
@@ -109,15 +110,15 @@
     print-color-adjust: exact;
   }
 
-  #print-token .flex {
+  body.token-print-mode #print-token .flex {
     flex-wrap: nowrap !important;
   }
 
-  #print-token .flex span {
+  body.token-print-mode #print-token .flex span {
     white-space: nowrap;
   }
 
-  #print-token .flex span:last-child {
+  body.token-print-mode #print-token .flex span:last-child {
     text-align: right;
     margin-left: auto;
   }

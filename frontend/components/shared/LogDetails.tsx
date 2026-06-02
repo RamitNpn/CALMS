@@ -12,12 +12,16 @@ type ActivityLogFilters = {
 };
 interface LogDetailsProps {
   module: string;
+  recordId?: string;
+  recordName?: string;
   userId: string;
   onClearLogs?: () => void;
 }
 
 export default function LogDetails({
   module,
+  recordId,
+  recordName,
   userId,
   onClearLogs,
 }: LogDetailsProps) {
@@ -38,9 +42,9 @@ export default function LogDetails({
     return f;
   }, [module, userId, filterAction]);
 
-  const { data, isLoading } = useActivityLogs(page, 10, filters);
+  const { data:logData, isLoading } = useActivityLogs(page, 10, filters);
 
-  const logs = data?.data || [];
+  const logs = logData?.data || [];
 
   const filteredLogs = useMemo(() => {
     return logs.filter((log: TLogEntry) => {

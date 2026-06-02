@@ -12,10 +12,8 @@ export const metadata: Metadata = {
     default: "FlowDesk - Multi-Tenant Business Management SaaS",
     template: "%s | FlowDesk",
   },
-
   description:
     "FlowDesk is a modular multi-tenant SaaS platform built with MERN Stack for managing businesses, clients, staff, billing, attendance, scheduling, token queues, reports, notifications, and more.",
-
   keywords: [
     "FlowDesk",
     "CALMS",

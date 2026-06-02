@@ -20,42 +20,64 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Link from "next/link";
-
-const kpiData = [
-  { icon: Briefcase, label: "Total Businesses", value: "342", change: "+15%" },
-  { icon: Users, label: "Active Users", value: "8,234", change: "+22%" },
-  {
-    icon: CreditCard,
-    label: "Monthly Revenue",
-    value: "$124.5K",
-    change: "+18%",
-  },
-  { icon: TrendingUp, label: "Growth Rate", value: "12.5%", change: "+3%" },
-];
-
-const revenueData = [
-  { month: "Jan", revenue: 45000, subscriptions: 320 },
-  { month: "Feb", revenue: 52000, subscriptions: 380 },
-  { month: "Mar", revenue: 48000, subscriptions: 350 },
-  { month: "Apr", revenue: 61000, subscriptions: 430 },
-  { month: "May", revenue: 75000, subscriptions: 510 },
-  { month: "Jun", revenue: 89000, subscriptions: 620 },
-];
+import { useSuperAdminAnalytics } from "@/hooks/super-admin/analysis/useSuperAdminAnalytics";
 
 export default function SuperAdminDashboard() {
+  const {
+    summaryCards,
+    monthlyTrend,
+    packageDistribution,
+    paymentStatusDistribution,
+    businessStatusDistribution,
+    recentLogs,
+    isLoading,
+    isError,
+  } = useSuperAdminAnalytics();
+
+  const kpiData = summaryCards
+    ? [
+        {
+          icon: Briefcase,
+          label: "Total Businesses",
+          value: summaryCards.totalBusinesses.toLocaleString(),
+          change: `${summaryCards.activeBusinesses} active`,
+        },
+        {
+          icon: Users,
+          label: "Active Businesses",
+          value: summaryCards.activeBusinesses.toLocaleString(),
+          change: `${summaryCards.totalBusinesses - summaryCards.activeBusinesses} inactive`,
+        },
+        {
+          icon: CreditCard,
+          label: "Total Payments",
+          value: summaryCards.totalPayments.toLocaleString(),
+          change: `${summaryCards.totalRevenue.toLocaleString()} collected`,
+        },
+        {
+          icon: TrendingUp,
+          label: "Monthly Focus",
+          value: monthlyTrend.length.toString(),
+          change: "dynamic months",
+        },
+      ]
+    : [];
+
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">
-          Platform Overview
-        </h1>
+        <h1 className="text-3xl font-bold text-foreground">Platform Overview</h1>
         <p className="text-muted-foreground mt-2">
           Monitor platform metrics and business health.
         </p>
       </div>
 
-      {/* KPI Cards */}
+      {isError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Analysis data could not be loaded right now.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {kpiData.map((kpi) => {
           const Icon = kpi.icon;
@@ -78,15 +100,13 @@ export default function SuperAdminDashboard() {
         })}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Trend */}
         <div className="p-6 bg-white shadow-md rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Revenue Trend</h3>
+          <h3 className="text-lg font-semibold mb-4">Monthly Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={revenueData}>
+            <LineChart data={monthlyTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis stroke="var(--muted-foreground)" />
+              <XAxis dataKey="label" stroke="var(--muted-foreground)" />
               <YAxis stroke="var(--muted-foreground)" />
               <Tooltip
                 contentStyle={{
@@ -98,21 +118,26 @@ export default function SuperAdminDashboard() {
               <Legend />
               <Line
                 type="monotone"
-                dataKey="revenue"
+                dataKey="businesses"
                 stroke="var(--primary)"
+                strokeWidth={2}
+              />
+              <Line
+                type="monotone"
+                dataKey="payments"
+                stroke="var(--secondary)"
                 strokeWidth={2}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Subscription Growth */}
         <div className="p-6 bg-white shadow-md rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Subscription Growth</h3>
+          <h3 className="text-lg font-semibold mb-4">Business Status</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={revenueData}>
+            <BarChart data={businessStatusDistribution}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-              <XAxis stroke="var(--muted-foreground)" />
+              <XAxis dataKey="name" stroke="var(--muted-foreground)" />
               <YAxis stroke="var(--muted-foreground)" />
               <Tooltip
                 contentStyle={{
@@ -121,58 +146,65 @@ export default function SuperAdminDashboard() {
                   borderRadius: "8px",
                 }}
               />
-              <Bar dataKey="subscriptions" fill="var(--secondary)" />
+              <Bar dataKey="value" fill="var(--primary)" />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Management Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="p-6 bg-white shadow-md rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Business Management</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Manage businesses, subscriptions, and their configurations
-          </p>
-          <div className="space-y-2 space-x-4">
-            <Link
-              className="px-3 py-2 text-sm text-center rounded bg-gray-100 shadow-md text-gray-700 hover:bg-emerald-600 hover:text-white"
-              href="/super-admin/businesses"
-            >
-              View All Businesses
-            </Link>
-            <Link
-              className="px-3 py-2 text-sm text-center rounded bg-gray-100 shadow-md text-gray-700 hover:bg-emerald-600 hover:text-white"
-              href="/super-admin/subscriptions"
-            >
-              Manage Subscriptions
-            </Link>
-          </div>
+          <h3 className="text-lg font-semibold mb-4">Package Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={packageDistribution}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+              <YAxis stroke="var(--muted-foreground)" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "8px",
+                }}
+              />
+              <Bar dataKey="value" fill="var(--secondary)" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="p-6 bg-white shadow-md rounded-lg">
-          <h3 className="text-lg font-semibold mb-4">Financial Overview</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Track payments, invoices, and financial metrics
+          <h3 className="text-lg font-semibold mb-4">Payment Status</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={paymentStatusDistribution}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="name" stroke="var(--muted-foreground)" />
+              <YAxis stroke="var(--muted-foreground)" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "8px",
+                }}
+              />
+              <Bar dataKey="value" fill="var(--primary)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="p-6 bg-white shadow-md rounded-lg">
+          <h3 className="text-lg font-semibold mb-4">Analysis Hub</h3>
+          <p className="text-sm text-muted-foreground">
+            Open the Analysis tab for a dedicated view of all live charts.
           </p>
-          <div className="space-y-2 space-x-4">
-            <Link
-              className="px-3 py-2 text-sm text-center rounded bg-gray-100 shadow-md text-gray-700 hover:bg-emerald-600 hover:text-white"
-              href="/super-admin/payments"
-            >
-              Payment Tracking
-            </Link>
-            <Link
-              className="px-3 py-2 text-sm text-center rounded bg-gray-100 shadow-md text-gray-700 hover:bg-emerald-600 hover:text-white"
-              href="/super-admin/analytics"
-            >
-              Analytics & Reports
-            </Link>
-          </div>
+          <Link
+            className="mt-4 inline-flex rounded bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-emerald-600 hover:text-white"
+            href="/pages/dashboard/super-admin/analytics"
+          >
+            Go to Analysis
+          </Link>
         </div>
       </div>
 
-      {/* Recent Activity */}
       <div className="p-6 bg-white shadow-md rounded-lg">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Recent Platform Activity</h3>
@@ -184,47 +216,27 @@ export default function SuperAdminDashboard() {
           </a>
         </div>
         <div className="space-y-4">
-          {[
-            {
-              action: "New business registered",
-              business: "Tech Innovations Inc",
-              time: "2 hours ago",
-            },
-            {
-              action: "Payment received",
-              business: "Global Solutions Ltd",
-              amount: "$599",
-              time: "4 hours ago",
-            },
-            {
-              action: "Subscription upgraded",
-              business: "Fast Forward Corp",
-              time: "6 hours ago",
-            },
-            {
-              action: "New user created",
-              business: "Digital Pioneers",
-              time: "1 day ago",
-            },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0"
-            >
-              <div className="p-2 bg-muted rounded-lg">
-                <Activity className="w-4 h-4 text-foreground" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">
-                  {item.action}
-                </p>
+          {recentLogs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No recent platform activity yet.</p>
+          ) : (
+            recentLogs.map((log) => (
+              <div
+                key={log._id}
+                className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0"
+              >
+                <div className="p-2 bg-muted rounded-lg">
+                  <Activity className="w-4 h-4 text-foreground" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{log.title}</p>
+                  <p className="text-xs text-muted-foreground">{log.description}</p>
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  {item.business} {item.amount ? `- ${item.amount}` : ""}
+                  {new Date(log.createdAt).toLocaleString()}
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">{item.time}</p>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

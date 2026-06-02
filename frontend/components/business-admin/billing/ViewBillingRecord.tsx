@@ -1,7 +1,6 @@
 "use client";
 
-import clsx from "clsx";
-import { X, Printer } from "lucide-react";
+import { Printer, X } from "lucide-react";
 import moment from "moment";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
@@ -15,6 +14,13 @@ type ViewBillingModalProps = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
+const SIZE_CLASSES: Record<NonNullable<ViewBillingModalProps["size"]>, string> = {
+  sm: "max-w-2xl",
+  md: "max-w-3xl",
+  lg: "max-w-5xl",
+  xl: "max-w-6xl",
+};
+
 export function ViewBillingRecord({
   billingId,
   open,
@@ -25,29 +31,43 @@ export function ViewBillingRecord({
 
   const billing = data?.data ?? data;
 
-  // PRINT REF
-  const printRef = useRef<HTMLDivElement>(null);
+  const companyName = "CALMS Driving Institute";
+  const companyPan = "PAN No: 123456789";
+  const companyAddress = "Main Road, Kathmandu, Nepal";
+  const companyPhone = "+977-9800000000";
+  const companyEmail = "info@calmsdriving.com";
+  const companyLogo = "/user.png";
 
-  // PRINT FUNCTION
+  const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `Invoice-${billing?.title || "billing"}`,
+    documentTitle: `Invoice-${(billing?.clientName || "client").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9-_]/g, "")}-${String(billing?._id).slice(-6).toUpperCase()}`,
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    `,
   });
 
   if (!open) return null;
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-        <div className="bg-white p-6 rounded">Loading...</div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="rounded bg-white p-6">Loading...</div>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-        <div className="bg-white p-6 rounded text-red-500">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="rounded bg-white p-6 text-red-500">
           Failed to load billing details
         </div>
       </div>
@@ -56,235 +76,191 @@ export function ViewBillingRecord({
 
   if (!billing) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-        <div className="bg-white p-6 rounded">No billing record found</div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="rounded bg-white p-6">No billing record found</div>
       </div>
     );
   }
 
-  const remainingAmount =
-    Number(billing.totalAmount || 0) - Number(billing.paidAmount || 0);
+  const invoiceNumber = `INV-${String(billing._id).slice(-6).toUpperCase()}`;
+  const subtotal = Number(billing.totalAmount || 0);
+  const paidAmount = Number(billing.paidAmount || 0);
+  const remainingAmount = subtotal - paidAmount;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4 print:bg-white">
-      <div
-        ref={printRef}
-        className={clsx(
-          "bg-white rounded-lg shadow-lg w-full h-[90vh] overflow-y-auto print:shadow-none print:h-auto print:max-w-full",
-          {
-            "max-w-md": size === "sm",
-            "max-w-lg": size === "md",
-            "max-w-3xl": size === "lg",
-            "max-w-5xl": size === "xl",
-          },
-        )}
-      >
-        {/* HEADER */}
-        <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-100 sticky top-0 print:static">
-          <h2 className="text-lg font-semibold">
-            Billing Details -
-            <span className="italic text-red-500 text-sm font-medium ml-2">
-              {billing.title}
-            </span>
-          </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 print:static print:bg-white print:p-0">
+      <div className="absolute inset-0 print:hidden" onClick={onClose} />
 
-          {/* BUTTONS HIDDEN DURING PRINT */}
-          <div className="flex items-center gap-2 print:hidden">
+      <div className={`relative z-10 w-full ${SIZE_CLASSES[size]}`}>
+        <div className="mb-3 flex items-center justify-between print:hidden">
+          <div>
+            <h2 className="text-lg font-semibold text-white">Invoice Preview</h2>
+            <p className="text-sm text-slate-200">{billing.title}</p>
+          </div>
+
+          <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="bg-blue-600 cursor-pointer text-white px-3 py-2 rounded flex items-center gap-2"
+              className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
             >
-              <Printer size={18} />
+              <Printer size={16} />
+              Print Invoice
             </button>
-            <button onClick={onClose}>
-              <X className="text-red-500 cursor-pointer" />
+            <button
+              onClick={onClose}
+              className="rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+            >
+              <X size={18} />
             </button>
           </div>
         </div>
 
-        {/* ALL YOUR EXISTING CONTENT */}
-        <div
-          className={clsx(
-            "bg-white rounded w-full h-[90vh] overflow-y-auto",
-            {
-              "max-w-md": size === "sm",
-              "max-w-lg": size === "md",
-              "max-w-3xl": size === "lg",
-              "max-w-5xl": size === "xl",
-            },
-          )}
-        >
+        <div className="max-h-[88vh] overflow-y-auto rounded-xl bg-white shadow-2xl print:max-h-none print:overflow-visible print:rounded-none print:shadow-none">
+          <div
+            ref={printRef}
+            className="bg-white"
+            style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
+          >
+            <div className="bg-white px-5 py-6 text-slate-900 sm:px-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div className="flex h-24 w-44 items-center justify-center rounded-sm bg-white px-4 py-3 text-slate-900 shadow-sm">
+                  <img
+                    src={companyLogo}
+                    alt="CALMS Driving Institute logo"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
 
-          {/* CONTENT */}
-          <div className="p-6 space-y-6 text-sm">
-            {/* CLIENT INFO */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Section label="Client Name" value={billing.clientName} />
+                <div className="space-y-1 text-slate-900">
+                  <h1 className="text-2xl font-bold text-slate-900 sm:text-[28px]">
+                    {companyName}
+                  </h1>
+                  <p className="text-sm leading-5">{companyAddress}</p>
+                  <p className="text-sm leading-5">Mobile: {companyPhone}</p>
+                  <p className="text-sm leading-5">Email: {companyEmail}</p>
+                  <p className="text-sm leading-5">{companyPan}</p>
+                </div>
+              </div>
 
-              <Section label="Client Email" value={billing.clientEmail} />
-
-              <Section label="Billing Title" value={billing.title} />
-
-              <Section label="Payment Method" value={billing.paymentMethod} />
-
-              <Section label="Status" value={billing.status} />
-
-              <Section
-                label="Due Date"
-                value={
-                  billing.dueDate ? moment(billing.dueDate).format("ll") : "-"
-                }
-              />
+              <div className="lg:text-right">
+                <p className="text-4xl font-black tracking-wide text-slate-900 sm:text-5xl">
+                  INVOICE
+                </p>
+              </div>
+            </div>
             </div>
 
-            {/* AMOUNTS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <AmountCard
-                title="Total Amount"
-                value={`Rs. ${billing.totalAmount ?? 0}`}
-              />
+            <div className="bg-white px-5 py-5 sm:px-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-lg font-bold text-slate-900">Bill To</p>
+                <div className="mt-2 space-y-1 text-sm leading-6 text-slate-700">
+                  <p className="font-medium text-slate-900">{billing.clientName}</p>
+                  <p>{billing.clientEmail}</p>
+                  <p>{billing.title}</p>
+                </div>
+              </div>
 
-              <AmountCard
-                title="Paid Amount"
-                value={`Rs. ${billing.paidAmount ?? 0}`}
-              />
-
-              <AmountCard
-                title="Remaining Amount"
-                value={`Rs. ${remainingAmount}`}
-              />
-            </div>
-
-            {/* ITEMS */}
-            <div>
-              <h3 className="font-semibold text-lg mb-3">Billing Items</h3>
-
-              <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                <table className="w-full table-auto">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="px-4 py-3">SN</th>
-                      <th className="px-4 py-3">Item Name</th>
-                      <th className="px-4 py-3">Price</th>
-                      <th className="px-4 py-3">Qty</th>
-                      <th className="px-4 py-3">Subtotal</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {billing.items?.length > 0 ? (
-                      billing.items.map(
-                        (
-                          item: {
-                            name: string;
-                            price: number;
-                            qty: number;
-                          },
-                          index: number,
-                        ) => (
-                          <tr key={index} className="border-t border-gray-200">
-                            <td className="px-4 py-3">{index + 1}</td>
-
-                            <td className="px-4 py-3 font-medium">
-                              {item.name}
-                            </td>
-
-                            <td className="px-4 py-3">Rs. {item.price}</td>
-
-                            <td className="px-4 py-3">{item.qty}</td>
-
-                            <td className="px-4 py-3">
-                              Rs. {item.price * item.qty}
-                            </td>
-                          </tr>
-                        ),
-                      )
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={5}
-                          className="text-center py-4 text-gray-500"
-                        >
-                          No billing items found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              <div className="w-full max-w-[360px] rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+                  <p className="font-bold text-slate-900">Invoice No :</p>
+                  <p className="text-right font-bold text-slate-900">{invoiceNumber}</p>
+                  <p className="text-slate-700">Invoice Date :</p>
+                  <p className="text-right text-slate-700">
+                    {moment(billing.createdAt).format("ll")}
+                  </p>
+                  <p className="text-slate-700">Due Date :</p>
+                  <p className="text-right text-slate-700">
+                    {billing.dueDate ? moment(billing.dueDate).format("ll") : "-"}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* RECEIPT */}
-            <div>
-              <p className="font-medium mb-1">Receipt</p>
-
-              {billing.recipt ? (
-                <a
-                  href={billing.recipt}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  View Receipt
-                </a>
-              ) : (
-                <p className="text-gray-500">No receipt uploaded</p>
-              )}
+              <div className="mt-5 overflow-hidden rounded-sm border border-slate-200">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="bg-white text-slate-900">
+                    <th className="px-4 py-2 text-left font-bold">Sl.</th>
+                    <th className="px-4 py-2 text-left font-bold">Description</th>
+                    <th className="px-4 py-2 text-right font-bold">Qty</th>
+                    <th className="px-4 py-2 text-right font-bold">Rate</th>
+                    <th className="px-4 py-2 text-right font-bold">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {billing.items?.length > 0 ? (
+                    billing.items.map((item: { name: string; qty: number; price: number }, index: number) => (
+                      <tr key={`${item.name}-${index}`} className="border-t border-slate-200">
+                        <td className="px-4 py-2 text-left text-slate-900">{index + 1}</td>
+                        <td className="px-4 py-2 text-left text-slate-900">{item.name}</td>
+                        <td className="px-4 py-2 text-right text-slate-900">{item.qty}</td>
+                        <td className="px-4 py-2 text-right text-slate-900">
+                          Rs. {item.price.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2 text-right text-slate-900">
+                          Rs. {(item.price * item.qty).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-8 text-center text-slate-500">
+                        No billing items found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
 
-            {/* DATES */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Section
-                label="Created At"
-                value={
-                  billing.createdAt
-                    ? moment(billing.createdAt).format("lll")
-                    : "-"
-                }
-              />
+            <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
+              <div>
+                <p className="text-lg font-bold text-slate-900">Payment Instructions</p>
+                <div className="mt-2 space-y-1 text-sm leading-6 text-slate-700">
+                  <p>Pay at front desk or through approved payment channel.</p>
+                  <p>Keep this invoice for verification and record keeping.</p>
+                  <p>
+                    {billing.paymentMethod
+                      ? `Preferred method: ${billing.paymentMethod}`
+                      : "Payment method: Not specified"}
+                  </p>
+                </div>
+              </div>
 
-              <Section
-                label="Updated At"
-                value={
-                  billing.updatedAt
-                    ? moment(billing.updatedAt).format("lll")
-                    : "-"
-                }
-              />
+                <div className="space-y-3 text-sm text-slate-900">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2 font-semibold">
+                  <span>Subtotal</span>
+                  <span>Rs. {subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2 font-semibold">
+                  <span>Total</span>
+                  <span>Rs. {subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <span>Paid ({moment(billing.createdAt).format("ll")})</span>
+                  <span>Rs. {paidAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex items-stretch overflow-hidden rounded-full shadow-sm">
+                  <div className="flex min-w-0 flex-1 items-center justify-center bg-white px-4 py-3 text-lg font-bold text-slate-900 border">
+                    Balance Due
+                  </div>
+                  <div className="flex w-[180px] items-center justify-center border-l border-black bg-white px-4 py-3 text-lg font-bold text-slate-900">
+                    Rs. {remainingAmount.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+              <div className="mt-10 flex flex-col items-end gap-3">
+                <div className="h-20 w-64 border-b border-slate-500/40" />
+                <p className="text-sm font-semibold text-slate-900">Authorized Signatory</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-/* ---------------- HELPER COMPONENTS ---------------- */
-
-function Section({
-  label,
-  value,
-}: {
-  label: string;
-  value?: string | number | null;
-}) {
-  return (
-    <div>
-      <p className="font-medium text-gray-800">{label}</p>
-
-      <p className="text-gray-600 mt-1">
-        {value !== undefined && value !== null ? String(value) : "-"}
-      </p>
-    </div>
-  );
-}
-
-function AmountCard({ title, value }: { title: string; value: string }) {
-  return (
-    <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-      <p className="text-sm text-gray-500">{title}</p>
-
-      <h3 className="text-xl font-bold text-gray-800 mt-2">{value}</h3>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   Users,
   CreditCard,
   BarChart,
+  LineChart,
   ChevronLeft,
   ChevronRight,
   CardSim,
@@ -28,6 +29,14 @@ const menu = [
     roles: ["admin"],
   },
   {
+    id: "super-analysis",
+    name: "Analysis",
+    href: "/pages/dashboard/super-admin/analytics",
+    icon: LineChart,
+    exact: true,
+    roles: ["admin"],
+  },
+  {
     id: "super-business",
     name: "Business Management",
     href: "/pages/dashboard/super-admin/business",
@@ -37,7 +46,7 @@ const menu = [
   },
   {
     id: "super-payment",
-    name: "Payment Management",
+    name: "Payments",
     href: "/pages/dashboard/super-admin/payments",
     icon: CreditCard,
     exact: false,
@@ -53,9 +62,18 @@ const menu = [
     exact: true,
     roles: ["business", "staff"],
   },
+  {
+    id: "business-analysis",
+    name: "Analysis",
+    href: "/pages/dashboard/business-admin/analytics",
+    icon: LineChart,
+    exact: true,
+    roles: ["business", "staff"],
+  },
 
   {
     id: "profile",
+    name: "Business Profile",
     serviceKey: "business_management",
     href: "/pages/dashboard/business-admin/business",
     icon: Building2,
@@ -64,6 +82,7 @@ const menu = [
 
   {
     id: "asset",
+    name: "Assets",
     serviceKey: "asset_management",
     href: "/pages/dashboard/business-admin/assets",
     icon: BarChart,
@@ -72,6 +91,7 @@ const menu = [
 
   {
     id: "client",
+    name: "Clients",
     serviceKey: "client_management",
     href: "/pages/dashboard/business-admin/clients",
     icon: Users,
@@ -80,6 +100,7 @@ const menu = [
 
   {
     id: "staff",
+    name: "Staff",
     serviceKey: "staff_management",
     href: "/pages/dashboard/business-admin/staff",
     icon: Users,
@@ -97,6 +118,7 @@ const menu = [
 
   {
     id: "attendance",
+    name: "Attendance",
     serviceKey: "attendance_management",
     href: "/pages/dashboard/business-admin/attendance",
     icon: LayoutDashboard,
@@ -105,6 +127,7 @@ const menu = [
 
   {
     id: "billing",
+    name: "Billing",
     serviceKey: "billing_management",
     href: "/pages/dashboard/business-admin/billing",
     icon: CreditCard,
