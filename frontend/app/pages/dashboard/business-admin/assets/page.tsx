@@ -22,7 +22,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -36,24 +35,35 @@ export default function BusinessesPage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
 
+   const [businessId] = useState<string>(() => {
+    const storedData = JSON.parse(
+      localStorage.getItem("auth-data") || "{}"
+    );
+    return storedData?.business_id;
+  });
+
   const {
     data: assetData,
     isLoading,
     isError,
   } = useAllAssets({ page, limit: 10 });
 
-  const assets: TAsset[] = assetData?.data ?? assetData ?? [];
+  const assets = useMemo(() => {
+    if (!assetData) return [];
+    return assetData.data || assetData || [];
+  }, [assetData]);
+
   const assetPagination = assetData?.pagination;
-  const { summary, assetHealth } = useBusinessAnalytics();
+  const { summary } = useBusinessAnalytics();
 
   const { data: assetTypeData } = useAllAssetTypes({
     page: 1,
     limit: 100,
-    business_id: assets?.[0]?.business_id,
+    business_id: businessId,
   });
 
   const assetTypes = assetTypeData?.data ?? assetTypeData ?? [];
-  const assetTypePagination = assetData?.pagination;
+  const assetTypePagination = assetTypeData?.pagination;
 
   const assetTypeBreakdown = useMemo(() => {
     const counts: Record<string, number> = assets.reduce(

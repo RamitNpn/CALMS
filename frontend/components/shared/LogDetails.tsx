@@ -42,10 +42,13 @@ export default function LogDetails({
 
   const { data:logData, isLoading } = useActivityLogs(page, 10, filters);
 
-  const logs = logData?.data || [];
+  const loadLogs = useMemo(() => {
+    if (!logData) return [];
+    return logData.data || [];
+  }, [logData]);
 
   const filteredLogs = useMemo(() => {
-    return logs.filter((log: TLogEntry) => {
+    return loadLogs.filter((log: TLogEntry) => {
       const matchesSearch =
         log.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         log.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -53,7 +56,7 @@ export default function LogDetails({
         log.action?.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
-  }, [logs, searchQuery]);
+  }, [loadLogs, searchQuery]);
 
   const getActionColor = (action: string) => {
     switch (action) {
@@ -260,21 +263,24 @@ export default function LogDetails({
 
       {/* Pagination */}
       {filteredLogs.length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Showing {filteredLogs.length} of {logs.length} logs for {module}
+        <div className="flex text-[13px] items-center justify-between">
+          <p className="text-gray-600">
+            Showing {filteredLogs.length} of {logData?.pagination?.total || 0}
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="px-4 py-2 bg-white shadow-md cursor-pointer rounded hover:bg-gray-50 disabled:opacity-50"
             >
               Previous
             </button>
+            <span className="px-4 py-2 border border-gray-200 rounded-lg bg-gray-100">
+              Page {page} of {logData?.pagination?.totalPages || 1}
+            </span>
             <button
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="px-4 py-2 bg-white shadow-md cursor-pointer rounded hover:bg-gray-50"
             >
               Next
             </button>

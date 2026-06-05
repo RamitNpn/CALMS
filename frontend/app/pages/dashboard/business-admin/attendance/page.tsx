@@ -56,6 +56,12 @@ export default function AttendancePage() {
   const [activeTab, setActiveTab] = useState("inventory");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isBulkUpdateOpen, setIsBulkUpdateOpen] = useState(false);
+
+  const [businessId] = useState<string>(() => {
+    const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
+    return storedData?.business_id;
+  });
+
   const { summary } = useBusinessAnalytics();
 
   const {
@@ -390,7 +396,7 @@ export default function AttendancePage() {
 
       {activeTab === "logs" && (
         <LogDetails
-          userId={attendances[0]?.business_id ?? ""}
+          userId={businessId}
           module="Attendance"
           onClearLogs={() => {
             console.log("Clearing attendance logs");
@@ -422,6 +428,10 @@ function BulkUpdateAttendanceModal({
   const [checkOut, setCheckOut] = useState("");
   const queryClient = useQueryClient();
   const toast = useToast.getState();
+  const [businessId] = useState<string>(() => {
+    const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
+    return storedData?.business_id;
+  });
 
   const getResolvedCheckIn = () => checkIn || new Date().toISOString();
 
@@ -440,7 +450,7 @@ function BulkUpdateAttendanceModal({
           }
 
           return attendanceApi.createAttendance({
-            business_id: row.business_id,
+            business_id: businessId,
             clientName: row.userName,
             clientEmail: row.userEmail,
             userType: row.userType,
