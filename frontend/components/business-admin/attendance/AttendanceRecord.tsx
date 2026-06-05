@@ -30,7 +30,9 @@ export default function AttendanceRecord({
   onPageChange,
 }: AttendanceTableProps) {
   const [viewId, setViewId] = useState<string | null>(null);
-  const [editId, setEditId] = useState<string | null>(null);
+  const [editRecordId, setEditRecordId] = useState<string | null>(null);
+
+  console.log("Is attendance Id set in state?:", editRecordId);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -52,7 +54,7 @@ export default function AttendanceRecord({
     try {
       await attendanceApi.createAttendance({
         userIds: selectedIds,
-        business_id: businessId,  
+        business_id: businessId,
         status: "Present",
         checkIn: new Date().toISOString(),
         checkOut: undefined,
@@ -65,7 +67,7 @@ export default function AttendanceRecord({
       });
 
       setSelectedIds([]);
-    } catch (err) {
+    } catch (error) {
       toast.show({
         message: "Failed to create attendance",
         type: "error",
@@ -199,7 +201,13 @@ export default function AttendanceRecord({
                   <div className="flex items-center gap-2">
                     {/* EDIT */}
                     <button
-                      onClick={() => setEditId(att.attendanceId)}
+                      onClick={() => {
+                        console.log("clicked row:", att);
+                        console.log("attendanceId:", att.attendanceId);
+
+                        setEditRecordId(att.attendanceId);
+                      }}
+                      disabled={!att.attendanceId}
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
                     >
                       <Pencil size={16} className="text-green-600" />
@@ -233,10 +241,10 @@ export default function AttendanceRecord({
       )}
 
       {/* EDIT MODAL */}
-      {editId && (
+      {editRecordId && (
         <EditAttendanceRecord
-          attendanceId={editId}
-          onClose={() => setEditId(null)}
+          attendanceId={editRecordId}
+          onClose={() => setEditRecordId(null)}
         />
       )}
     </div>

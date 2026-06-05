@@ -54,19 +54,11 @@ export const attendanceContract = c.router({
     method: "GET",
     path: "/attendance",
     query: z.object({
-      page: z.string().optional(),
-      limit: z.string().optional(),
     }),
     summary: "Get all attendance records with pagination",
     responses: {
       200: z.object({
         data: getAllAttendanceSchema,
-        pagination: z.object({
-          page: z.number(),
-          limit: z.number(),
-          total: z.number(),
-          totalPages: z.number(),
-        }),
       }),
       500: errorSchema,
     },

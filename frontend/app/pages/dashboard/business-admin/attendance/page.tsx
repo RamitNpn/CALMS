@@ -33,6 +33,7 @@ import AttendanceStats from "@/components/business-admin/attendance/AttendanceSt
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 import type { TAttendance } from "@/libs/types/attendance.types";
 import { useTodayAttendance } from "@/hooks/business-admin/attendance-management/getTodaysAttendance";
+import { useAttendanceStats } from "@/hooks/business-admin/stats-data/getAttendanceStats";
 
 const ATTENDANCE_COLORS = ["#16a34a", "#dc2626", "#2563eb", "#f59e0b"];
 
@@ -74,24 +75,16 @@ export default function AttendancePage() {
 
   const {
     data: attendanceData,
-    isLoading,
-    isError,
   } = useAllAttendances({ page, limit: 10 });
 
-  const { data: users } = useTodayAttendance({ page: 1, limit: 1000 , business_id: businessId }); // Adjust limit as needed
+  const { data: users, isLoading, isError } = useTodayAttendance({ page: 1, limit: 1000 , business_id: businessId});
+
+  const { data: attendanceStats } = useAttendanceStats();
 
   const attendances: TAttendance[] = attendanceData?.data ?? attendanceData ?? [];
   const pagination = attendanceData?.pagination;
 
   const attendanceOverview = summary?.attendance;
-
-  const attendanceStats = {
-    presentCount: attendanceOverview?.totalAttendance ?? 0,
-    absentCount: attendanceOverview?.totalAbsent ?? 0,
-    leaveCount: attendanceOverview?.totalOnLeave ?? 0,
-    lateCount: attendanceOverview?.lateToday ?? 0,
-    attendanceRate: attendanceOverview?.attendanceRate ?? 0,
-  };
 
   const calendarRecords = useMemo<CalendarAttendanceRecord[]>(
     () =>
@@ -188,7 +181,7 @@ export default function AttendancePage() {
         </div>
       </div>
 
-      <AttendanceStats {...attendanceStats} />
+      <AttendanceStats />
 
       {/* TAB NAVIGATION */}
       <TabNavigation
@@ -304,15 +297,15 @@ export default function AttendancePage() {
               </h3>
               <div className="space-y-4 text-sm text-gray-600">
                 <p>
-                  Attendance rate is {attendanceStats.attendanceRate.toFixed(1)}%
-                  with {attendanceStats.presentCount.toLocaleString()} present
+                  Attendance rate is {attendanceStats?.attendanceRate.toFixed(1)}%
+                  with {attendanceStats?.totalAttendance.toLocaleString()} present
                   records currently in the system.
                 </p>
                 <p>
-                  {attendanceStats.absentCount.toLocaleString()} absences,
+                  {attendanceStats?.totalAbsent.toLocaleString()} absences,
                   {" "}
-                  {attendanceStats.leaveCount.toLocaleString()} leave records,
-                  and {attendanceStats.lateCount.toLocaleString()} late check-ins
+                  {attendanceStats?.totalOnLeave.toLocaleString()} leave records,s
+                  and {attendanceStats?.lateToday.toLocaleString()} late check-ins
                   are visible from the current stats feed.
                 </p>
                 <p>

@@ -19,19 +19,13 @@ class AttendanceRepository {
     }
   }
 
-  async getAllAttendance(
-    skip: number = 0,
-    limit: number = 10,
-    date: Date,
-  ) {
+  async getAllAttendance() {
     try {
       const data = await this.model
-        .find({ date })
+        .find()
         .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
 
-      const total = await this.model.countDocuments({ date });
+      const total = await this.model.countDocuments();
 
       return { data, total };
     } catch (error) {
@@ -39,9 +33,9 @@ class AttendanceRepository {
     }
   }
 
-  async getAttendanceByID(id: string, date: Date) {
+  async getAttendanceByID(id: string) {
     try {
-      return await this.model.findOne({ _id: id, date });
+      return await this.model.findOne({ _id: id });
     } catch (error) {
       throw new Error(`Error fetching attendance: ${error}`);
     }

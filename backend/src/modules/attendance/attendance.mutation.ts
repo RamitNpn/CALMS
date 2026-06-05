@@ -102,8 +102,11 @@ export const removeAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.removeAttendance
 > = async ({ req }) => {
   try {
+
+    const date = new Date();
     const search = await attendanceRepository.getAttendanceByID(
       req.params.attendanceID,
+      date,
     );
 
     if (!search) {

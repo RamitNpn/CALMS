@@ -59,10 +59,7 @@ export const todayAttendanceViewSchema = mixAttendanceSchema
   method: methodEnum,
   createdAt: z.date(),
   updatedAt: z.date(),
-  status: z
-    .enum(["Present", "Absent", "Leave", "Late"])
-    .optional()
-    .default("Absent"),
+  status: z.string(),
 });
 
 export const getAllAttendanceSchema = z.array(attendanceSchema);

@@ -91,7 +91,7 @@ const getBusinessDashboardStats: AppRouteQueryImplementation<
       staffRate: calculateRate(currentMonthStaff, previousMonthStaff),
       totalClients: totalClients,
       clientRate: calculateRate(currentMonthClients, previousMonthClients),
-      
+
       totalAssets: totalAssets.total ?? 0,
       assetRate: calculateRate(currentMonthAssets, previousMonthAssets),
       totalAttendance: totalAttendance.total ?? 0,
@@ -485,15 +485,35 @@ const getBusinessBillingStats: AppRouteQueryImplementation<
   }
 };
 
-const getBusinessAttendanceStats: AppRouteQueryImplementation<
+export const getBusinessAttendanceStats: AppRouteQueryImplementation<
   typeof statsContract.getBusinessAttendanceStats
 > = async () => {
   try {
-    const todayStart = new Date();
+    const now = new Date();
+
+    const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);
 
-    const todayEnd = new Date();
+    const todayEnd = new Date(now);
     todayEnd.setHours(23, 59, 59, 999);
+
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const previousMonthStart = new Date(
+      now.getFullYear(),
+      now.getMonth() - 1,
+      1,
+    );
+
+    const previousMonthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
 
     const [
       totalAttendance,
@@ -514,19 +534,19 @@ const getBusinessAttendanceStats: AppRouteQueryImplementation<
       previousMonthLate,
     ] = await Promise.all([
       attendanceRepository.count({
-        status: "present",
+        status: "Present",
       }),
 
       attendanceRepository.count({
-        status: "absent",
+        status: "Absent",
       }),
 
       attendanceRepository.count({
-        status: "leave",
+        status: "Leave",
       }),
 
       attendanceRepository.count({
-        isLate: true,
+        status: "Late",
         createdAt: {
           $gte: todayStart,
           $lte: todayEnd,
@@ -534,14 +554,14 @@ const getBusinessAttendanceStats: AppRouteQueryImplementation<
       }),
 
       attendanceRepository.count({
-        status: "present",
+        status: "Present",
         createdAt: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
-        status: "present",
+        status: "Present",
         createdAt: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
@@ -549,14 +569,14 @@ const getBusinessAttendanceStats: AppRouteQueryImplementation<
       }),
 
       attendanceRepository.count({
-        status: "absent",
+        status: "Absent",
         createdAt: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
-        status: "absent",
+        status: "Absent",
         createdAt: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
@@ -564,14 +584,14 @@ const getBusinessAttendanceStats: AppRouteQueryImplementation<
       }),
 
       attendanceRepository.count({
-        status: "leave",
+        status: "Leave",
         createdAt: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
-        status: "leave",
+        status: "Leave",
         createdAt: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
@@ -579,14 +599,14 @@ const getBusinessAttendanceStats: AppRouteQueryImplementation<
       }),
 
       attendanceRepository.count({
-        isLate: true,
+        status: "Late",
         createdAt: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
-        isLate: true,
+        status: "Late",
         createdAt: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
@@ -602,24 +622,37 @@ const getBusinessAttendanceStats: AppRouteQueryImplementation<
       return Number((((current - previous) / previous) * 100).toFixed(2));
     };
 
-    const formattedData = {
-      totalAttendance,
-      attendanceRate: calculateRate(
-        currentMonthAttendance,
-        previousMonthAttendance,
-      ),
-      totalAbsent,
-      absentRate: calculateRate(currentMonthAbsent, previousMonthAbsent),
-      totalOnLeave,
-      onLeaveRate: calculateRate(currentMonthOnLeave, previousMonthOnLeave),
-      lateToday,
-      lateRate: calculateRate(currentMonthLate, previousMonthLate),
-    };
-
     return {
       status: 200,
       body: {
-        data: formattedData,
+        data: {
+          totalAttendance,
+          attendanceRate: calculateRate(
+            currentMonthAttendance,
+            previousMonthAttendance,
+          ),
+
+          totalAbsent,
+          absentRate: calculateRate(currentMonthAbsent, previousMonthAbsent),
+
+          totalOnLeave,
+          onLeaveRate: calculateRate(currentMonthOnLeave, previousMonthOnLeave),
+
+          lateToday,
+          lateRate: calculateRate(currentMonthLate, previousMonthLate),
+
+          currentMonthAttendance,
+          previousMonthAttendance,
+
+          currentMonthAbsent,
+          previousMonthAbsent,
+
+          currentMonthOnLeave,
+          previousMonthOnLeave,
+
+          currentMonthLate,
+          previousMonthLate,
+        },
       },
     };
   } catch (error) {

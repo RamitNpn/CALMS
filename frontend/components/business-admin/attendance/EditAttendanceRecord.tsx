@@ -30,12 +30,12 @@ export function EditAttendanceRecord({
   onSuccess,
   size = "lg",
 }: Props) {
+  const toast = useToast.getState();
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isError } = useAttendanceById(attendanceId);
 
   const attendance = data?.data ?? data;
-
-  const toast = useToast.getState();
-  const queryClient = useQueryClient();
 
   const {
     register,
@@ -140,7 +140,10 @@ export function EditAttendanceRecord({
             Flowdesk - Edit Attendance
           </h2>
 
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+          <button
+            onClick={onClose}
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
+          >
             <X className="w-4 h-4 text-red-500" />
           </button>
         </div>

@@ -19,22 +19,21 @@ export const getTodayAttendance: AppRouteQueryImplementation<
 
   // 3. Map attendance by userId
   const attendanceMap = new Map(
-    attendanceRecords.map((a) => [
-      String(a.userId), // safer than toString()
-      a,
-    ]),
+    attendanceRecords.map((a) => [a.userId.toString(), a]),
   );
 
   // 4. Merge (THIS IS THE KEY IDEA)
   const merged = users.map((user) => {
-    const attendance = attendanceMap.get(user._id.toString());
+    const userId = user._id?.toString();
+
+    const attendance = userId ? attendanceMap.get(userId) : undefined;
 
     return {
       _id: user._id.toString(),
       userName: user.userName,
       userEmail: user.userEmail,
       role: user.role,
-      attendanceId: attendance?._id?.toString(),
+      attendanceId: attendance ? attendance._id.toString() : "",
       userType: user.role === "client" ? "client" : "staff",
       status: attendance?.status,
       checkIn: attendance?.checkIn,
@@ -61,17 +60,8 @@ export const getAllAttendance: AppRouteQueryImplementation<
   typeof attendanceContract.getAllAttendance
 > = async ({ req }) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const skip = (page - 1) * limit;
-    const date = new Date();
 
-    const { data, total } = await attendanceRepository.getAllAttendance(
-      skip,
-      limit,
-      date,
-    );
-    const totalPages = Math.ceil(total / limit);
+    const { data, total } = await attendanceRepository.getAllAttendance();
 
     const formattedAttendance = data.map((u) => ({
       _id: u._id.toString(),
@@ -89,12 +79,6 @@ export const getAllAttendance: AppRouteQueryImplementation<
       status: 200,
       body: {
         data: formattedAttendance,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-        },
       },
     };
   } catch (error) {
@@ -119,11 +103,8 @@ export const getAttendanceByID: AppRouteQueryImplementation<
     };
   }
 
-  const date = new Date();
-
   const data = await attendanceRepository.getAttendanceByID(
     req.params.attendanceID,
-    date,
   );
 
   if (!data) {
