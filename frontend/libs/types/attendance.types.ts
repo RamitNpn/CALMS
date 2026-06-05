@@ -9,6 +9,7 @@ export interface TAttendance {
   userType: string;
   checkIn?: Date;
   checkOut?: Date;
+  status: "Present" | "Absent" | "Leave" | "Late";
   method: GetMethod;
   createdAt: Date;
   updatedAt: Date;
@@ -21,5 +22,6 @@ export interface TCreateAttendance {
   userType: string;
   checkIn?: Date;
   checkOut?: Date;
+  status: "Present" | "Absent" | "Leave" | "Late";
   method: GetMethod;
 }

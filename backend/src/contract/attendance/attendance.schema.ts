@@ -9,6 +9,7 @@ export const createAttendanceSchema = z.object({
   userType: z.string().min(1, "User type is required"),
   checkIn: z.coerce.date().optional(),
   checkOut: z.coerce.date().optional(),
+  status: z.enum(["Present", "Absent", "Leave", "Late"]).optional().default("Absent"),
   method: methodEnum.optional().default("Manual"),
 });
 
@@ -23,6 +24,7 @@ export const attendanceSchema = z.object({
   method: methodEnum,
   createdAt: z.date(),
   updatedAt: z.date(),
+  status: z.enum(["Present", "Absent", "Leave", "Late"]).optional().default("Absent"),
 });
 
 export const getAllAttendanceSchema = z.array(attendanceSchema);
@@ -35,6 +37,7 @@ export const updateAttendanceSchema = z.object({
   checkIn: z.coerce.date().optional(),
   checkOut: z.coerce.date().optional(),
   method: methodEnum.optional(),
+  status: z.enum(["Present", "Absent", "Leave", "Late"]).optional(),
 });
 
 export const removeAttendanceSchema = z.object({

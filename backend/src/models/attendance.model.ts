@@ -8,6 +8,7 @@ export interface IAttendance extends Document {
   checkIn?: Date;
   checkOut?: Date;
   method: "QR" | "Manual";
+  status?: "Present" | "Absent" | "Leave" | "Late";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -56,6 +57,11 @@ const AttendanceSchema = new mongoose.Schema(
       type: String,
       enum: ["QR", "Manual"],
       default: "Manual",
+    },
+
+    status: {
+      type: String,
+      enum: ["Present", "Absent", "Leave", "Late"],
     },
   },
   {

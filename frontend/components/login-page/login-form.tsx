@@ -31,7 +31,7 @@ export default function LoginForm() {
 
     onSuccess: (data) => {
       toast.show({
-        message: "Login success:",
+        message: "Login success",
         type: "success",
       });
 

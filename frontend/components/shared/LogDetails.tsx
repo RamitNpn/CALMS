@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Activity, Trash2, Download } from "lucide-react";
 import { useActivityLogs } from "@/hooks/shared/useLogs";
 import { TLogEntry } from "@/libs/types/log.types";

@@ -21,6 +21,7 @@ export const getAllAttendance: AppRouteQueryImplementation<
       checkOut: u.checkOut,
       userType: u.userType as "STAFF" | "CLIENT",
       method: u.method as "QR" | "Manual",
+      status: u.status as "Present" | "Absent" | "Leave" | "Late",
       createdAt: u.createdAt,
       updatedAt: u.updatedAt,
     }));
@@ -82,6 +83,7 @@ export const getAttendanceByID: AppRouteQueryImplementation<
       userType: data.userType === "CLIENT" ? "CLIENT" : "STAFF",
       checkIn: data.checkIn,
       checkOut: data.checkOut,
+      status: data.status as "Present" | "Absent" | "Leave" | "Late",
       method: data.method,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,

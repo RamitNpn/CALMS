@@ -7,6 +7,7 @@ export const createAttendanceSchema = z.object({
   userType: z.string().min(1, "User type is required"),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
+  status: z.enum(["Present", "Absent", "Leave", "Late"]),
   method: z.enum(["QR", "Manual"]).optional(),
 });
 
@@ -20,6 +21,7 @@ export const attendanceSchema = z.object({
   userType: z.string().min(1, "User type is required"),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
+  status: z.string().optional(),
   method: z.enum(["QR", "Manual"]).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -38,6 +40,7 @@ export const updateAttendanceSchema = z.object({
   clientName: z.string().min(2, "Client name is required").max(100).optional(),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
+  status: z.enum(["Present", "Absent", "Leave", "Late"]).optional(),
   method: z.enum(["QR", "Manual"]).optional(),
 });
 

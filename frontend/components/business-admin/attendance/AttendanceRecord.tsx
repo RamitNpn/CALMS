@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Plus, X } from "lucide-react";
+import { Pencil, X } from "lucide-react";
 import moment from "moment";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -9,10 +9,8 @@ import TablePagination from "@/components/shared/Pagination";
 import { useToast } from "@/components/ui/toast";
 
 import { attendanceApi, TAttendance } from "@/libs";
-import Button from "@/components/ui/button";
 import { AttendanceForm } from "./AttendanceForm";
 import clsx from "clsx";
-
 
 type AttendanceRow = {
   _id: string;
@@ -23,6 +21,7 @@ type AttendanceRow = {
   method?: TAttendance["method"];
   checkIn?: TAttendance["checkIn"];
   checkOut?: TAttendance["checkOut"];
+  status?: TAttendance["status"];
   attendanceId?: string;
 };
 
@@ -67,7 +66,8 @@ export default function AttendanceRecord({
         <div>
           <p className="text-sm font-semibold text-gray-900">Inventory</p>
           <p className="text-xs text-gray-500">
-            Select one or more rows, then update check-in and check-out from the action button.
+            Select one or more rows, then update check-in and check-out from the
+            action button.
           </p>
         </div>
 
@@ -80,19 +80,12 @@ export default function AttendanceRecord({
           {selectedCount > 0 && (
             <button
               type="button"
-                onClick={() => onSelectedIdsChange([])}
+              onClick={() => onSelectedIdsChange([])}
               className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
             >
               Clear selection
             </button>
           )}
-          <Button
-            onClick={() => setOpen(true)}
-            className="flex cursor-pointer items-center gap-2 bg-indigo-600 px-4 py-2 text-[12px] text-white transition hover:bg-indigo-700"
-          >
-            <Plus size={18} />
-            Create Attendance
-          </Button>
         </div>
       </div>
 
@@ -100,7 +93,7 @@ export default function AttendanceRecord({
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-100 text-sm text-gray-800">
-                <th className="py-3 px-2 text-center">
+              <th className="py-3 px-2 text-center">
                 <input
                   type="checkbox"
                   checked={allVisibleSelected}
@@ -127,6 +120,7 @@ export default function AttendanceRecord({
               <th className="py-3 px-2 text-left">User Type</th>
               <th className="py-3 px-2 text-left">Check In</th>
               <th className="py-3 px-2 text-left">Check Out</th>
+              <th className="py-3 px-2 text-left">Status</th>
               <th className="py-3 px-2 text-left">Action</th>
             </tr>
           </thead>
@@ -160,7 +154,9 @@ export default function AttendanceRecord({
                             return;
                           }
 
-                          onSelectedIdsChange(selectedIds.filter((id) => id !== row._id));
+                          onSelectedIdsChange(
+                            selectedIds.filter((id) => id !== row._id),
+                          );
                         }}
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         aria-label={`Select attendance row ${index + 1}`}
@@ -173,7 +169,7 @@ export default function AttendanceRecord({
 
                     <td className="py-3 px-2 font-medium">{row.userEmail}</td>
 
-                    <td className="py-3 px-2">{row.userType}</td>
+                    <td className="py-3 px-2 capitalize">{row.userType}</td>
 
                     <td className="py-3 px-2">
                       {row.checkIn ? moment(row.checkIn).format("lll") : "-"}
@@ -182,6 +178,8 @@ export default function AttendanceRecord({
                     <td className="py-3 px-2">
                       {row.checkOut ? moment(row.checkOut).format("lll") : "-"}
                     </td>
+
+                    <td className="py-3 px-2">{row.status || "Unknown"}</td>
 
                     <td className="py-3 px-2">
                       <button
@@ -246,6 +244,7 @@ function QuickEditAttendanceModal({
         userType: row.userType,
         checkIn: checkIn || undefined,
         checkOut: checkOut || undefined,
+        status: row.status || "Present",
       };
 
       if (row.attendanceId) {
@@ -261,7 +260,9 @@ function QuickEditAttendanceModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["attendances"] });
       toast.show({
-        message: row.attendanceId ? "Attendance updated successfully" : "Attendance created successfully",
+        message: row.attendanceId
+          ? "Attendance updated successfully"
+          : "Attendance created successfully",
         type: "success",
       });
       onClose();
@@ -269,7 +270,8 @@ function QuickEditAttendanceModal({
     onError: (error: unknown) => {
       toast.show({
         message:
-          (error as { message?: string })?.message || "Failed to update attendance",
+          (error as { message?: string })?.message ||
+          "Failed to update attendance",
         type: "error",
       });
     },
@@ -285,9 +287,13 @@ function QuickEditAttendanceModal({
       <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl">
         <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Quick Update</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+              Quick Update
+            </p>
             <h3 className="text-lg font-semibold text-gray-900">
-              {row.attendanceId ? "Update Attendance Time" : "Create Attendance"}
+              {row.attendanceId
+                ? "Update Attendance Time"
+                : "Create Attendance"}
             </h3>
             <p className="mt-1 text-sm text-gray-500">
               {row.userName} · {row.userEmail}
@@ -305,7 +311,25 @@ function QuickEditAttendanceModal({
 
         <form onSubmit={handleSubmit} className="space-y-4 px-5 py-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Check In</label>
+            <label className="block text-sm font-medium">
+              Status <span className="text-red-500">*</span>
+            </label>
+
+            <select
+              value={checkIn ? "Present" : "Absent"}
+              onChange={(event) => setCheckIn(event.target.value)}
+              className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+            >
+              <option value="Present">Present</option>
+              <option value="Absent">Absent</option>
+              <option value="Leave">Leave</option>
+              <option value="Late">Late</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Check In
+            </label>
             <input
               type="datetime-local"
               value={checkIn}
@@ -315,7 +339,9 @@ function QuickEditAttendanceModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Check Out</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Check Out
+            </label>
             <input
               type="datetime-local"
               value={checkOut}

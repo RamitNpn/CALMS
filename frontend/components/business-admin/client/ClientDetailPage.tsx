@@ -146,7 +146,7 @@ export default function ClientDetailPage({ clientId }: Props) {
       });
 
       const link = document.createElement("a");
-      link.download = `${client.userName || "client"}-certificate.png`;
+      link.download = `${client?.userName || "client"}-certificate.png`;
       link.href = dataUrl;
       link.click();
     } finally {
@@ -423,9 +423,10 @@ export default function ClientDetailPage({ clientId }: Props) {
       {activeTab === "logs" && (
         <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
           <LogDetails
+          userId={client._id}
             module="Clients"
             recordId={client._id}
-            recordName={client.userName}
+            recordName={client?.userName}
             onClearLogs={() => {
               console.log("Clearing client logs for", client._id);
             }}

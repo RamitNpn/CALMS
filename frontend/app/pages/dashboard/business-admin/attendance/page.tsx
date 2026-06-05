@@ -23,12 +23,7 @@ import AttendanceRecord from "@/components/business-admin/attendance/AttendanceR
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import CustomizeSection from "@/components/shared/CustomizeSection";
-import {
-  BarChart3,
-  Settings,
-  ActivitySquare,
-  FileText,
-} from "lucide-react";
+import { BarChart3, Settings, ActivitySquare, FileText } from "lucide-react";
 import AttendanceStats from "@/components/business-admin/attendance/AttendanceStats";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 import { useToast } from "@/components/ui/toast";
@@ -47,6 +42,7 @@ type AttendanceRow = {
   method?: TAttendance["method"];
   checkIn?: TAttendance["checkIn"];
   checkOut?: TAttendance["checkOut"];
+  status?: TAttendance["status"];
   attendanceId?: string;
 };
 
@@ -85,67 +81,70 @@ export default function AttendancePage() {
   );
   const pagination = attendanceData?.pagination;
 
-  const attendanceRows = useMemo<AttendanceRow[]>(
-    () => {
-      const attendanceByPerson = new Map<string, TAttendance>();
+  const attendanceRows = useMemo<AttendanceRow[]>(() => {
+    const attendanceByPerson = new Map<string, TAttendance>();
 
-      attendances.forEach((attendance) => {
-        const keys = [
-          attendance.clientId?.toString(),
-          buildAttendanceEmailKey(attendance.clientEmail, attendance.userType),
-        ].filter(Boolean) as string[];
+    attendances.forEach((attendance) => {
+      const keys = [
+        attendance.clientId?.toString(),
+        buildAttendanceEmailKey(attendance.clientEmail, attendance.userType),
+      ].filter(Boolean) as string[];
 
-        keys.forEach((key) => {
-          const existing = attendanceByPerson.get(key);
+      keys.forEach((key) => {
+        const existing = attendanceByPerson.get(key);
 
-          if (!existing || isAttendanceNewer(attendance, existing)) {
-            attendanceByPerson.set(key, attendance);
-          }
-        });
+        if (!existing || isAttendanceNewer(attendance, existing)) {
+          attendanceByPerson.set(key, attendance);
+        }
       });
+    });
 
-      const staffRows = staffMembers.map((staff) => {
-        const attendance =
-          attendanceByPerson.get(staff._id) ??
-          attendanceByPerson.get(buildAttendanceEmailKey(staff.userEmail, "staff"));
+    const staffRows = staffMembers.map((staff) => {
+      const attendance =
+        attendanceByPerson.get(staff._id) ??
+        attendanceByPerson.get(
+          buildAttendanceEmailKey(staff.userEmail, "staff"),
+        );
 
-        return {
-          _id: `staff-${staff._id}`,
-          userId: staff._id,
-          business_id: staff.business_id,
-          userName: staff.userName,
-          userEmail: staff.userEmail,
-          userType: "staff",
-          method: attendance?.method,
-          checkIn: attendance?.checkIn,
-          checkOut: attendance?.checkOut,
-          attendanceId: attendance?._id,
-        } satisfies AttendanceRow;
-      });
+      return {
+        _id: `staff-${staff._id}`,
+        userId: staff._id,
+        business_id: staff.business_id,
+        userName: staff.userName,
+        userEmail: staff.userEmail,
+        userType: "staff",
+        method: attendance?.method,
+        checkIn: attendance?.checkIn,
+        checkOut: attendance?.checkOut,
+        status: attendance?.status,
+        attendanceId: attendance?._id,
+      } satisfies AttendanceRow;
+    });
 
-      const clientRows = clients.map((client) => {
-        const attendance =
-          attendanceByPerson.get(client._id) ??
-          attendanceByPerson.get(buildAttendanceEmailKey(client.userEmail, "client"));
+    const clientRows = clients.map((client) => {
+      const attendance =
+        attendanceByPerson.get(client._id) ??
+        attendanceByPerson.get(
+          buildAttendanceEmailKey(client.userEmail, "client"),
+        );
 
-        return {
-          _id: `client-${client._id}`,
-          userId: client._id,
-          business_id: client.business_id,
-          userName: client.userName,
-          userEmail: client.userEmail,
-          userType: "client",
-          method: attendance?.method,
-          checkIn: attendance?.checkIn,
-          checkOut: attendance?.checkOut,
-          attendanceId: attendance?._id,
-        } satisfies AttendanceRow;
-      });
+      return {
+        _id: `client-${client._id}`,
+        userId: client._id,
+        business_id: client.business_id,
+        userName: client.userName,
+        userEmail: client.userEmail,
+        userType: "client",
+        method: attendance?.method,
+        checkIn: attendance?.checkIn,
+        checkOut: attendance?.checkOut,
+        status: attendance?.status,
+        attendanceId: attendance?._id,
+      } satisfies AttendanceRow;
+    });
 
-      return [...staffRows, ...clientRows];
-    },
-    [attendances, staffMembers, clients],
-  );
+    return [...staffRows, ...clientRows];
+  }, [attendances, staffMembers, clients]);
 
   const selectedRows = useMemo(
     () => attendanceRows.filter((row) => selectedIds.includes(row._id)),
@@ -337,7 +336,9 @@ export default function AttendancePage() {
                     {attendanceMethodData.map((entry, index) => (
                       <Cell
                         key={entry.name}
-                        fill={ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]}
+                        fill={
+                          ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]
+                        }
                       />
                     ))}
                   </Pie>
@@ -358,16 +359,15 @@ export default function AttendancePage() {
               </h3>
               <div className="space-y-4 text-sm text-gray-600">
                 <p>
-                  Attendance rate is {attendanceStats.attendanceRate.toFixed(1)}%
-                  with {attendanceStats.presentCount.toLocaleString()} present
+                  Attendance rate is {attendanceStats.attendanceRate.toFixed(1)}
+                  % with {attendanceStats.presentCount.toLocaleString()} present
                   records currently in the system.
                 </p>
                 <p>
-                  {attendanceStats.absentCount.toLocaleString()} absences,
-                  {" "}
+                  {attendanceStats.absentCount.toLocaleString()} absences,{" "}
                   {attendanceStats.leaveCount.toLocaleString()} leave records,
-                  and {attendanceStats.lateCount.toLocaleString()} late check-ins
-                  are visible from the current stats feed.
+                  and {attendanceStats.lateCount.toLocaleString()} late
+                  check-ins are visible from the current stats feed.
                 </p>
                 <p>
                   The inventory tab below uses the same live attendance records,
@@ -446,6 +446,7 @@ function BulkUpdateAttendanceModal({
             userType: row.userType,
             checkIn: resolvedCheckIn,
             checkOut: checkOut || undefined,
+            status: row.status || "Present",
           });
         }),
       );
@@ -460,7 +461,10 @@ function BulkUpdateAttendanceModal({
       onClose();
     },
     onError: () => {
-      toast.show({ message: "Failed to update selected attendance rows", type: "error" });
+      toast.show({
+        message: "Failed to update selected attendance rows",
+        type: "error",
+      });
     },
   });
 
@@ -469,9 +473,17 @@ function BulkUpdateAttendanceModal({
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
         <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Bulk Update</p>
-            <h3 className="text-lg font-semibold text-gray-900">Update Selected Attendance</h3>
-            <p className="mt-1 text-sm text-gray-500">Apply the same check-in and check-out values to {rows.length} selected row{rows.length === 1 ? "" : "s"}. If check-in is empty, the current date and time will be used.</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+              Bulk Update
+            </p>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Update Selected Attendance
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Apply the same check-in and check-out values to {rows.length}{" "}
+              selected row{rows.length === 1 ? "" : "s"}. If check-in is empty,
+              the current date and time will be used.
+            </p>
           </div>
           <button
             type="button"
@@ -490,7 +502,25 @@ function BulkUpdateAttendanceModal({
           className="space-y-4 px-5 py-5"
         >
           <div>
-            <label className="block text-sm font-medium text-gray-700">Check In</label>
+            <label className="block text-sm font-medium">
+              Status <span className="text-red-500">*</span>
+            </label>
+
+            <select
+              value={checkIn ? "Present" : "Absent"}
+              onChange={(event) => setCheckIn(event.target.value)}
+              className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+            >
+              <option value="Present">Present</option>
+              <option value="Absent">Absent</option>
+              <option value="Leave">Leave</option>
+              <option value="Late">Late</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Check In
+            </label>
             <input
               type="datetime-local"
               value={checkIn}
@@ -500,7 +530,9 @@ function BulkUpdateAttendanceModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Check Out</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Check Out
+            </label>
             <input
               type="datetime-local"
               value={checkOut}
@@ -531,7 +563,10 @@ function BulkUpdateAttendanceModal({
   );
 }
 
-function buildAttendanceEmailKey(email?: string | null, userType?: string | null) {
+function buildAttendanceEmailKey(
+  email?: string | null,
+  userType?: string | null,
+) {
   const e = (email ?? "").toString().trim().toLowerCase();
   const u = (userType ?? "").toString().trim().toLowerCase();
 

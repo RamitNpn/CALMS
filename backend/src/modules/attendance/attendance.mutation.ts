@@ -17,6 +17,7 @@ export const createAttendance: AppRouteMutationImplementation<
       userType,
       checkIn,
       checkOut,
+      status,
     } = req.body;
 
     if (!clientEmail) {
@@ -51,6 +52,7 @@ export const createAttendance: AppRouteMutationImplementation<
       userType,
       checkIn,
       checkOut,
+      status,
     });
 
     const businessUser = await businessRepository.getByID(business_id);
@@ -99,7 +101,7 @@ export const updateAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.updateAttendance
 > = async ({ req }) => {
   try {
-    const { clientName, method, checkIn, checkOut } = req.body;
+    const { clientName, method, checkIn, checkOut, status } = req.body;
     const updated = await attendanceRepository.updateAttendance(
       req.params.attendanceID,
       {
@@ -107,9 +109,10 @@ export const updateAttendance: AppRouteMutationImplementation<
         method,
         checkIn,
         checkOut,
+        status,
       },
     );
-
+    
     return {
       status: 200,
       body: { success: true, data: updated },
