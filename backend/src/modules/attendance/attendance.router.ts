@@ -7,6 +7,7 @@ import { attendanceQueryHandler } from "./attendance.query";
 const s = initServer();
 
 export const attendanceRouter = s.router(attendanceContract, {
+  getTodayAttendance: attendanceQueryHandler.getTodayAttendance,
   getAllAttendance: attendanceQueryHandler.getAllAttendance,
   getAttendanceByID: attendanceQueryHandler.getAttendanceByID,
 

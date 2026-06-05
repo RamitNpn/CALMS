@@ -1,9 +1,15 @@
 import { apiClient } from "@/utils/api";
 import { TCreateAttendanceSchema, TDeleteAttendanceSchema, TGetAttendanceByIdSchema, TUpdateAttendanceSchema } from "../validation/attendance.validation";
 
-
 const createAttendance = async (data: TCreateAttendanceSchema) => {
   const response = await apiClient.post("/attendance", data);
+  return response.data;
+};
+
+const getTodayAttendanceApi = async ( page =1, limit = 10, business_id: string) => {
+  const response = await apiClient.get(`/today`, {
+    params: { page, limit, business_id }
+  });
   return response.data;
 };
 
@@ -37,6 +43,7 @@ const deleteAttendanceApi = async (attendanceId: TDeleteAttendanceSchema["_id"])
 
 export const attendanceApi = {
   createAttendance,
+  getTodayAttendanceApi,
   getAllAttendanceApi,
   getAttendanceByIdApi,
   updateAttendanceApi,

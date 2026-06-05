@@ -47,10 +47,9 @@ export function EditAttendanceRecord({
 
     defaultValues: {
       _id: attendanceId,
-      clientName: "",
       checkIn: "",
       checkOut: "",
-      method: undefined,
+      status: undefined,
     },
   });
 
@@ -68,7 +67,7 @@ export function EditAttendanceRecord({
         ? new Date(attendance.checkOut).toISOString().slice(0, 16)
         : "",
 
-      method: attendance.method ?? "Manual",
+      status: attendance.status ?? "Present",
     });
   }, [attendanceId, attendance, reset]);
 
@@ -106,10 +105,9 @@ export function EditAttendanceRecord({
   const onSubmit = (values: TUpdateAttendanceSchema) => {
     const payload = {
       _id: attendanceId,
-      clientName: values.clientName,
       checkIn: values.checkIn,
       checkOut: values.checkOut,
-      method: values.method,
+      status: values.status,
     };
 
     mutate({
@@ -153,24 +151,6 @@ export function EditAttendanceRecord({
             <p className="text-xl font-semibold">Edit Attendance Record</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* CLIENT NAME */}
-              <div>
-                <label className="block text-sm font-medium">
-                  Client Name <span className="text-red-500">*</span>
-                </label>
-
-                <input
-                  {...register("clientName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-
-                {errors.clientName && (
-                  <p className="text-red-500 text-sm">
-                    {errors.clientName.message}
-                  </p>
-                )}
-              </div>
-
               {/* CHECK IN */}
               <div>
                 <label className="block text-sm font-medium">Check In</label>
@@ -205,16 +185,18 @@ export function EditAttendanceRecord({
                 )}
               </div>
 
-              {/* METHOD */}
+              {/* STATUS */}
               <div>
-                <label className="block text-sm font-medium">Method</label>
+                <label className="block text-sm font-medium">Status</label>
 
                 <select
-                  {...register("method")}
+                  {...register("status")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 >
-                  <option value="Manual">Manual</option>
-                  <option value="QR">QR</option>
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                  <option value="Leave">Leave</option>
+                  <option value="Late">Late</option>
                 </select>
               </div>
             </div>

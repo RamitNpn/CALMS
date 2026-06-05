@@ -1,6 +1,4 @@
-import AttendanceModel, {
-  IAttendance,
-} from "../models/attendance.model";
+import AttendanceModel, { IAttendance } from "../models/attendance.model";
 
 class AttendanceRepository {
   private model;
@@ -9,64 +7,51 @@ class AttendanceRepository {
     this.model = AttendanceModel;
   }
 
-  async createAttendance(
-    data: Partial<IAttendance>
-  ) {
+  async findOne(filter: Record<string, any>) {
+    return await this.model.findOne(filter);
+  }
+
+  async createAttendance(data: Partial<IAttendance>) {
     try {
       return await this.model.create(data);
     } catch (error) {
-      throw new Error(
-        `Error creating attendance: ${error}`
-      );
+      throw new Error(`Error creating attendance: ${error}`);
     }
   }
 
   async getAllAttendance(
     skip: number = 0,
-    limit: number = 10
+    limit: number = 10,
+    date: Date,
   ) {
     try {
       const data = await this.model
-        .find()
+        .find({ date })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
-      const total =
-        await this.model.countDocuments();
+      const total = await this.model.countDocuments({ date });
 
       return { data, total };
     } catch (error) {
-      throw new Error(
-        `Error fetching attendance: ${error}`
-      );
+      throw new Error(`Error fetching attendance: ${error}`);
     }
   }
 
-  async getAttendanceByID(id: string) {
+  async getAttendanceByID(id: string, date: Date) {
     try {
-      return await this.model.findById(id);
+      return await this.model.findOne({ _id: id, date });
     } catch (error) {
-      throw new Error(
-        `Error fetching attendance: ${error}`
-      );
+      throw new Error(`Error fetching attendance: ${error}`);
     }
   }
 
-  async updateAttendance(
-    id: string,
-    data: Partial<IAttendance>
-  ) {
+  async updateAttendance(id: string, data: Partial<IAttendance>) {
     try {
-      return await this.model.findByIdAndUpdate(
-        id,
-        data,
-        { new: true }
-      );
+      return await this.model.findByIdAndUpdate(id, data, { new: true });
     } catch (error) {
-      throw new Error(
-        `Error updating attendance: ${error}`
-      );
+      throw new Error(`Error updating attendance: ${error}`);
     }
   }
 
@@ -74,9 +59,7 @@ class AttendanceRepository {
     try {
       return await this.model.findByIdAndDelete(id);
     } catch (error) {
-      throw new Error(
-        `Error removing attendance: ${error}`
-      );
+      throw new Error(`Error removing attendance: ${error}`);
     }
   }
 
@@ -84,9 +67,7 @@ class AttendanceRepository {
     try {
       return await this.model.countDocuments(filter);
     } catch (error) {
-      throw new Error(
-        `Error counting attendance: ${error}`
-      );
+      throw new Error(`Error counting attendance: ${error}`);
     }
   }
 
@@ -94,10 +75,26 @@ class AttendanceRepository {
     try {
       return await this.model.aggregate(pipeline);
     } catch (error) {
-      throw new Error(
-        `Error aggregating attendance: ${error}`
-      );
+      throw new Error(`Error aggregating attendance: ${error}`);
     }
+  }
+
+  async getAttendanceByDate(business_id: string, date: Date) {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    return this.model
+      .find({
+        business_id,
+        checkIn: {
+          $gte: start,
+          $lte: end,
+        },
+      })
+      .lean();
   }
 }
 

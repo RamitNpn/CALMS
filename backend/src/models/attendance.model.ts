@@ -1,14 +1,12 @@
 import mongoose, { Document } from "mongoose";
 export interface IAttendance extends Document {
   business_id: mongoose.Types.ObjectId;
-  clientId: mongoose.Types.ObjectId;
-  clientName: string;
-  clientEmail: string;
-  userType: string; 
+  userId: mongoose.Types.ObjectId;
   checkIn?: Date;
   checkOut?: Date;
   method: "QR" | "Manual";
   status?: "Present" | "Absent" | "Leave" | "Late";
+  date: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,28 +19,10 @@ const AttendanceSchema = new mongoose.Schema(
       required: true,
     },
 
-    clientId: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-
-    clientName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    clientEmail: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    userType: {
-      type: String,
-      required: true,
-      trim: true,
     },
 
     checkIn: {
@@ -63,15 +43,21 @@ const AttendanceSchema = new mongoose.Schema(
       type: String,
       enum: ["Present", "Absent", "Leave", "Late"],
     },
+    date: {
+      type: Date,
+      required: true,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
+
+AttendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
 
 const AttendanceModel = mongoose.model<IAttendance>(
   "Attendance",
-  AttendanceSchema
+  AttendanceSchema,
 );
 
 export default AttendanceModel;

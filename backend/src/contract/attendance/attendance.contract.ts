@@ -4,18 +4,18 @@ import z from "zod";
 import { errorSchema, successSchema } from "../common.schema";
 
 import {
-  getAllAttendanceSchema,
-  getAttendanceByIDSchema,
   createAttendanceSchema,
   updateAttendanceSchema,
-  removeAttendanceSchema,
+  attendanceSchema,
+  getAllAttendanceSchema,
+  getAttendanceByIDSchema,
+  todayAttendanceViewSchema,
 } from "./attendance.schema";
 
 const c = initContract();
 
 export const attendanceContract = c.router({
-
-    createAttendance: {
+  createAttendance: {
     method: "POST",
     path: "/attendance",
     body: createAttendanceSchema,
@@ -25,7 +25,31 @@ export const attendanceContract = c.router({
       500: errorSchema,
     },
   },
-  
+
+  getTodayAttendance: {
+    method: "GET",
+    path: "/today",
+    query: z.object({
+      business_id: z.string().min(1, "Business ID is required"),
+      page: z.string().optional(),
+      limit: z.string().optional(),
+    }),
+    summary: "Get all  current day attendance records with pagination",
+    responses: {
+      200: z.object({
+        success: z.boolean(),
+        data: z.array(todayAttendanceViewSchema),
+
+        pagination: z.object({
+          page: z.number(),
+          limit: z.number(),
+          total: z.number(),
+          totalPages: z.number(),
+        }),
+      }),
+    },
+  },
+
   getAllAttendance: {
     method: "GET",
     path: "/attendance",
