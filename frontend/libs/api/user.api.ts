@@ -1,8 +1,9 @@
 import { apiClient } from "@/utils/api";
+import { UsePaginationParams } from "../types/shared.types";
 
-const getAllUserApi = async (page = 1, limit = 10) => {
+const getAllUserApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/user", {
-    params: { page, limit },
+    params,
   });
   return response.data;
 };

@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/toast";
 import { EditAssetRecord } from "./EditAssetRecord";
 import Button from "@/components/ui/button";
 import { AssetForm } from "./AssetForm";
+import Select from "@/components/ui/select";
 
 interface AssetTableProps {
   assets: TAsset[];
@@ -20,6 +21,11 @@ interface AssetTableProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  search: string;
+  setSearch: (value: string) => void;
+
+  dateFilter: string;
+  setInquiryType: (value: string) => void;
 }
 
 export default function AssetRecord({
@@ -29,6 +35,11 @@ export default function AssetRecord({
   page,
   totalPages,
   onPageChange,
+  search,
+  setSearch,
+
+  dateFilter,
+  setInquiryType,
 }: AssetTableProps) {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -112,28 +123,74 @@ export default function AssetRecord({
 
   return (
     <div className="w-full h-[76vh] overflow-y-scroll ">
-      <div className="flex justify-end mb-2 gap-4">
-        <Button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
-        >
-          <Plus size={18} />
-          Create Business Assets
-        </Button>
-        <Button
-          onClick={downloadRecords}
-          className="flex items-center gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
-        >
-          <Printer size={18} />
-          Export
-        </Button>
+      <div className="flex items-center justify-between mr-2">
+        <div className="mb-4 flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onPageChange(1);
+            }}
+            className="border border-gray-300 rounded px-3 py-2 w-full md:w-80 outline-none text-[13px] focus:border-blue-600 bg-white shadow"
+          />
+
+          <Select
+            value={dateFilter}
+            onChange={(e) => {
+              setInquiryType(e.target.value);
+              onPageChange(1);
+            }}
+            options={[
+              {
+                label: "All Records",
+                value: "all",
+              },
+              {
+                label: "Today",
+                value: "current_day",
+              },
+              {
+                label: "This Week",
+                value: "current_week",
+              },
+              {
+                label: "This Month",
+                value: "current_month",
+              },
+              {
+                label: "This Year",
+                value: "current_year",
+              },
+            ]}
+          />
+        </div>
+        <div className="flex justify-end mb-2 gap-4">
+          <Button
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+          >
+            <Plus size={18} />
+            Create Business Assets
+          </Button>
+          <Button
+            onClick={downloadRecords}
+            className="flex items-center gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
+          >
+            <Printer size={18} />
+            Export
+          </Button>
+        </div>
       </div>
+
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">
             <th className="py-3 px-2 text-left">SN</th>
             <th className="py-3 px-2 text-left">Asset Name</th>
             <th className="py-3 px-2 text-left">Asset Type</th>
+            <th className="py-3 px-2 text-left">Price (Rs)</th>
             <th className="py-3 px-2 text-left">Status</th>
             <th className="py-3 px-2 text-left">Created At</th>
             <th className="py-3 px-2 text-left">Action</th>
@@ -162,6 +219,8 @@ export default function AssetRecord({
                 </td>
 
                 <td className="py-3 px-2 text-left">{asset.type}</td>
+
+                <td className="py-3 px-2 text-left">{asset.price || "-"}</td>
 
                 <td className="py-3 px-2 text-left">{asset.status}</td>
 

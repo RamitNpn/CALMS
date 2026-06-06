@@ -62,6 +62,7 @@ export function EditAssetRecord({
       _id: assetId,
       name: "",
       type: "",
+      price: 0,
       status: "active",
       customFieldsArray: [{ key: "", value: "" }],
     },
@@ -93,6 +94,7 @@ export function EditAssetRecord({
       _id: assetId,
       name: asset.name ?? "",
       type: asset.type ?? "",
+      price: asset.price ?? 0,
       status: asset.status ?? "active",
       customFieldsArray,
     });
@@ -108,7 +110,6 @@ export function EditAssetRecord({
       assetId: string;
       data: Omit<TUpdateAssetSchema, "_id">;
     }) => {
-      console.log("MUTATION FN - SENDING DATA:", JSON.stringify(data, null, 2));
       return assetApi.updateAssetApi(assetId, data);
     },
     onSuccess: () => {
@@ -129,41 +130,26 @@ export function EditAssetRecord({
   });
 
   const onSubmit = (values: AssetFormData) => {
-    console.log("FORM VALUES:", JSON.stringify(values, null, 2));
 
     const customFieldsArray = values.customFieldsArray || [];
-    console.log(
-      "CUSTOM FIELDS ARRAY:",
-      JSON.stringify(customFieldsArray, null, 2),
-    );
 
-    // Filter out empty fields
     const filteredFields = customFieldsArray.filter((f) => {
       const hasKey = f.key?.trim();
       const hasValue = f.value?.trim();
       return hasKey && hasValue;
     });
 
-    console.log("FILTERED FIELDS:", JSON.stringify(filteredFields, null, 2));
-
-    // Convert array to object for API
     const customFieldsObject = Object.fromEntries(
       filteredFields.map((f) => [f.key.trim(), f.value.trim()]),
-    );
-
-    console.log(
-      "CUSTOM FIELDS OBJECT:",
-      JSON.stringify(customFieldsObject, null, 2),
     );
 
     const payload: Omit<TUpdateAssetSchema, "_id"> = {
       name: values.name?.trim(),
       type: values.type?.trim(),
+      price: Number(values.price),
       status: values.status,
       customFields: customFieldsObject,
     };
-
-    console.log("FINAL PAYLOAD:", JSON.stringify(payload, null, 2));
 
     mutate({ assetId, data: payload });
   };
@@ -191,7 +177,10 @@ export function EditAssetRecord({
             Flowdesk - Edit Asset Details
           </h2>
 
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+          <button
+            onClick={onClose}
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
+          >
             <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
@@ -243,6 +232,20 @@ export function EditAssetRecord({
 
                 {errors.type && (
                   <p className="text-red-500 text-sm">{errors.type.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">
+                  Asset Price <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  {...register("price")}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                />
+                {errors.price && (
+                  <p className="text-red-500 text-sm">{errors.price.message}</p>
                 )}
               </div>
 

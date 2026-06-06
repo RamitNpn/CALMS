@@ -29,8 +29,11 @@ export const userContract = c.router({
     path: "/user",
     summary: "Get all users with pagination",
     query: z.object({
+      business_id: z.string().optional(),
       page: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
+      search: z.string().optional(),
+      dateFilter: z.string().optional(),
       role: z.enum(["admin", "business", "staff", "client"]).optional(),
     }),
     responses: {

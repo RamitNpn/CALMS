@@ -50,6 +50,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       business_id: businessId,
       name: "",
       type: "",
+      price: 0,
       status: "active",
       customFieldsArray: [{ key: "", value: "" }],
     },
@@ -62,7 +63,10 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: assetApi.createAsset,
-    onSuccess: (data: { response?: { data?: { error?: string } }; message?: string }) => {
+    onSuccess: (data: {
+      response?: { data?: { error?: string } };
+      message?: string;
+    }) => {
       toast.show({
         message: data?.message || "Asset created successfully",
         type: "success",
@@ -71,7 +75,10 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       reset();
       onClose?.();
     },
-    onError: (err: { response?: { data?: { error?: string } }; message?: string }) => {
+    onError: (err: {
+      response?: { data?: { error?: string } };
+      message?: string;
+    }) => {
       const errorMessage =
         err?.response?.data?.error || err?.message || "Failed to create asset";
       toast.show({
@@ -99,6 +106,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       business_id: data.business_id,
       name: data.name.trim(),
       type: data.type.trim(),
+      price: Number(data.price),
       status: data.status,
       customFields:
         Object.keys(customFieldsObject).length > 0
@@ -127,7 +135,10 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-100 sticky top-0">
           <h2 className="text-xl font-semibold">Create Asset</h2>
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+          <button
+            onClick={onClose}
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
+          >
             <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
@@ -178,9 +189,18 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
                     </option>
                   ))}
                 </select>
-
-                {errors.type && (
-                  <p className="text-red-500 text-sm">{errors.type.message}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Asset Price <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  {...register("price")}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                />
+                {errors.price && (
+                  <p className="text-red-500 text-sm">{errors.price.message}</p>
                 )}
               </div>
 

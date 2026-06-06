@@ -6,7 +6,6 @@ import { errorSchema, successSchema } from "../common.schema";
 import {
   createAttendanceSchema,
   updateAttendanceSchema,
-  attendanceSchema,
   getAllAttendanceSchema,
   getAttendanceByIDSchema,
   todayAttendanceViewSchema,
@@ -33,6 +32,8 @@ export const attendanceContract = c.router({
       business_id: z.string().min(1, "Business ID is required"),
       page: z.string().optional(),
       limit: z.string().optional(),
+      search: z.string().optional(),
+      role: z.string().optional(),
     }),
     summary: "Get all  current day attendance records with pagination",
     responses: {
@@ -54,6 +55,11 @@ export const attendanceContract = c.router({
     method: "GET",
     path: "/attendance",
     query: z.object({
+      business_id: z.string().optional(),
+      page: z.coerce.number().optional(),
+      limit: z.coerce.number().optional(),
+      search: z.string().optional(),
+      dateFilter: z.string().optional(),
     }),
     summary: "Get all attendance records with pagination",
     responses: {

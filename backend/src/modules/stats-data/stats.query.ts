@@ -31,7 +31,7 @@ const getBusinessDashboardStats: AppRouteQueryImplementation<
     ] = await Promise.all([
       userRepository.count({ role: "staff" }),
       userRepository.count({ role: "client" }),
-      assetRepository.getAll(),
+      assetRepository.getAll({ }),
       attendanceRepository.getAllAttendance(),
 
       userRepository.count({

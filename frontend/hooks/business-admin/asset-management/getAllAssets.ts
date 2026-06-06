@@ -1,12 +1,29 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { UsePaginationParams } from "@/libs/types/shared.types";
-import { assetApi } from "@/libs/api/asset.api";
+import { assetApi, UsePaginationParams } from "@/libs";
 
-export function useAllAssets({ page = 1, limit = 10 }: UsePaginationParams) {
+export const useAllAssets = ({
+  page,
+  limit,
+  search,
+  dateFilter,
+}: UsePaginationParams) => {
   return useQuery({
-    queryKey: ["assets", page, limit],
-    queryFn: () => assetApi.getAllAssetApi(page, limit),
+    queryKey: [
+      "assets",
+      page,
+      limit,
+      search,
+      dateFilter,
+    ],
+
+    queryFn: () =>
+      assetApi.getAllAssetApi({
+        page,
+        limit,
+        search,
+        dateFilter,
+      }),
   });
-}
+};

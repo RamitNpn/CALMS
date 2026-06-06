@@ -64,7 +64,6 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
 
   const watchedItems = watch("items");
 
-  // Auto calculate total amount
   const grandTotal =
     watchedItems?.reduce((acc, item) => {
       return acc + Number(item.price || 0) * Number(item.qty || 0);
@@ -174,7 +173,10 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
             </p>
           </div>
 
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+          <button
+            onClick={onClose}
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
+          >
             <X className="w-4 h-4 text-red-500" />
           </button>
         </div>

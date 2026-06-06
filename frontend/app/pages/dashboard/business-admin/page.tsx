@@ -222,7 +222,7 @@ export default function DashboardPage() {
           {recentLogs.length === 0 ? (
             <p className="text-sm text-muted-foreground">No recent activity yet.</p>
           ) : (
-            recentLogs.map((log) => (
+            recentLogs.map((log: any) => (
               <div
                 key={log._id}
                 className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0 hover:bg-muted/50 rounded-lg transition-colors"

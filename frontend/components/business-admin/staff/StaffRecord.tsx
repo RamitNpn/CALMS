@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil, Plus } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus, Printer } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,8 @@ import { useDeleteStaff } from "@/hooks/business-admin/staff-management/removeSt
 import { EditstaffForm } from "./EditStaffRecord.";
 import Button from "@/components/ui/button";
 import { StaffForm } from "./StaffForm";
+import Select from "@/components/ui/select";
+import { useDebounce } from "use-debounce";
 
 interface StaffTableProps {
   staffs: TStaff[];
@@ -20,8 +22,12 @@ interface StaffTableProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-}
+  search: string;
+  setSearch: (value: string) => void;
 
+  dateFilter: string;
+  setDateFilter: (value: string) => void;
+}
 export default function StaffRecord({
   staffs,
   isLoading,
@@ -29,7 +35,13 @@ export default function StaffRecord({
   page,
   totalPages,
   onPageChange,
+  search,
+  setSearch,
+
+  dateFilter,
+  setDateFilter,
 }: StaffTableProps) {
+  const [debouncedSearch] = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const router = useRouter();
@@ -55,6 +67,49 @@ export default function StaffRecord({
     });
   };
 
+  const downloadRecords = () => {
+    if (!staffs?.length) return;
+
+    const headers = [
+      "SN",
+      "Staff ID",
+      "Staff Name",
+      "Email",
+      "Phone",
+      "Gender",
+      "Role",
+      "Created At",
+    ];
+
+    const rows = staffs.map((s, i) => [
+      i + 1,
+      s._id,
+      s.userName,
+      s.userEmail || "",
+      s.userPhone || "",
+      s.gender || "",
+      s.role || "",
+      moment(s.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `staff-records-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   if (isLoading) {
     return <p className="p-4">Loading...</p>;
   }
@@ -65,14 +120,52 @@ export default function StaffRecord({
 
   return (
     <div className="w-full">
-      <div className="flex justify-end mb-2">
-        <Button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
-        >
-          <Plus size={18} />
-          Add Business Staff
-        </Button>
+      <div className="flex items-center justify-between mr-2">
+        <div className="mb-4 flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onPageChange(1);
+            }}
+            className="border border-gray-300 rounded px-3 py-2 w-full md:w-80 outline-none text-[13px] focus:border-blue-600 bg-white shadow"
+          />
+
+          <Select
+            value={dateFilter}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              onPageChange(1);
+            }}
+            options={[
+              { label: "All Records", value: "all" },
+              { label: "Today", value: "current_day" },
+              { label: "This Week", value: "current_week" },
+              { label: "This Month", value: "current_month" },
+              { label: "This Year", value: "current_year" },
+            ]}
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+          >
+            <Plus size={18} />
+            Add Business Staff
+          </Button>
+
+          <Button
+            onClick={downloadRecords}
+            className="flex items-center justify-end gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
+          >
+            <Printer size={18} />
+            Export
+          </Button>
+        </div>
       </div>
       <table className="w-full table-auto">
         <thead>

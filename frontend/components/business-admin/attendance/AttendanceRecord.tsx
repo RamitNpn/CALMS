@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, Printer } from "lucide-react";
 import moment from "moment";
 
 import TablePagination from "@/components/shared/Pagination";
@@ -12,6 +12,8 @@ import { EditAttendanceRecord } from "./EditAttendanceRecord";
 import { attendanceApi } from "@/libs";
 import { TUser } from "@/libs/types/user.types";
 import { useRouter } from "next/navigation";
+import Select from "@/components/ui/select";
+import Button from "@/components/ui/button";
 
 interface AttendanceTableProps {
   users: TUser[];
@@ -20,6 +22,11 @@ interface AttendanceTableProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  search: string;
+  setSearch: (value: string) => void;
+
+  role: string;
+  setRole: (value: string) => void;
 }
 
 export default function AttendanceRecord({
@@ -29,11 +36,14 @@ export default function AttendanceRecord({
   page,
   totalPages,
   onPageChange,
+  search,
+  setSearch,
+
+  role,
+  setRole,
 }: AttendanceTableProps) {
   const [viewId, setViewId] = useState<string | null>(null);
   const [editRecordId, setEditRecordId] = useState<string | null>(null);
-
-  console.log("Is attendance Id set in state?:", editRecordId);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -79,29 +89,118 @@ export default function AttendanceRecord({
 
   const hasAnyAttendance = users?.some((u: any) => u.status || u.checkIn);
 
+  const downloadRecords = () => {
+    if (!users?.length) return;
+
+    const headers = [
+      "SN",
+      "User ID",
+      "User Name",
+      "Email",
+      "Phone",
+      "Role",
+      "Status",
+      "Check In",
+      "Check Out",
+      "Created At",
+    ];
+
+    const rows = users.map((u: any, index: number) => [
+      index + 1,
+      u._id,
+      u.userName,
+      u.userEmail || "",
+      u.userPhone || "",
+      u.role || "",
+      u.status || "",
+      u.checkIn ? moment(u.checkIn).format("YYYY-MM-DD HH:mm:ss") : "",
+      u.checkOut ? moment(u.checkOut).format("YYYY-MM-DD HH:mm:ss") : "",
+      moment(u.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `attendance-records-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   if (isLoading) return <p className="p-4">Loading...</p>;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
     <div className="w-full h-[75vh] overflow-y-scroll">
-      <div className="flex justify-end mb-2">
-        {selectedIds.length > 0 && (
-          <div className="flex items-center gap-2">
-            {selectedIds.length > 0 && (
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                {selectedIds.length} selected
-              </span>
-            )}
-            <button
-              type="button"
-              disabled={selectedIds.length === 0}
-              className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer rounded"
-              onClick={handleBulkCreateAttendance}
-            >
-              Create Attendance
-            </button>
-          </div>
-        )}
+      <div className="flex items-center justify-between">
+        <div className="mb-4 flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onPageChange(1);
+            }}
+            className="border border-gray-300 rounded px-3 py-2 w-full md:w-80 outline-none text-[13px] focus:border-blue-600 bg-white shadow"
+          />
+
+          <Select
+            value={role}
+            onChange={(e) => {
+              setRole(e.target.value);
+              onPageChange(1);
+            }}
+            options={[
+              { label: "All Record", value: "all" },
+              { label: "Staff Record", value: "staff" },
+              { label: "Client Record", value: "client" }
+            ]}
+          />
+        </div>
+        <div className="flex justify-end mb-2 gap-2">
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-2">
+              {selectedIds.length > 0 && (
+                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                  {selectedIds.length} selected
+                </span>
+              )}
+              <button
+                type="button"
+                disabled={selectedIds.length === 0}
+                className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer rounded"
+                onClick={handleBulkCreateAttendance}
+              >
+                Create Attendance
+              </button>
+            </div>
+          )}
+          <Button
+            onClick={downloadRecords}
+            className="flex items-center justify-end gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
+          >
+            <Printer size={18} />
+            Export
+          </Button>
+        </div>
       </div>
       <table className="w-full table-auto">
         <thead>

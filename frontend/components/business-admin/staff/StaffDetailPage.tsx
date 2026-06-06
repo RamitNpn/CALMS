@@ -67,7 +67,9 @@ export default function StaffDetailPage({ staffId }: Props) {
     useAllAttendances({ page: 1, limit: 1000 });
 
   const attendanceRecords = useMemo(() => {
-    const records = (attendanceData?.data ?? attendanceData ?? []) as TAttendance[];
+    const records = (attendanceData?.data ??
+      attendanceData ??
+      []) as TAttendance[];
 
     if (!staff) return records;
 
@@ -78,7 +80,8 @@ export default function StaffDetailPage({ staffId }: Props) {
     const staffRole = normalize(staff.role);
 
     return records.filter((attendance) => {
-      const attendanceClientId = attendance.userId?.toString?.() ?? attendance.userId;
+      const attendanceClientId =
+        attendance.userId?.toString?.() ?? attendance.userId;
       const attendanceName = normalize(attendance.userName);
       const attendanceEmail = normalize(attendance.userEmail);
       const attendanceUserType = normalize(attendance.userType);
@@ -126,7 +129,8 @@ export default function StaffDetailPage({ staffId }: Props) {
 
     const latestAttendance = [...attendanceRecords].sort(
       (left, right) =>
-        new Date(getAttendanceDate(right)).getTime() - new Date(getAttendanceDate(left)).getTime(),
+        new Date(getAttendanceDate(right)).getTime() -
+        new Date(getAttendanceDate(left)).getTime(),
     )[0];
 
     return new Date(getAttendanceDate(latestAttendance));
@@ -205,19 +209,49 @@ export default function StaffDetailPage({ staffId }: Props) {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[520px]">
                 <MetricCard label="Role" value={staff.role || "staff"} />
                 <MetricCard label="Gender" value={staff.gender || "N/A"} />
-                <MetricCard label="Created" value={formatDate(staff.createdAt)} />
-                <MetricCard label="Updated" value={formatDate(staff.updatedAt)} />
+                <MetricCard
+                  label="Created"
+                  value={formatDate(staff.createdAt)}
+                />
+                <MetricCard
+                  label="Updated"
+                  value={formatDate(staff.updatedAt)}
+                />
               </div>
             </div>
           </div>
 
           <div className="grid gap-4 px-6 py-6 md:grid-cols-2 xl:grid-cols-3">
-            <InfoCard icon={<User size={16} />} label="Full Name" value={staff.userName} />
-            <InfoCard icon={<Mail size={16} />} label="Email Address" value={staff.userEmail} />
-            <InfoCard icon={<Phone size={16} />} label="Phone Number" value={staff.userPhone} />
-            <InfoCard icon={<Users2 size={16} />} label="Business ID" value={staff.business_id || "N/A"} />
-            <InfoCard icon={<ShieldCheck size={16} />} label="Role" value={staff.role || "staff"} />
-            <InfoCard icon={<CalendarDays size={16} />} label="Joined On" value={formatDate(staff.createdAt)} />
+            <InfoCard
+              icon={<User size={16} />}
+              label="Full Name"
+              value={staff.userName}
+            />
+            <InfoCard
+              icon={<Mail size={16} />}
+              label="Email Address"
+              value={staff.userEmail}
+            />
+            <InfoCard
+              icon={<Phone size={16} />}
+              label="Phone Number"
+              value={staff.userPhone}
+            />
+            <InfoCard
+              icon={<Users2 size={16} />}
+              label="Business ID"
+              value={staff.business_id || "N/A"}
+            />
+            <InfoCard
+              icon={<ShieldCheck size={16} />}
+              label="Role"
+              value={staff.role || "staff"}
+            />
+            <InfoCard
+              icon={<CalendarDays size={16} />}
+              label="Joined On"
+              value={formatDate(staff.createdAt)}
+            />
           </div>
         </section>
       )}
@@ -230,13 +264,17 @@ export default function StaffDetailPage({ staffId }: Props) {
                 Attendance Records
               </h2>
               <p className="text-sm text-gray-500">
-                Attendance activity linked to {staff.userName || "this staff member"}
+                Attendance activity linked to{" "}
+                {staff.userName || "this staff member"}
               </p>
             </div>
 
             <div className="grid grid-cols-3 gap-3 text-sm">
               <SummaryTile label="Total" value={`${attendanceSummary.total}`} />
-              <SummaryTile label="Completed" value={`${attendanceSummary.completed}`} />
+              <SummaryTile
+                label="Completed"
+                value={`${attendanceSummary.completed}`}
+              />
               <SummaryTile label="Open" value={`${attendanceSummary.active}`} />
             </div>
           </div>
@@ -247,9 +285,17 @@ export default function StaffDetailPage({ staffId }: Props) {
           />
 
           {isAttendanceLoading ? (
-            <EmptyState icon={<CalendarDays size={22} />} title="Loading attendance..." description="Fetching attendance records for this staff member" />
+            <EmptyState
+              icon={<CalendarDays size={22} />}
+              title="Loading attendance..."
+              description="Fetching attendance records for this staff member"
+            />
           ) : attendanceRecords.length === 0 ? (
-            <EmptyState icon={<CalendarDays size={22} />} title="No attendance found" description="No attendance records match this staff member yet" />
+            <EmptyState
+              icon={<CalendarDays size={22} />}
+              title="No attendance found"
+              description="No attendance records match this staff member yet"
+            />
           ) : (
             <div className="overflow-hidden rounded-2xl border border-gray-200">
               <div className="overflow-x-auto">
@@ -257,26 +303,27 @@ export default function StaffDetailPage({ staffId }: Props) {
                   <thead className="bg-gray-50 text-left text-gray-600">
                     <tr>
                       <th className="px-4 py-3 font-semibold">SN</th>
-                      <th className="px-4 py-3 font-semibold">Client Name</th>
-                      <th className="px-4 py-3 font-semibold">Client Email</th>
-                      <th className="px-4 py-3 font-semibold">User Type</th>
-                      <th className="px-4 py-3 font-semibold">Method</th>
+
                       <th className="px-4 py-3 font-semibold">Check In</th>
                       <th className="px-4 py-3 font-semibold">Check Out</th>
+                      <th className="px-4 py-3 font-semibold">Method</th>
+                      <th className="px-4 py-3 font-semibold">CreatedAt</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 bg-white">
                     {attendanceRecords.map((record, index) => (
                       <tr key={record._id} className="hover:bg-gray-50">
                         <td className="px-4 py-4 text-gray-700">{index + 1}</td>
-                        <td className="px-4 py-4 font-medium text-gray-900">
-                          {record.userName}
+
+                                                <td className="px-4 py-4 text-gray-700">
+                          {record.checkIn
+                            ? moment(record.checkIn).format("lll")
+                            : "-"}
                         </td>
                         <td className="px-4 py-4 text-gray-700">
-                          {record.userEmail}
-                        </td>
-                        <td className="px-4 py-4 text-gray-700">
-                          {record.userType}
+                          {record.checkOut
+                            ? moment(record.checkOut).format("lll")
+                            : "-"}
                         </td>
                         <td className="px-4 py-4 text-gray-700">
                           <span className={methodClass(record.method)}>
@@ -284,10 +331,9 @@ export default function StaffDetailPage({ staffId }: Props) {
                           </span>
                         </td>
                         <td className="px-4 py-4 text-gray-700">
-                          {record.checkIn ? moment(record.checkIn).format("lll") : "-"}
-                        </td>
-                        <td className="px-4 py-4 text-gray-700">
-                          {record.checkOut ? moment(record.checkOut).format("lll") : "-"}
+                          {record.createdAt
+                            ? moment(record.createdAt).format("lll")
+                            : "-"}
                         </td>
                       </tr>
                     ))}
@@ -302,7 +348,7 @@ export default function StaffDetailPage({ staffId }: Props) {
       {activeTab === "logs" && (
         <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
           <LogDetails
-          userId={staff._id}
+            userId={staff._id}
             module="Staff"
             recordId={staff._id}
             recordName={staff.userName}
@@ -341,7 +387,9 @@ function InfoCard({
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm">
-      <p className="text-xs uppercase tracking-[0.2em] text-white/60">{label}</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+        {label}
+      </p>
       <p className="mt-2 text-sm font-semibold text-white">{value}</p>
     </div>
   );
@@ -350,7 +398,9 @@ function MetricCard({ label, value }: { label: string; value: string }) {
 function SummaryTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-right shadow-sm">
-      <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{label}</p>
+      <p className="text-xs uppercase tracking-[0.18em] text-gray-400">
+        {label}
+      </p>
       <p className="mt-1 text-sm font-semibold text-gray-900">{value}</p>
     </div>
   );
@@ -367,7 +417,9 @@ function EmptyState({
 }) {
   return (
     <div className="flex min-h-[280px] flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-6 text-center">
-      <div className="rounded-2xl bg-white p-4 text-gray-400 shadow-sm">{icon}</div>
+      <div className="rounded-2xl bg-white p-4 text-gray-400 shadow-sm">
+        {icon}
+      </div>
       <h3 className="mt-4 text-lg font-semibold text-gray-900">{title}</h3>
       <p className="mt-1 max-w-md text-sm text-gray-500">{description}</p>
     </div>

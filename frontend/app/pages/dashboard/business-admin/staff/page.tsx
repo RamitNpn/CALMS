@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import { useAllStaff } from "@/hooks/business-admin/staff-management/getAllStaffDatas";
 import StaffRecord from "@/components/business-admin/staff/StaffRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
@@ -32,12 +33,16 @@ import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusines
 export default function StaffPage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
 
   const {
     data: staffData,
     isLoading,
     isError,
-  } = useAllStaff({ page, limit: 10 });
+  } = useAllStaff({ page, limit: 10, search: debouncedSearch, dateFilter });
 
   const { summary } = useBusinessAnalytics();
 
@@ -134,6 +139,10 @@ export default function StaffPage() {
           page={page}
           totalPages={pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
         />
       )}
 

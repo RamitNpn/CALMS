@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import {
   BarChart,
   Bar,
@@ -35,6 +36,10 @@ const formatMonthKey = (date: Date) =>
 export default function AttendancePage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [role, setRole] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
   const { summary } = useBusinessAnalytics();
 
   const [businessId] = useState<string>(() => {
@@ -42,18 +47,20 @@ export default function AttendancePage() {
     return storedData?.business_id;
   });
 
-  const { data: attendanceData } = useAllAttendances({ page, limit: 10 });
+  const { data: attendanceData } = useAllAttendances({ page, limit: 10, business_id:businessId });
 
   const {
     data: users,
     isLoading,
     isError,
-  } = useTodayAttendance({ page: 1, limit: 1000, business_id: businessId });
+  } = useTodayAttendance({ page: 1, limit: 1000, business_id: businessId, search: debouncedSearch, role });
 
   const { data: attendanceStats } = useAttendanceStats();
 
-  const attendances: TAttendance[] =
-    attendanceData?.data ?? attendanceData ?? [];
+  const attendances = useMemo<TAttendance[]>(
+    () => attendanceData?.data ?? attendanceData ?? [],
+    [attendanceData],
+  );
 
   const pagination = attendanceData?.pagination;
 
@@ -137,8 +144,12 @@ export default function AttendancePage() {
           isLoading={isLoading}
           error={isError ? "Failed to load attendance records" : null}
           page={page}
-          totalPages={pagination?.totalPages || 1}
+          totalPages={users?.pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          role={role}
+          setRole={setRole}
         />
       )}
 

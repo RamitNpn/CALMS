@@ -2,18 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { financeApi } from "@/libs/api/finance.api";
+import { UsePaginationParams } from "@/libs";
 
 export const useAllFinance = ({
   page,
   limit,
   search,
   dateFilter,
-}: {
-  page: number;
-  limit: number;
-  search?: string;
-  dateFilter?: string;
-}) => {
+}: UsePaginationParams) => {
   return useQuery({
     queryKey: [
       "finance",

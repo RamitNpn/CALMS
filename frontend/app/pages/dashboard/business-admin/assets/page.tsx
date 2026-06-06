@@ -30,15 +30,18 @@ import {
   YAxis,
 } from "recharts";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
+import { useDebounce } from "use-debounce";
 
 export default function BusinessesPage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
 
-   const [businessId] = useState<string>(() => {
-    const storedData = JSON.parse(
-      localStorage.getItem("auth-data") || "{}"
-    );
+  const [debouncedSearch] = useDebounce(search, 500);
+
+  const [businessId] = useState<string>(() => {
+    const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
     return storedData?.business_id;
   });
 
@@ -46,7 +49,7 @@ export default function BusinessesPage() {
     data: assetData,
     isLoading,
     isError,
-  } = useAllAssets({ page, limit: 10 });
+  } = useAllAssets({ page, limit: 10, search: debouncedSearch, dateFilter });
 
   const assets = useMemo(() => {
     if (!assetData) return [];
@@ -68,9 +71,9 @@ export default function BusinessesPage() {
   const assetTypeBreakdown = useMemo(() => {
     const counts: Record<string, number> = assets.reduce(
       (acc: Record<string, number>, asset: TAsset) => {
-      const key = asset.type || "Uncategorized";
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = asset.type || "Uncategorized";
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -85,9 +88,9 @@ export default function BusinessesPage() {
 
     const counts: Record<string, number> = assets.reduce(
       (acc: Record<string, number>, asset: TAsset) => {
-      const key = (asset.status || "unknown").toLowerCase();
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = (asset.status || "unknown").toLowerCase();
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -107,12 +110,12 @@ export default function BusinessesPage() {
   const assetGrowth = useMemo(() => {
     const monthly: Record<string, number> = assets.reduce(
       (acc: Record<string, number>, asset: TAsset) => {
-      const createdAt = new Date(asset.createdAt);
-      if (Number.isNaN(createdAt.getTime())) return acc;
+        const createdAt = new Date(asset.createdAt);
+        if (Number.isNaN(createdAt.getTime())) return acc;
 
-      const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -192,7 +195,9 @@ export default function BusinessesPage() {
               {activeAssets.toLocaleString()}
             </p>
             <p className="text-xs text-green-600 mt-2">
-              {totalAssets > 0 ? `${((activeAssets / totalAssets) * 100).toFixed(1)}% utilization` : "No assets yet"}
+              {totalAssets > 0
+                ? `${((activeAssets / totalAssets) * 100).toFixed(1)}% utilization`
+                : "No assets yet"}
             </p>
           </Card>
           <Card>
@@ -223,6 +228,10 @@ export default function BusinessesPage() {
           page={page}
           totalPages={assetPagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setInquiryType={setDateFilter}
         />
       )}
 
@@ -286,7 +295,12 @@ export default function BusinessesPage() {
                 <XAxis dataKey="label" stroke="var(--muted-foreground)" />
                 <YAxis stroke="var(--muted-foreground)" />
                 <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--primary)"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </Card>

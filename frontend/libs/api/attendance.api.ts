@@ -5,26 +5,24 @@ import {
   TGetAttendanceByIdSchema,
   TUpdateAttendanceSchema,
 } from "../validation/attendance.validation";
+import { UsePaginationParams } from "../types/shared.types";
 
 const createAttendance = async (data: TCreateAttendanceSchema) => {
   const response = await apiClient.post("/attendance", data);
   return response.data;
 };
 
-const getTodayAttendanceApi = async (
-  page = 1,
-  limit = 10,
-  business_id: string,
-) => {
+const getTodayAttendanceApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get(`/today`, {
-    params: { page, limit, business_id },
+    params,
   });
+  console.log(params);
   return response.data;
 };
 
-const getAllAttendanceApi = async (page = 1, limit = 10) => {
+const getAllAttendanceApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/attendance", {
-    params: { page, limit },
+    params,
   });
   return response.data;
 };

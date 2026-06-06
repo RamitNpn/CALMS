@@ -5,18 +5,14 @@ import {
   TGetFinanceByIDSchema,
   TUpdateFinanceSchema,
 } from "../validation/finance.validation";
+import { UsePaginationParams } from "../types/shared.types";
 
 const createFinance = async (data: TCreateFinanceSchema) => {
   const response = await apiClient.post("/finance", data);
   return response.data;
 };
 
-const getAllFinancesApi = async (params: {
-  page?: number;
-  limit?: number;
-  search?: string;
-  dateFilter?: string;
-}) => {
+const getAllFinancesApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/finance", {
     params,
   });

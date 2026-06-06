@@ -386,7 +386,6 @@ export default function ClientDetailPage({ clientId }: Props) {
                   <thead className="bg-gray-50 text-left text-gray-600">
                     <tr>
                       <th className="px-4 py-3 font-semibold">SN</th>
-                      <th className="px-4 py-3 font-semibold">Client</th>
                       <th className="px-4 py-3 font-semibold">Check In</th>
                       <th className="px-4 py-3 font-semibold">Check Out</th>
                       <th className="px-4 py-3 font-semibold">Method</th>
@@ -397,12 +396,7 @@ export default function ClientDetailPage({ clientId }: Props) {
                     {attendances.map((att, index) => (
                       <tr key={att._id} className="hover:bg-gray-50">
                         <td className="px-4 py-4 text-gray-700">{index + 1}</td>
-                        <td className="px-4 py-4 font-medium text-gray-900">
-                          <div className="flex flex-col">
-                            <span>{att.userName}</span>
-                            <span className="text-xs text-gray-500">{att.userEmail}</span>
-                          </div>
-                        </td>
+  
                         <td className="px-4 py-4 text-gray-700">{att.checkIn ? moment(att.checkIn).format("lll") : "-"}</td>
                         <td className="px-4 py-4 text-gray-700">{att.checkOut ? moment(att.checkOut).format("lll") : "-"}</td>
                         <td className="px-4 py-4 text-gray-700">{att.method || "-"}</td>

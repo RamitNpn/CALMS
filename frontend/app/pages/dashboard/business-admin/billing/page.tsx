@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import BillingRecord from "@/components/business-admin/billing/BillingRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
@@ -38,13 +39,17 @@ const formatMonthKey = (date: Date) =>
 export default function BillingPage() {
   const [activeTab, setActiveTab] = useState("inventory");
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
   const { summary } = useBusinessAnalytics();
 
   const {
     data: billingData,
     isLoading,
     isError,
-  } = useAllBillings({ page, limit: 10 });
+  } = useAllBillings({ page, limit: 10, search: debouncedSearch, dateFilter });
 
   const billings: TBilling[] = billingData?.data ?? billingData ?? [];
   const pagination = billingData?.pagination;
@@ -154,6 +159,10 @@ export default function BillingPage() {
           page={page}
           totalPages={pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
         />
       )}
 
