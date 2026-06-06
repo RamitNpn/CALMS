@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { DistributionChart } from "@/components/ui/widgets";
 import Card from "@/components/ui/card";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 
 export default function DashboardPage() {
@@ -61,15 +62,19 @@ export default function DashboardPage() {
     : [];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome back! Here&apos;s your business overview.
-        </p>
-      </div>
+    <ProtectedRoute
+      allowedRoles={["business", "staff"]}
+      allowedPermissions={["business_management:view", "staff_management:view"]}
+    >
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Welcome back! Here&apos;s your business overview.
+          </p>
+        </div>
 
-      {isError && (
+        {isError && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           Analysis data could not be loaded right now.
         </div>
@@ -245,5 +250,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

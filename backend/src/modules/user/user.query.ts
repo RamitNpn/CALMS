@@ -36,6 +36,8 @@ export const getAllUsers: AppRouteQueryImplementation<
       license: u.license,
       certificate: u.certificate,
       role: u.role,
+      staffRoleId: u.staffRoleId?.toString(),
+      staffPermissions: u.staffPermissions ?? [],
       createdAt: u.createdAt,
       updatedAt: u.updatedAt,
     }));
@@ -111,6 +113,8 @@ export const getUserByID: AppRouteQueryImplementation<
         license: user.license,
         certificate: user.certificate,
         role: user.role,
+        staffRoleId: user.staffRoleId?.toString(),
+        staffPermissions: user.staffPermissions ?? [],
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

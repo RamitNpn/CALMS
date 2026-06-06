@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil, Plus, Printer } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus, ShieldCheck, Printer } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useRouter } from "next/navigation";
@@ -13,8 +13,6 @@ import { EditstaffForm } from "./EditStaffRecord.";
 import Button from "@/components/ui/button";
 import { StaffForm } from "./StaffForm";
 import Select from "@/components/ui/select";
-import { useDebounce } from "use-debounce";
-
 interface StaffTableProps {
   staffs: TStaff[];
   isLoading?: boolean;
@@ -24,7 +22,7 @@ interface StaffTableProps {
   onPageChange: (page: number) => void;
   search: string;
   setSearch: (value: string) => void;
-
+  onManagePermissions?: (staff: TStaff) => void;
   dateFilter: string;
   setDateFilter: (value: string) => void;
 }
@@ -40,8 +38,8 @@ export default function StaffRecord({
 
   dateFilter,
   setDateFilter,
+  onManagePermissions,
 }: StaffTableProps) {
-  const [debouncedSearch] = useDebounce(search, 500);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const router = useRouter();
@@ -231,6 +229,13 @@ export default function StaffRecord({
                     </button>
 
                     {/* EDIT */}
+                    <button
+                      onClick={() => onManagePermissions?.(staff)}
+                      className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
+                    >
+                      <ShieldCheck size={16} className="text-blue-600" />
+                    </button>
+
                     <button
                       onClick={() => setEditId(staff._id)}
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"

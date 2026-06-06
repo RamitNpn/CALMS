@@ -63,6 +63,7 @@ const menu = [
     icon: LayoutDashboard,
     exact: true,
     roles: ["business", "staff"],
+    permission: ["business_management:view", "staff_management:view"],
   },
     {
     id: "business-inquiry",
@@ -71,6 +72,7 @@ const menu = [
     icon: FileQuestion,
     exact: true,
     roles: ["business", "staff"],
+    permission: "reports:view",
   },
   {
     id: "profile",
@@ -79,6 +81,7 @@ const menu = [
     href: "/pages/dashboard/business-admin/finance",
     icon: Building2,
     roles: ["business", "staff"],
+    permission: "business_management:view",
   },
 
   {
@@ -87,7 +90,8 @@ const menu = [
     serviceKey: "asset_management",
     href: "/pages/dashboard/business-admin/assets",
     icon: BarChart,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "asset_management:view",
   },
 
   {
@@ -96,7 +100,8 @@ const menu = [
     serviceKey: "client_management",
     href: "/pages/dashboard/business-admin/clients",
     icon: Users,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "client_management:view",
   },
 
   {
@@ -105,7 +110,8 @@ const menu = [
     serviceKey: "staff_management",
     href: "/pages/dashboard/business-admin/staff",
     icon: Users,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "staff_management:view",
   },
 
   {
@@ -114,7 +120,8 @@ const menu = [
     href: "/pages/dashboard/business-admin/token",
     icon: CardSim,
     exact: true,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "token_management:view",
   },
 
   {
@@ -123,7 +130,8 @@ const menu = [
     serviceKey: "attendance_management",
     href: "/pages/dashboard/business-admin/attendance",
     icon: LayoutDashboard,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "attendance_management:view",
   },
 
   {
@@ -132,7 +140,8 @@ const menu = [
     serviceKey: "billing_management",
     href: "/pages/dashboard/business-admin/billing",
     icon: CreditCard,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "billing_management:view",
   },
     {
     id: "profile-management",
@@ -146,10 +155,11 @@ const menu = [
 
 type Props = {
   userRole: string[];
+  permissions?: string[];
   userName?: string;
 };
 
-export default function Sidebar({ userRole, userName }: Props) {
+export default function Sidebar({ userRole, permissions = [], userName }: Props) {
   const pathname = usePathname();
 
   const { data: serviceData } = useAllService();
@@ -206,12 +216,19 @@ export default function Sidebar({ userRole, userName }: Props) {
   const filteredMenu = useMemo(() => {
     return menu.filter((item) => {
       const hasRoleAccess = item.roles.some((r) => userRole.includes(r));
-
       if (!hasRoleAccess) return false;
 
       if (userRole.includes("admin")) return true;
 
-      if (item.id === "business-dashboard") return true;
+      if (item.permission) {
+        const permissionMatch = Array.isArray(item.permission)
+          ? item.permission.some((code) => permissions.includes(code))
+          : permissions.includes(item.permission);
+
+        if (!permissionMatch) {
+          return false;
+        }
+      }
 
       if (item.serviceKey) {
         return allowedServices.includes(item.serviceKey);
@@ -219,7 +236,7 @@ export default function Sidebar({ userRole, userName }: Props) {
 
       return true;
     });
-  }, [allowedServices, userRole]);
+  }, [allowedServices, permissions, userRole]);
 
   return (
     <aside
