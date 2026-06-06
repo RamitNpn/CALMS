@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil, Plus } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus, ShieldCheck } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ interface StaffTableProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  onManagePermissions?: (staff: TStaff) => void;
 }
 
 export default function StaffRecord({
@@ -29,6 +30,7 @@ export default function StaffRecord({
   page,
   totalPages,
   onPageChange,
+  onManagePermissions,
 }: StaffTableProps) {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -138,6 +140,13 @@ export default function StaffRecord({
                     </button>
 
                     {/* EDIT */}
+                    <button
+                      onClick={() => onManagePermissions?.(staff)}
+                      className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
+                    >
+                      <ShieldCheck size={16} className="text-blue-600" />
+                    </button>
+
                     <button
                       onClick={() => setEditId(staff._id)}
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"

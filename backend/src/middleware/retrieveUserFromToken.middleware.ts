@@ -1,6 +1,9 @@
 import env from "../config/env";
 import { authRepository } from "../repository/auth.repository";
 import userRepository from "../repository/user.repository";
+import businessRepository from "../repository/business.repository";
+import permissionRepository from "../repository/permission.repository";
+import rolePermissionRepository from "../repository/role-permission.repository";
 
 export const retrieveUserFromTokenMiddleware = async (
   req: any,
@@ -9,8 +12,6 @@ export const retrieveUserFromTokenMiddleware = async (
 ) => {
   try {
     const authHeader = req.headers.authorization;
-    console.log("Authorization Header:", authHeader);
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return next();
     }
@@ -21,21 +22,51 @@ export const retrieveUserFromTokenMiddleware = async (
       userId: string;
     };
 
-    if (decoded?.userId) {
-      const user = await userRepository.getByID(decoded.userId);
+    if (!decoded?.userId) {
+      return next();
+    }
 
-      if (user) {
-        req.user = {
-          id: decoded.userId,
-          role: user.role as "admin" | "business" | "staff" | "client",
-        };
+    const business = await businessRepository.getByID(decoded.userId);
+    if (business) {
+      const permissions = await permissionRepository.getAllCodes();
+      req.user = {
+        id: decoded.userId,
+        role: business.role as "admin" | "business" | "staff" | "client",
+        permissions,
+      };
+      return next();
+    }
+
+    const user = await userRepository.getByID(decoded.userId);
+    if (user) {
+      let permissions: string[] = [];
+
+      if (user.role === "staff") {
+        const rolePermissions = user.staffRoleId
+          ? await rolePermissionRepository.getAllowedCodes(user.staffRoleId.toString())
+          : [];
+        const directPermissions = Array.isArray(user.staffPermissions)
+          ? user.staffPermissions
+          : user.staffPermissions
+          ? [user.staffPermissions]
+          : [];
+
+        permissions = Array.from(new Set([...rolePermissions, ...directPermissions]));
+        if (permissions.length === 0) {
+          permissions = ["staff_management:view"];
+        }
       }
+
+      req.user = {
+        id: decoded.userId,
+        role: user.role as "admin" | "business" | "staff" | "client",
+        permissions,
+      };
     }
 
     next();
   } catch (err) {
     console.error("Error in retrieveUserFromTokenMiddleware:", err);
-    // Invalid token → just skip user, don't block
     next();
   }
 };

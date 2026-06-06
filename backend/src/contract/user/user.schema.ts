@@ -14,6 +14,8 @@ export const createUserSchema = z.object({
   license: z.any().optional(),
   certificate: z.any().optional(),
   role: role,
+  staffRoleId: z.string().optional(),
+  staffPermissions: z.array(z.string()).optional(),
 });
 
 export const userSchema = z.object({
@@ -28,6 +30,8 @@ export const userSchema = z.object({
   license: z.any().optional(),
   certificate: z.any().optional(),
   role: role,
+  staffRoleId: z.string().optional(),
+  staffPermissions: z.array(z.string()).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -48,6 +52,8 @@ export const updateUserSchema = z.object({
   license: z.any().optional(),
   certificate: z.any().optional(),
   role: role,
+  staffRoleId: z.string().optional(),
+  staffPermissions: z.array(z.string()).optional(),
 });
 
 export const removeUserSchema = z.object({

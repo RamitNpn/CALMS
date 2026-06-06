@@ -8,7 +8,8 @@ export interface AuthData {
   userName: string;
   userEmail: string;
   token: string;
-  role: "admin" | "business" | "staff" | "client";
+  role: string[];
+  permissions?: string[];
   business_id?: string;
   services?: string[];
 }
@@ -34,7 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedAuthData = localStorage.getItem("auth-data");
 
       if (token && storedAuthData) {
-        setAuthData(JSON.parse(storedAuthData));
+        const parsed = JSON.parse(storedAuthData);
+        setAuthData({
+          ...parsed,
+          role: Array.isArray(parsed.role) ? parsed.role : [parsed.role],
+          permissions: Array.isArray(parsed.permissions) ? parsed.permissions : parsed.permissions ? [parsed.permissions] : [],
+        });
       }
     } catch (error) {
       console.error("Failed to load auth data:", error);

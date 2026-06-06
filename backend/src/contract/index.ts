@@ -12,6 +12,7 @@ import { statsContract } from "./stats/stats.contract";
 import { assetTypeContract } from "./asset-type/type.contract";
 import { inquiryContract } from "./inquiry/inquiry.contract";
 import { tokenContract } from "./token/token.contract";
+import { rbacContract } from "./rbac/rbac.contract";
 
 const c = initContract();
 
@@ -25,6 +26,7 @@ export const contract = c.router({
     inquiry: inquiryContract,
     log: activityLogContract,
     payment: paymentContract,
+    rbac: rbacContract,
     service: serviceContract,
     stats: statsContract,
     token: tokenContract,

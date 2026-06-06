@@ -7,6 +7,7 @@ import { useState } from "react";
 
 type AuthData = {
   role: string[];
+  permissions: string[];
   userName?: string;
 };
 
@@ -19,6 +20,7 @@ export default function BusinessAdminLayout({
     if (typeof window === "undefined") {
       return {
         role: [],
+        permissions: [],
       };
     }
 
@@ -28,15 +30,17 @@ export default function BusinessAdminLayout({
 
     return {
       role: storedData?.role || [],
+      permissions: storedData?.permissions || [],
       userName: storedData?.userName,
     };
   });
 
   return (
-    <ProtectedRoute allowedRoles={["business"]}>
+    <ProtectedRoute allowedRoles={["business", "staff"]}>
       <div className="flex min-h-screen bg-gray-100">
         <Sidebar
           userRole={authData.role}
+          permissions={authData.permissions}
           userName={authData.userName}
         />
 
