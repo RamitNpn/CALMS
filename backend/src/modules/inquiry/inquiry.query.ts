@@ -11,10 +11,15 @@ export const getAllDrivingInquiries: AppRouteQueryImplementation<
 
     const skip = (page - 1) * limit;
 
-    const { data: inquiries, total } = await inquiryRepository.getAll(
+    const search = req.query.search?.trim() || "";
+    const dateFilter = req.query.dateFilter || "all";
+
+    const { data: inquiries, total } = await inquiryRepository.getAll({
       skip,
       limit,
-    );
+      search,
+      dateFilter,
+    });
 
     const totalPages = Math.ceil(total / limit);
 

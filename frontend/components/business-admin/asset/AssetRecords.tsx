@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil, Plus } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus, Printer } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useState } from "react";
@@ -53,6 +53,55 @@ export default function AssetRecord({
     });
   };
 
+  const downloadRecords = () => {
+    if (!assets?.length) return;
+
+    const headers = [
+      "SN",
+      "Asset ID",
+      "Asset Name",
+      "Asset Type",
+      "Status",
+      "Created At",
+      "Updated At",
+      "Custom Fields",
+    ];
+
+    const rows = assets.map((asset, index) => [
+      index + 1,
+      asset._id,
+      asset.name,
+      asset.type,
+      asset.status,
+      moment(asset.createdAt),
+      moment(asset.updatedAt),
+      JSON.stringify(asset.customFields || {}),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `asset-records-${new Date().toISOString().split("T")[0]}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   if (isLoading) {
     return <p className="p-4">Loading...</p>;
   }
@@ -63,13 +112,20 @@ export default function AssetRecord({
 
   return (
     <div className="w-full h-[76vh] overflow-y-scroll ">
-      <div className="flex justify-end mb-2">
+      <div className="flex justify-end mb-2 gap-4">
         <Button
           onClick={() => setOpen(true)}
           className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
         >
           <Plus size={18} />
           Create Business Assets
+        </Button>
+        <Button
+          onClick={downloadRecords}
+          className="flex items-center gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
+        >
+          <Printer size={18} />
+          Export
         </Button>
       </div>
       <table className="w-full table-auto">

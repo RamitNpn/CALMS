@@ -64,14 +64,6 @@ const menu = [
     exact: true,
     roles: ["business", "staff"],
   },
-  {
-    id: "business-analysis",
-    name: "Analysis",
-    href: "/pages/dashboard/business-admin/analytics",
-    icon: LineChart,
-    exact: true,
-    roles: ["business", "staff"],
-  },
     {
     id: "business-inquiry",
     name: "Client Inquiries",

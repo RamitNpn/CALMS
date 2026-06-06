@@ -535,19 +535,31 @@ export const getBusinessAttendanceStats: AppRouteQueryImplementation<
     ] = await Promise.all([
       attendanceRepository.count({
         status: "Present",
+        checkIn: {
+          $gte: todayStart,
+          $lte: todayEnd,
+        },
       }),
 
       attendanceRepository.count({
         status: "Absent",
+        checkIn: {
+          $gte: todayStart,
+          $lte: todayEnd,
+        },
       }),
 
       attendanceRepository.count({
         status: "Leave",
+        checkIn: {
+          $gte: todayStart,
+          $lte: todayEnd,
+        },
       }),
 
       attendanceRepository.count({
         status: "Late",
-        createdAt: {
+        checkIn: {
           $gte: todayStart,
           $lte: todayEnd,
         },
@@ -555,14 +567,14 @@ export const getBusinessAttendanceStats: AppRouteQueryImplementation<
 
       attendanceRepository.count({
         status: "Present",
-        createdAt: {
+        checkIn: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
         status: "Present",
-        createdAt: {
+        checkIn: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
         },
@@ -570,14 +582,14 @@ export const getBusinessAttendanceStats: AppRouteQueryImplementation<
 
       attendanceRepository.count({
         status: "Absent",
-        createdAt: {
+        checkIn: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
         status: "Absent",
-        createdAt: {
+        checkIn: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
         },
@@ -585,14 +597,14 @@ export const getBusinessAttendanceStats: AppRouteQueryImplementation<
 
       attendanceRepository.count({
         status: "Leave",
-        createdAt: {
+        checkIn: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
         status: "Leave",
-        createdAt: {
+        checkIn: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
         },
@@ -600,14 +612,14 @@ export const getBusinessAttendanceStats: AppRouteQueryImplementation<
 
       attendanceRepository.count({
         status: "Late",
-        createdAt: {
+        checkIn: {
           $gte: currentMonthStart,
         },
       }),
 
       attendanceRepository.count({
         status: "Late",
-        createdAt: {
+        checkIn: {
           $gte: previousMonthStart,
           $lte: previousMonthEnd,
         },

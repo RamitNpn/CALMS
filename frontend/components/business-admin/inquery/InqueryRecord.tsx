@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, PlusIcon } from "lucide-react";
+import { Trash2, Eye, PlusIcon, Printer } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 
@@ -12,6 +12,8 @@ import { useDeleteInquiry } from "@/hooks/business-admin/inquery/removeInquiry";
 import { ViewInquiryRecord } from "./ViewInquery";
 import { useMutation } from "@tanstack/react-query";
 import { clientApi } from "@/libs/api/client.api";
+import Select from "@/components/ui/select";
+import Button from "@/components/ui/button";
 
 interface InquiryRecordProps {
   inquiries: TDrivingInquiry[];
@@ -20,6 +22,12 @@ interface InquiryRecordProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+
+  search: string;
+  setSearch: (value: string) => void;
+
+  dateFilter: string;
+  setInquiryType: (value: string) => void;
 }
 
 export default function InquiryRecord({
@@ -29,6 +37,12 @@ export default function InquiryRecord({
   page,
   totalPages,
   onPageChange,
+
+  search,
+  setSearch,
+
+  dateFilter,
+  setInquiryType,
 }: InquiryRecordProps) {
   const [viewId, setViewId] = useState<string | null>(null);
 
@@ -96,6 +110,91 @@ export default function InquiryRecord({
     createClient(formData as any);
   };
 
+  const downloadRecords = () => {
+    if (!inquiries?.length) return;
+
+    const headers = [
+      "SN",
+      "Inquiry ID",
+      "Full Name",
+      "Email",
+      "Phone",
+      "Age",
+      "Gender",
+      "State",
+      "District",
+      "Street",
+      "Occupation",
+      "Inquiry Type",
+      "License Type",
+      "Preferred Vehicle",
+      "Package Type",
+      "Preferred Schedule",
+      "Training Shift",
+      "Experience Level",
+      "Referred By",
+      "Emergency Contact",
+      "Message",
+      "Document",
+      "Agree Terms",
+      "Created At",
+      "Updated At",
+    ];
+
+    const rows = inquiries.map((inquiry, index) => [
+      index + 1,
+      inquiry._id,
+      inquiry.fullName,
+      inquiry.email || "",
+      inquiry.phone,
+      inquiry.age || "",
+      inquiry.gender || "",
+      inquiry.state || "",
+      inquiry.district || "",
+      inquiry.street || "",
+      inquiry.occupation || "",
+      inquiry.inquiryType || "",
+      inquiry.licenseType || "",
+      inquiry.preferredVehicle || "",
+      inquiry.packageType || "",
+      inquiry.preferredSchedule || "",
+      inquiry.trainingShift || "",
+      inquiry.experienceLevel || "",
+      inquiry.referredBy || "",
+      inquiry.emergencyContact || "",
+      inquiry.message || "",
+      inquiry.documents || "",
+      inquiry.agreeTerms ? "Yes" : "No",
+      moment(inquiry.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+      moment(inquiry.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `inquiry-records-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   if (isLoading) {
     return <p className="p-4">Loading...</p>;
   }
@@ -106,6 +205,57 @@ export default function InquiryRecord({
 
   return (
     <div className="w-full h-[71vh] overflow-y-scroll mt-4">
+      <div className="flex items-center justify-between mr-2">
+        <div className="mb-4 flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onPageChange(1);
+            }}
+            className="border border-gray-300 rounded px-3 py-2 w-full md:w-80 outline-none text-[13px] focus:border-blue-600 bg-white shadow"
+          />
+
+          <Select
+            value={dateFilter}
+            onChange={(e) => {
+              setInquiryType(e.target.value);
+              onPageChange(1);
+            }}
+            options={[
+              {
+                label: "All Inquiry",
+                value: "all",
+              },
+              {
+                label: "Today",
+                value: "current_day",
+              },
+              {
+                label: "This Week",
+                value: "current_week",
+              },
+              {
+                label: "This Month",
+                value: "current_month",
+              },
+              {
+                label: "This Year",
+                value: "current_year",
+              },
+            ]}
+          />
+        </div>
+        <Button
+          onClick={downloadRecords}
+          className="flex items-center justify-end gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
+        >
+          <Printer size={18} />
+          Export
+        </Button>
+      </div>
       <table className="w-full table-auto">
         <thead className="text-[13px]">
           <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">

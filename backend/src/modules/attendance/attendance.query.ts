@@ -60,7 +60,6 @@ export const getAllAttendance: AppRouteQueryImplementation<
   typeof attendanceContract.getAllAttendance
 > = async ({ req }) => {
   try {
-
     const { data, total } = await attendanceRepository.getAllAttendance();
 
     const formattedAttendance = data.map((u) => ({
@@ -133,8 +132,62 @@ export const getAttendanceByID: AppRouteQueryImplementation<
   };
 };
 
+export const getAttendanceByUserId: AppRouteQueryImplementation<
+  typeof attendanceContract.getAttendanceByUserId
+> = async ({ req }) => {
+  try {
+    const { userId } = req.params;
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const { data, total } = await attendanceRepository.getAttendanceByUserId(
+      userId,
+      skip,
+      limit,
+    );
+
+    const user = await userRepository.getByID(userId);
+
+    return {
+      status: 200,
+      body: {
+        data: data.map((attendance: any) => ({
+          _id: attendance._id.toString(),
+          userId: attendance.userId?._id?.toString(),
+          userName: user?.userName ?? "-",
+          userEmail: user?.userEmail ?? "-",
+          role: attendance.userId?.role ?? "-",
+          status: attendance.status,
+          checkIn: attendance.checkIn,
+          checkOut: attendance.checkOut,
+          createdAt: attendance.createdAt,
+        })),
+
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    };
+  } catch (error) {
+    return {
+      status: 500,
+      body: {
+        success: false,
+        error: (error as Error).message,
+      },
+    };
+  }
+};
+
 export const attendanceQueryHandler = {
   getTodayAttendance,
   getAllAttendance,
   getAttendanceByID,
+  getAttendanceByUserId,
 };

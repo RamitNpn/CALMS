@@ -15,21 +15,116 @@ class InquiryRepository {
     }
   }
 
-  async getAll(skip = 0, limit = 10) {
-    try {
-      const data = await this.model
-        .find()
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
+async getAll({
+  skip,
+  limit,
+  search,
+  dateFilter,
+}: {
+  skip: number;
+  limit: number;
+  search?: string;
+  dateFilter?: string;
+}) {
+  const filter: any = {};
 
-      const total = await this.model.countDocuments();
+  if (search) {
+    filter.$or = [
+      {
+        fullName: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        email: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        phone: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+    ];
+  }
 
-      return { data, total };
-    } catch (error) {
-      throw new Error(`Error fetching inquiries: ${error}`);
+  const now = new Date();
+
+  if (dateFilter && dateFilter !== "all") {
+    let startDate: Date;
+
+    switch (dateFilter) {
+      case "current_day":
+        startDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+        );
+
+        filter.createdAt = {
+          $gte: startDate,
+          $lte: now,
+        };
+        break;
+
+      case "current_week": {
+        const firstDayOfWeek = new Date(now);
+        const day = firstDayOfWeek.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+
+        firstDayOfWeek.setDate(firstDayOfWeek.getDate() + diff);
+        firstDayOfWeek.setHours(0, 0, 0, 0);
+
+        filter.createdAt = {
+          $gte: firstDayOfWeek,
+          $lte: now,
+        };
+        break;
+      }
+
+      case "current_month":
+        startDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1,
+        );
+
+        filter.createdAt = {
+          $gte: startDate,
+          $lte: now,
+        };
+        break;
+
+      case "current_year":
+        startDate = new Date(
+          now.getFullYear(),
+          0,
+          1,
+        );
+
+        filter.createdAt = {
+          $gte: startDate,
+          $lte: now,
+        };
+        break;
     }
   }
+
+  const total = await DrivingInquiryModel.countDocuments(filter);
+
+  const data = await DrivingInquiryModel.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  return {
+    data,
+    total,
+  };
+}
 
   async getByID(id: string) {
     try {

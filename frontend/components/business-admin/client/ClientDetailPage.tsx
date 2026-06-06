@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
-  ActivitySquare,
   BadgeCheck,
   CalendarDays,
   Download,
@@ -20,7 +19,6 @@ import { toPng } from "html-to-image";
 
 import { AttendanceCalendar } from "@/components/business-admin/attendance/AttendanceCalender";
 import DetailTabNavigation from "@/components/business-admin/shared/DetailTabNavigation";
-import LogDetails from "@/components/shared/LogDetails";
 import { useAllAttendances } from "@/hooks/business-admin/attendance-management/getAllAttendances";
 import { useClientById } from "@/hooks/business-admin/client-management/getClientDataById";
 import { TAttendance } from "@/libs/types/attendance.types";
@@ -65,7 +63,6 @@ const tabs = [
     label: "Attendance Records",
     icon: <CalendarDays size={16} />,
   },
-  { id: "logs", label: "User Logs", icon: <ActivitySquare size={16} /> },
 ];
 
 export default function ClientDetailPage({ clientId }: Props) {
@@ -93,9 +90,9 @@ export default function ClientDetailPage({ clientId }: Props) {
     const clientEmail = normalize(client.userEmail);
 
     return records.filter((att) => {
-      const attendanceClientId = att.clientId?.toString?.() ?? att.clientId;
-      const aName = normalize(att.clientName);
-      const aEmail = normalize(att.clientEmail);
+      const attendanceClientId = att.userId?.toString?.() ?? att.userId;
+      const aName = normalize(att.userName);
+      const aEmail = normalize(att.userEmail);
 
       return (
         (clientId && attendanceClientId === clientId) ||
@@ -174,7 +171,7 @@ export default function ClientDetailPage({ clientId }: Props) {
         <button
           type="button"
           onClick={() => router.push("/pages/dashboard/business-admin/clients")}
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+          className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
         >
           <ArrowLeft size={16} />
           Back to Client Management
@@ -402,8 +399,8 @@ export default function ClientDetailPage({ clientId }: Props) {
                         <td className="px-4 py-4 text-gray-700">{index + 1}</td>
                         <td className="px-4 py-4 font-medium text-gray-900">
                           <div className="flex flex-col">
-                            <span>{att.clientName}</span>
-                            <span className="text-xs text-gray-500">{att.clientEmail}</span>
+                            <span>{att.userName}</span>
+                            <span className="text-xs text-gray-500">{att.userEmail}</span>
                           </div>
                         </td>
                         <td className="px-4 py-4 text-gray-700">{att.checkIn ? moment(att.checkIn).format("lll") : "-"}</td>
@@ -417,20 +414,6 @@ export default function ClientDetailPage({ clientId }: Props) {
               </div>
             </div>
           )}
-        </section>
-      )}
-
-      {activeTab === "logs" && (
-        <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-          <LogDetails
-          userId={client._id}
-            module="Clients"
-            recordId={client._id}
-            recordName={client?.userName}
-            onClearLogs={() => {
-              console.log("Clearing client logs for", client._id);
-            }}
-          />
         </section>
       )}
     </div>

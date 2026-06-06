@@ -1,22 +1,29 @@
 import { apiClient } from "@/utils/api";
-import { TCreateFinanceSchema, TDeleteFinanceSchema, TGetFinanceByIDSchema, TUpdateFinanceSchema } from "../validation/finance.validation";
+import {
+  TCreateFinanceSchema,
+  TDeleteFinanceSchema,
+  TGetFinanceByIDSchema,
+  TUpdateFinanceSchema,
+} from "../validation/finance.validation";
 
 const createFinance = async (data: TCreateFinanceSchema) => {
   const response = await apiClient.post("/finance", data);
   return response.data;
 };
 
-const getAllFinancesApi = async (  page = 1,
-  limit = 10) => {
+const getAllFinancesApi = async (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  dateFilter?: string;
+}) => {
   const response = await apiClient.get("/finance", {
-    params: { page, limit }
+    params,
   });
   return response.data;
 };
 
-const getFinanceByIdApi = async (
-  financeId: TGetFinanceByIDSchema["_id"],
-) => {
+const getFinanceByIdApi = async (financeId: TGetFinanceByIDSchema["_id"]) => {
   const response = await apiClient.get(`/finance/${financeId}`);
   return response.data;
 };

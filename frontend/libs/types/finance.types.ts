@@ -15,6 +15,8 @@ export interface TFinance {
   status: "pending" | "completed" | "cancelled";
   transactionDate: Date;
   createdBy?: string;
+  createdAt: Date;
+  updatedAt:Date;
 }
 
 export interface ICreateFinance {

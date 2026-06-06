@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import moment from "moment";
 import {
   BarChart,
   Bar,
@@ -21,14 +20,7 @@ import AttendanceRecord from "@/components/business-admin/attendance/AttendanceR
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import CustomizeSection from "@/components/shared/CustomizeSection";
-import {
-  BarChart3,
-  Settings,
-  ActivitySquare,
-  FileText,
-  Calendar,
-} from "lucide-react";
-import { AttendanceCalendar } from "@/components/business-admin/attendance/AttendanceCalender";
+import { BarChart3, Settings, ActivitySquare, FileText } from "lucide-react";
 import AttendanceStats from "@/components/business-admin/attendance/AttendanceStats";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 import type { TAttendance } from "@/libs/types/attendance.types";
@@ -36,29 +28,6 @@ import { useTodayAttendance } from "@/hooks/business-admin/attendance-management
 import { useAttendanceStats } from "@/hooks/business-admin/stats-data/getAttendanceStats";
 
 const ATTENDANCE_COLORS = ["#16a34a", "#dc2626", "#2563eb", "#f59e0b"];
-
-type CalendarAttendanceRecord = {
-  date: string;
-  status: "present" | "absent" | "leave" | "half-day" | "holiday";
-  checkInTime?: string;
-  checkOutTime?: string;
-};
-
-const getAttendanceStatus = (attendance: TAttendance) => {
-  if (attendance.checkIn && attendance.checkOut) {
-    return "present" as const;
-  }
-
-  if (attendance.checkIn && !attendance.checkOut) {
-    return "half-day" as const;
-  }
-
-  if (!attendance.checkIn && attendance.checkOut) {
-    return "leave" as const;
-  }
-
-  return "absent" as const;
-};
 
 const formatMonthKey = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -68,55 +37,27 @@ export default function AttendancePage() {
   const [activeTab, setActiveTab] = useState("inventory");
   const { summary } = useBusinessAnalytics();
 
-    const [businessId] = useState<string>(() => {
+  const [businessId] = useState<string>(() => {
     const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
     return storedData?.business_id;
   });
 
-  const {
-    data: attendanceData,
-  } = useAllAttendances({ page, limit: 10 });
+  const { data: attendanceData } = useAllAttendances({ page, limit: 10 });
 
-  const { data: users, isLoading, isError } = useTodayAttendance({ page: 1, limit: 1000 , business_id: businessId});
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useTodayAttendance({ page: 1, limit: 1000, business_id: businessId });
 
   const { data: attendanceStats } = useAttendanceStats();
 
-  const attendances: TAttendance[] = attendanceData?.data ?? attendanceData ?? [];
+  const attendances: TAttendance[] =
+    attendanceData?.data ?? attendanceData ?? [];
+
   const pagination = attendanceData?.pagination;
 
   const attendanceOverview = summary?.attendance;
-
-  const calendarRecords = useMemo<CalendarAttendanceRecord[]>(
-    () =>
-      attendances.map((attendance) => {
-        const createdAt = new Date(attendance.createdAt);
-
-        return {
-          date: createdAt.toISOString().slice(0, 10),
-          status: getAttendanceStatus(attendance),
-          checkInTime: attendance.checkIn
-            ? moment(attendance.checkIn).format("hh:mm A")
-            : undefined,
-          checkOutTime: attendance.checkOut
-            ? moment(attendance.checkOut).format("hh:mm A")
-            : undefined,
-        };
-      }),
-    [attendances],
-  );
-
-  const calendarMonth = useMemo(() => {
-    if (attendances.length === 0) {
-      return new Date();
-    }
-
-    const latestAttendance = [...attendances].sort(
-      (left, right) =>
-        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
-    )[0];
-
-    return new Date(latestAttendance.createdAt);
-  }, [attendances]);
 
   const attendanceTrend = useMemo(() => {
     const byMonth = attendances.reduce<Record<string, number>>((acc, item) => {
@@ -161,7 +102,6 @@ export default function AttendancePage() {
 
   const tabs = [
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
-    { id: "calender", label: "Calender View", icon: <Calendar size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     { id: "customize", label: "Customize", icon: <Settings size={16} /> },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
@@ -200,10 +140,6 @@ export default function AttendancePage() {
           totalPages={pagination?.totalPages || 1}
           onPageChange={setPage}
         />
-      )}
-
-      {activeTab === "calender" && (
-        <AttendanceCalendar records={calendarRecords} month={calendarMonth} />
       )}
 
       {activeTab === "analysis" && (
@@ -276,7 +212,9 @@ export default function AttendancePage() {
                     {attendanceMethodData.map((entry, index) => (
                       <Cell
                         key={entry.name}
-                        fill={ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]}
+                        fill={
+                          ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]
+                        }
                       />
                     ))}
                   </Pie>
@@ -297,16 +235,16 @@ export default function AttendancePage() {
               </h3>
               <div className="space-y-4 text-sm text-gray-600">
                 <p>
-                  Attendance rate is {attendanceStats?.attendanceRate.toFixed(1)}%
-                  with {attendanceStats?.totalAttendance.toLocaleString()} present
+                  Attendance rate is{" "}
+                  {attendanceStats?.attendanceRate.toFixed(1)}% with{" "}
+                  {attendanceStats?.totalAttendance.toLocaleString()} present
                   records currently in the system.
                 </p>
                 <p>
-                  {attendanceStats?.totalAbsent.toLocaleString()} absences,
-                  {" "}
-                  {attendanceStats?.totalOnLeave.toLocaleString()} leave records,s
-                  and {attendanceStats?.lateToday.toLocaleString()} late check-ins
-                  are visible from the current stats feed.
+                  {attendanceStats?.totalAbsent.toLocaleString()} absences,{" "}
+                  {attendanceStats?.totalOnLeave.toLocaleString()} leave
+                  records,s and {attendanceStats?.lateToday.toLocaleString()}{" "}
+                  late check-ins are visible from the current stats feed.
                 </p>
                 <p>
                   The calendar view below uses the same live attendance records,

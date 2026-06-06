@@ -77,6 +77,43 @@ export const attendanceContract = c.router({
     },
   },
 
+  getAttendanceByUserId: {
+  method: "GET",
+  path: "/attendance/user/:userId",
+  pathParams: z.object({
+    userId: z.string().min(1),
+  }),
+  query: z.object({
+    page: z.string().optional(),
+    limit: z.string().optional(),
+  }),
+  responses: {
+    200: z.object({
+      data: z.array(
+        z.object({
+          _id: z.string(),
+          userId: z.string(),
+          userName: z.string(),
+          userEmail: z.string(),
+          role: z.string(),
+          status: z.string(),
+          checkIn: z.date().nullable(),
+          checkOut: z.date().nullable(),
+          createdAt: z.date(),
+        }),
+      ),
+      pagination: z.object({
+        page: z.number(),
+        limit: z.number(),
+        total: z.number(),
+        totalPages: z.number(),
+      }),
+    }),
+    404: errorSchema,
+    500: errorSchema,
+  },
+},
+
   updateAttendance: {
     method: "PUT",
     path: "/attendance/:attendanceID",

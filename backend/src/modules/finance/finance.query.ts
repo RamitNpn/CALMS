@@ -6,16 +6,21 @@ export const getAllFinance: AppRouteQueryImplementation<
   typeof financeContract.getAllFinance
 > = async ({ req }) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
     const business_id = req.query.business_id as string | undefined;
     const skip = (page - 1) * limit;
 
-    const { data: records, total } = await financeRepository.getAll(
+    const search = req.query.search?.trim() || "";
+    const dateFilter = req.query.dateFilter || "all";
+
+    const { data: records, total } = await financeRepository.getAll({
       business_id,
       skip,
       limit,
-    );
+      search,
+      dateFilter,
+    });
 
     const totalPages = Math.ceil(total / limit);
 

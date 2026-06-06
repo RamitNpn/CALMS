@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import moment from "moment";
 
 import TablePagination from "@/components/shared/Pagination";
@@ -11,6 +11,7 @@ import { ViewAttendanceRecord } from "./ViewAttendanceRecord";
 import { EditAttendanceRecord } from "./EditAttendanceRecord";
 import { attendanceApi } from "@/libs";
 import { TUser } from "@/libs/types/user.types";
+import { useRouter } from "next/navigation";
 
 interface AttendanceTableProps {
   users: TUser[];
@@ -42,6 +43,7 @@ export default function AttendanceRecord({
   });
 
   const toast = useToast.getState();
+  const router = useRouter();
 
   const allSelected = users?.length > 0 && selectedIds.length === users.length;
 
@@ -133,7 +135,7 @@ export default function AttendanceRecord({
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm">
+        <tbody className="text-gray-700 text-[13px]">
           {users?.length === 0 ? (
             <tr>
               <td colSpan={7} className="py-6 text-center text-gray-500">
@@ -199,6 +201,16 @@ export default function AttendanceRecord({
                 {/* ACTIONS */}
                 <td className="py-2 px-2 text-left">
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        router.push(
+                          `/pages/dashboard/business-admin/attendance/${att._id}`,
+                        )
+                      }
+                      className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
+                    >
+                      <Eye size={16} className="text-yellow-600" />
+                    </button>
                     {/* EDIT */}
                     <button
                       onClick={() => {

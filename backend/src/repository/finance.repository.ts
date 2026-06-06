@@ -14,16 +14,91 @@ class FinanceRepository {
       throw new Error(`Error creating financial record: ${error}`);
     }
   }
-
-  async getAll(business_id?: string, skip: number = 0, limit: number = 10) {
+  async getAll({
+    business_id,
+    skip = 0,
+    limit = 10,
+    search,
+    dateFilter,
+  }: {
+    business_id?: string;
+    skip?: number;
+    limit?: number;
+    search?: string;
+    dateFilter?: string;
+  }) {
     try {
-      const query = business_id ? { business_id } : {};
+      const query: any = {};
+
+      if (business_id) {
+        query.business_id = business_id;
+      }
+
+      if (search) {
+        query.$or = [
+          { title: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+          { category: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      const now = new Date();
+
+      if (dateFilter && dateFilter !== "all") {
+        let startDate: Date;
+
+        switch (dateFilter) {
+          case "current_day":
+            startDate = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate(),
+            );
+
+            query.createdAt = {
+              $gte: startDate,
+              $lte: now,
+            };
+            break;
+
+          case "current_week": {
+            const firstDayOfWeek = new Date(now);
+            const day = firstDayOfWeek.getDay();
+            const diff = day === 0 ? -6 : 1 - day;
+
+            firstDayOfWeek.setDate(firstDayOfWeek.getDate() + diff);
+            firstDayOfWeek.setHours(0, 0, 0, 0);
+
+            query.createdAt = {
+              $gte: firstDayOfWeek,
+              $lte: now,
+            };
+            break;
+          }
+
+          case "current_month":
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            query.createdAt = {
+              $gte: startDate,
+              $lte: now,
+            };
+            break;
+
+          case "current_year":
+            startDate = new Date(now.getFullYear(), 0, 1);
+
+            query.createdAt = {
+              $gte: startDate,
+              $lte: now,
+            };
+            break;
+        }
+      }
 
       const data = await this.model
         .find(query)
-        .sort({
-          createdAt: -1,
-        })
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 

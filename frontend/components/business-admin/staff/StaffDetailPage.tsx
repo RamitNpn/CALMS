@@ -78,9 +78,9 @@ export default function StaffDetailPage({ staffId }: Props) {
     const staffRole = normalize(staff.role);
 
     return records.filter((attendance) => {
-      const attendanceClientId = attendance.clientId?.toString?.() ?? attendance.clientId;
-      const attendanceName = normalize(attendance.clientName);
-      const attendanceEmail = normalize(attendance.clientEmail);
+      const attendanceClientId = attendance.userId?.toString?.() ?? attendance.userId;
+      const attendanceName = normalize(attendance.userName);
+      const attendanceEmail = normalize(attendance.userEmail);
       const attendanceUserType = normalize(attendance.userType);
 
       return (
@@ -152,7 +152,7 @@ export default function StaffDetailPage({ staffId }: Props) {
         <button
           type="button"
           onClick={() => router.push("/pages/dashboard/business-admin/staff")}
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+          className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
         >
           <ArrowLeft size={16} />
           Back to Staff Management
@@ -270,10 +270,10 @@ export default function StaffDetailPage({ staffId }: Props) {
                       <tr key={record._id} className="hover:bg-gray-50">
                         <td className="px-4 py-4 text-gray-700">{index + 1}</td>
                         <td className="px-4 py-4 font-medium text-gray-900">
-                          {record.clientName}
+                          {record.userName}
                         </td>
                         <td className="px-4 py-4 text-gray-700">
-                          {record.clientEmail}
+                          {record.userEmail}
                         </td>
                         <td className="px-4 py-4 text-gray-700">
                           {record.userType}
@@ -302,6 +302,7 @@ export default function StaffDetailPage({ staffId }: Props) {
       {activeTab === "logs" && (
         <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
           <LogDetails
+          userId={staff._id}
             module="Staff"
             recordId={staff._id}
             recordName={staff.userName}

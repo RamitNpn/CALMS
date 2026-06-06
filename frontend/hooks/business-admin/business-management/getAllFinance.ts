@@ -1,12 +1,34 @@
 "use client";
 
-import { financeApi } from "@/libs/api/finance.api";
-import { UsePaginationParams } from "@/libs/types/shared.types";
 import { useQuery } from "@tanstack/react-query";
+import { financeApi } from "@/libs/api/finance.api";
 
-export function useAllFinance({ page = 1, limit = 10 }: UsePaginationParams) {
+export const useAllFinance = ({
+  page,
+  limit,
+  search,
+  dateFilter,
+}: {
+  page: number;
+  limit: number;
+  search?: string;
+  dateFilter?: string;
+}) => {
   return useQuery({
-    queryKey: ["finance", page, limit],
-    queryFn: () => financeApi.getAllFinancesApi(page, limit),
+    queryKey: [
+      "finance",
+      page,
+      limit,
+      search,
+      dateFilter,
+    ],
+
+    queryFn: () =>
+      financeApi.getAllFinancesApi({
+        page,
+        limit,
+        search,
+        dateFilter,
+      }),
   });
-}
+};

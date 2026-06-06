@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import AttendanceModel, { IAttendance } from "../models/attendance.model";
 
 class AttendanceRepository {
@@ -21,9 +22,7 @@ class AttendanceRepository {
 
   async getAllAttendance() {
     try {
-      const data = await this.model
-        .find()
-        .sort({ createdAt: -1 })
+      const data = await this.model.find().sort({ createdAt: -1 });
 
       const total = await this.model.countDocuments();
 
@@ -40,6 +39,31 @@ class AttendanceRepository {
       throw new Error(`Error fetching attendance: ${error}`);
     }
   }
+
+  getAttendanceByUserId = async (
+    userId: string,
+    skip: number,
+    limit: number,
+  ) => {
+    const query = {
+      userId: new mongoose.Types.ObjectId(userId),
+    };
+
+    const [data, total] = await Promise.all([
+      AttendanceModel.find(query)
+        .populate("userId", "fullName email role")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+
+      AttendanceModel.countDocuments(query),
+    ]);
+
+    return {
+      data,
+      total,
+    };
+  };
 
   async updateAttendance(id: string, data: Partial<IAttendance>) {
     try {

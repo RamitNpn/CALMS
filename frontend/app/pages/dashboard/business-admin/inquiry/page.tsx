@@ -1,51 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import ClientRecord from "@/components/business-admin/client/ClientRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import CustomizeSection from "@/components/shared/CustomizeSection";
-import {
-  BarChart3,
-  Settings,
-  ActivitySquare,
-  FileText,
-  Eye,
-} from "lucide-react";
-import Button from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import ClientStats from "@/components/business-admin/client/ClientStats";
+import { Settings, ActivitySquare, FileText } from "lucide-react";
 import { useAllInquiries } from "@/hooks/business-admin/inquery/getAllInquires";
 import InquiryRecord from "@/components/business-admin/inquery/InqueryRecord";
-
-const mockInquiries = [
-  {
-    id: "1",
-    name: "Acme Corporation",
-    email: "contact@acme.com",
-    phone: "+1-555-0101",
-    industry: "Technology",
-    companyName: "Acme Corp Inc",
-    status: "active",
-    contractValue: 50000,
-    startDate: "2023-01-15",
-    endDate: "2024-01-15",
-    address: "123 Business St, NYC",
-    notes: "Key account, quarterly reviews required",
-  },
-];
+import { useDebounce } from "use-debounce";
 
 export default function InquiryPage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
 
-  const router = useRouter();
+  const [debouncedSearch] = useDebounce(search, 500);
 
   const {
     data: inquiryData,
     isLoading,
     isError,
-  } = useAllInquiries({ page, limit: 10 });
+  } = useAllInquiries({
+    page,
+    limit: 10,
+    search: debouncedSearch,
+    dateFilter,
+  });
 
   const inquiries = inquiryData?.data ?? inquiryData ?? [];
   const pagination = inquiryData?.pagination;
@@ -60,12 +41,8 @@ export default function InquiryPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">
-           Client Inquiry
-          </h2>
-          <p className="text-sm text-gray-500">
-            Manage all client inquiries
-          </p>
+          <h2 className="text-2xl font-bold text-gray-800">Client Inquiry</h2>
+          <p className="text-sm text-gray-500">Manage all client inquiries</p>
         </div>
       </div>
 
@@ -83,6 +60,10 @@ export default function InquiryPage() {
           page={page}
           totalPages={pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setInquiryType={setDateFilter}
         />
       )}
 
@@ -97,7 +78,7 @@ export default function InquiryPage() {
 
       {activeTab === "logs" && (
         <LogDetails
-        userId={inquiryData?.businessId}
+          userId={inquiryData?.businessId}
           module="Inquiry"
           onClearLogs={() => {
             console.log("Clearing inquiries logs");

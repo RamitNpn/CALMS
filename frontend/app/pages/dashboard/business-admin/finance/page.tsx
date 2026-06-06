@@ -28,25 +28,32 @@ import {
   YAxis,
 } from "recharts";
 
-// assumed hooks & types
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 import { useAllFinance } from "@/hooks/business-admin/business-management/getAllFinance";
 import { TFinance } from "@/libs/types/finance.types";
 import FinanceRecord from "@/components/business-admin/finance/FinanceRecord";
-
+import { useDebounce } from "use-debounce";
 
 export default function FinancePage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("records");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
 
   const {
     data: financeData,
     isLoading,
     isError,
-  } = useAllFinance({ page, limit: 10 });
+  } = useAllFinance({
+    page,
+    limit: 10,
+    search: debouncedSearch,
+    dateFilter,
+  });
 
-  const records: TFinance[] =
-    financeData?.data ?? financeData ?? [];
+  const records: TFinance[] = financeData?.data ?? financeData ?? [];
 
   const pagination = financeData?.pagination;
 
@@ -72,7 +79,6 @@ export default function FinancePage() {
 
   const netProfit = totalIncome - totalExpense;
 
-  // Monthly Growth
   const monthlyGrowth = useMemo(() => {
     const map: Record<string, { income: number; expense: number }> = {};
 
@@ -80,9 +86,10 @@ export default function FinancePage() {
       const d = new Date(r.transactionDate);
       if (isNaN(d.getTime())) return;
 
-      const key = `${d.getFullYear()}-${String(
-        d.getMonth() + 1,
-      ).padStart(2, "0")}`;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+        2,
+        "0",
+      )}`;
 
       if (!map[key]) {
         map[key] = { income: 0, expense: 0 };
@@ -98,17 +105,16 @@ export default function FinancePage() {
         const [year, month] = key.split("-").map(Number);
 
         return {
-          label: new Date(year, month - 1, 1).toLocaleDateString(
-            "en-US",
-            { month: "short", year: "2-digit" },
-          ),
+          label: new Date(year, month - 1, 1).toLocaleDateString("en-US", {
+            month: "short",
+            year: "2-digit",
+          }),
           income: value.income,
           expense: value.expense,
         };
       });
   }, [records]);
 
-  // Category Breakdown
   const categoryBreakdown = useMemo(() => {
     const map: Record<string, number> = {};
 
@@ -133,9 +139,7 @@ export default function FinancePage() {
     <div className="space-y-6">
       {/* HEADER */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-800">
-          Financial Records
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800">Financial Records</h2>
         <p className="text-sm text-gray-500">
           Manage income, expenses and financial analytics
         </p>
@@ -202,6 +206,10 @@ export default function FinancePage() {
           page={page}
           totalPages={pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setInquiryType={setDateFilter}
         />
       )}
 
@@ -209,9 +217,7 @@ export default function FinancePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Income vs Expense */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">
-              Income vs Expense
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Income vs Expense</h3>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={monthlyGrowth}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -226,9 +232,7 @@ export default function FinancePage() {
 
           {/* Category Breakdown */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">
-              Category Breakdown
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Category Breakdown</h3>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={categoryBreakdown}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -239,9 +243,7 @@ export default function FinancePage() {
                   {categoryBreakdown.map((entry, index) => (
                     <Cell
                       key={index}
-                      fill={
-                        index % 2 === 0 ? "#6366f1" : "#a855f7"
-                      }
+                      fill={index % 2 === 0 ? "#6366f1" : "#a855f7"}
                     />
                   ))}
                 </Bar>
@@ -251,9 +253,7 @@ export default function FinancePage() {
 
           {/* Monthly Trend */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">
-              Monthly Trend
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Monthly Trend</h3>
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={monthlyGrowth}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -278,9 +278,7 @@ export default function FinancePage() {
 
           {/* Summary */}
           <Card>
-            <h3 className="text-lg font-semibold mb-4">
-              Financial Summary
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Financial Summary</h3>
             <div className="space-y-3 text-sm text-muted-foreground">
               <p>Total income records: {incomeRecords.length}</p>
               <p>Total expense records: {expenseRecords.length}</p>
