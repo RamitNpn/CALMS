@@ -20,6 +20,7 @@ interface PaymentTableProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  visibleColumns?: string[];
 }
 
 export default function PaymentTable({
@@ -29,6 +30,15 @@ export default function PaymentTable({
   page,
   totalPages,
   onPageChange,
+  visibleColumns = [
+    "show-business-name",
+    "show-business-email",
+    "show-package",
+    "show-paid",
+    "show-due",
+    "show-status",
+    "show-end-date",
+  ],
 }: PaymentTableProps) {
   const [editId, setEditId] = useState<string | null>(null);
   const [viewId, setViewId] = useState<string | null>(null);
@@ -57,12 +67,27 @@ export default function PaymentTable({
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm">
             <th className="py-2 px-6 text-left">SN</th>
-            <th className="py-2 px-6 text-left">Business</th>
-            <th className="py-2 px-6 text-left">Package</th>
-            <th className="py-2 px-6 text-left">Paid</th>
-            <th className="py-2 px-6 text-left">Due</th>
-            <th className="py-2 px-6 text-left">Status</th>
-            <th className="py-2 px-6 text-left">End Date</th>
+            {visibleColumns.includes("show-business-name") && (
+              <th className="py-2 px-6 text-left">Business</th>
+            )}
+            {visibleColumns.includes("show-business-email") && (
+              <th className="py-2 px-6 text-left">Email</th>
+            )}
+            {visibleColumns.includes("show-package") && (
+              <th className="py-2 px-6 text-left">Package</th>
+            )}
+            {visibleColumns.includes("show-paid") && (
+              <th className="py-2 px-6 text-left">Paid</th>
+            )}
+            {visibleColumns.includes("show-due") && (
+              <th className="py-2 px-6 text-left">Due</th>
+            )}
+            {visibleColumns.includes("show-status") && (
+              <th className="py-2 px-6 text-left">Status</th>
+            )}
+            {visibleColumns.includes("show-end-date") && (
+              <th className="py-2 px-6 text-left">End Date</th>
+            )}
             <th className="py-2 px-6 text-left">Action</th>
           </tr>
         </thead>
@@ -83,42 +108,51 @@ export default function PaymentTable({
                 {/* SN */}
                 <td className="py-2 px-6">{(page - 1) * 10 + index + 1}</td>
 
-                {/* Business */}
-                <td className="py-2 px-6">
-                  <div className="font-medium">{payment.businessName}</div>
-                  <div className="text-xs text-gray-500">
+                {visibleColumns.includes("show-business-name") && (
+                  <td className="py-2 px-6">
+                    <div className="font-medium">{payment.businessName}</div>
+                  </td>
+                )}
+
+                {visibleColumns.includes("show-business-email") && (
+                  <td className="py-2 px-6 text-xs text-gray-500">
                     {payment.businessEmail}
-                  </div>
-                </td>
+                  </td>
+                )}
 
-                {/* Package */}
-                <td className="py-2 px-6 capitalize">{payment.package}</td>
+                {visibleColumns.includes("show-package") && (
+                  <td className="py-2 px-6 capitalize">{payment.package}</td>
+                )}
 
-                {/* Paid */}
-                <td className="py-2 px-6">{payment.paidAmount}</td>
+                {visibleColumns.includes("show-paid") && (
+                  <td className="py-2 px-6">{payment.paidAmount}</td>
+                )}
 
-                {/* Due */}
-                <td className="py-2 px-6">{payment.dueAmount}</td>
+                {visibleColumns.includes("show-due") && (
+                  <td className="py-2 px-6">{payment.dueAmount}</td>
+                )}
 
-                {/* Status */}
-                <td className="py-2 px-6">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      payment.paymentStatus === "paid"
-                        ? "bg-green-100 text-green-700"
-                        : payment.paymentStatus === "partial"
+                {visibleColumns.includes("show-status") && (
+                  <td className="py-2 px-6">
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        payment.paymentStatus === "paid"
+                          ? "bg-green-100 text-green-700"
+                          : payment.paymentStatus === "partial"
                           ? "bg-yellow-100 text-yellow-700"
                           : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {payment.paymentStatus}
-                  </span>
-                </td>
+                      }`}
+                    >
+                      {payment.paymentStatus}
+                    </span>
+                  </td>
+                )}
 
-                {/* End Date */}
-                <td className="py-2 px-6">
-                  {moment(payment.endAt).format("lll")}
-                </td>
+                {visibleColumns.includes("show-end-date") && (
+                  <td className="py-2 px-6">
+                    {moment(payment.endAt).format("lll")}
+                  </td>
+                )}
 
                 {/* ACTIONS */}
                 <td className="py-2 px-6">

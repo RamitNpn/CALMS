@@ -17,6 +17,7 @@ interface BusinessTableProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  visibleColumns?: string[];
 }
 
 export default function BusinessTable({
@@ -26,6 +27,12 @@ export default function BusinessTable({
   page,
   totalPages,
   onPageChange,
+  visibleColumns = [
+    "show-business-name",
+    "show-operator-name",
+    "show-operator-email",
+    "show-created-at",
+  ],
 }: BusinessTableProps) {
   const [editId, setEditId] = useState<string | null>(null);
   const [viewId, setViewId] = useState<string | null>(null);
@@ -57,10 +64,30 @@ export default function BusinessTable({
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
             <th className="py-2 px-6 text-left">SN</th>
-            <th className="py-2 px-6 text-left">Business Name</th>
-            <th className="py-2 px-6 text-left">Operator Name</th>
-            <th className="py-2 px-6 text-left">Email</th>
-            <th className="py-2 px-6 text-left">Created At</th>
+            {visibleColumns.includes("show-business-name") && (
+              <th className="py-2 px-6 text-left">Business Name</th>
+            )}
+            {visibleColumns.includes("show-operator-name") && (
+              <th className="py-2 px-6 text-left">Operator Name</th>
+            )}
+            {visibleColumns.includes("show-operator-email") && (
+              <th className="py-2 px-6 text-left">Email</th>
+            )}
+            {visibleColumns.includes("show-package") && (
+              <th className="py-2 px-6 text-left">Package</th>
+            )}
+            {visibleColumns.includes("show-payment-status") && (
+              <th className="py-2 px-6 text-left">Payment Status</th>
+            )}
+            {visibleColumns.includes("show-status") && (
+              <th className="py-2 px-6 text-left">Status</th>
+            )}
+            {visibleColumns.includes("show-branch") && (
+              <th className="py-2 px-6 text-left">Branch</th>
+            )}
+            {visibleColumns.includes("show-created-at") && (
+              <th className="py-2 px-6 text-left">Created At</th>
+            )}
             <th className="py-2 px-6 text-left">Action</th>
           </tr>
         </thead>
@@ -68,7 +95,12 @@ export default function BusinessTable({
         <tbody className="text-gray-700 text-sm">
           {businesses.length === 0 ? (
             <tr>
-              <td colSpan={6} className="py-6 px-6 text-center text-gray-500">
+              <td
+                colSpan={
+                  2 + visibleColumns.length + 1
+                }
+                className="py-6 px-6 text-center text-gray-500"
+              >
                 No businesses found
               </td>
             </tr>
@@ -82,19 +114,51 @@ export default function BusinessTable({
                   {(page - 1) * 10 + index + 1}
                 </td>
 
-                <td className="py-2 px-6 text-left font-medium">
-                  {business.businessName}
-                </td>
+                {visibleColumns.includes("show-business-name") && (
+                  <td className="py-2 px-6 text-left font-medium">
+                    {business.businessName}
+                  </td>
+                )}
 
-                <td className="py-2 px-6 text-left">{business.operatorName}</td>
+                {visibleColumns.includes("show-operator-name") && (
+                  <td className="py-2 px-6 text-left">{business.operatorName}</td>
+                )}
 
-                <td className="py-2 px-6 text-left">
-                  {business.operatorEmail}
-                </td>
+                {visibleColumns.includes("show-operator-email") && (
+                  <td className="py-2 px-6 text-left">
+                    {business.operatorEmail}
+                  </td>
+                )}
 
-                <td className="py-2 px-6 text-left">
-                  {moment(business.createdAt).format("lll")}
-                </td>
+                {visibleColumns.includes("show-package") && (
+                  <td className="py-2 px-6 text-left capitalize">
+                    {business.package}
+                  </td>
+                )}
+
+                {visibleColumns.includes("show-payment-status") && (
+                  <td className="py-2 px-6 text-left">
+                    {business.payment_status ? "Paid" : "Pending"}
+                  </td>
+                )}
+
+                {visibleColumns.includes("show-status") && (
+                  <td className="py-2 px-6 text-left">
+                    {business.status ? "Active" : "Inactive"}
+                  </td>
+                )}
+
+                {visibleColumns.includes("show-branch") && (
+                  <td className="py-2 px-6 text-left">
+                    {business.branch?.name ?? "-"}
+                  </td>
+                )}
+
+                {visibleColumns.includes("show-created-at") && (
+                  <td className="py-2 px-6 text-left">
+                    {moment(business.createdAt).format("lll")}
+                  </td>
+                )}
 
                 <td className="py-2 px-6 text-left">
                   <div className="flex items-center gap-2">
