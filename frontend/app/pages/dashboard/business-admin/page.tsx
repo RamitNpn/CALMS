@@ -188,25 +188,25 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/staff"
+            href="/pages/dashboard/business-admin/staff"
           >
             Add New Staff
           </Link>
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/clients"
+            href="/pages/dashboard/business-admin/clients"
           >
             New Client
           </Link>
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/assets"
+            href="/pages/dashboard/business-admin/assets"
           >
             Register Asset
           </Link>
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/billing"
+            href="pages/dashboard/business-admin/billing"
           >
             Create Invoice
           </Link>

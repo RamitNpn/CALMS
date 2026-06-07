@@ -14,6 +14,7 @@ import { TUser } from "@/libs/types/user.types";
 import { useRouter } from "next/navigation";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface AttendanceTableProps {
   users: TUser[];
@@ -60,11 +61,11 @@ export default function AttendanceRecord({
   const isIndeterminate =
     selectedIds.length > 0 && selectedIds.length < users.length;
 
-  const handleBulkCreateAttendance = async () => {
-    if (selectedIds.length === 0) return;
+  const queryClient = useQueryClient();
 
-    try {
-      await attendanceApi.createAttendance({
+  const { mutate: bulkAttendanceMutation, isPending } = useMutation({
+    mutationFn: async () => {
+      return attendanceApi.createAttendance({
         userIds: selectedIds,
         business_id: businessId,
         status: "Present",
@@ -72,19 +73,37 @@ export default function AttendanceRecord({
         checkOut: undefined,
         date: new Date().toISOString(),
       });
+    },
 
+    onSuccess: () => {
       toast.show({
         message: "Attendance created for selected users",
         type: "success",
       });
 
       setSelectedIds([]);
-    } catch (error) {
+
+      queryClient.invalidateQueries({
+        queryKey: ["attendance"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["users"],
+      });
+    },
+
+    onError: () => {
       toast.show({
         message: "Failed to create attendance",
         type: "error",
       });
-    }
+    },
+  });
+
+  const handleBulkCreateAttendance = () => {
+    if (selectedIds.length === 0) return;
+
+    bulkAttendanceMutation();
   };
 
   const hasAnyAttendance = users?.some((u: any) => u.status || u.checkIn);
@@ -171,7 +190,7 @@ export default function AttendanceRecord({
             options={[
               { label: "All Record", value: "all" },
               { label: "Staff Record", value: "staff" },
-              { label: "Client Record", value: "client" }
+              { label: "Client Record", value: "client" },
             ]}
           />
         </div>
@@ -185,11 +204,11 @@ export default function AttendanceRecord({
               )}
               <button
                 type="button"
-                disabled={selectedIds.length === 0}
+                disabled={selectedIds.length === 0 || isPending}
                 className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer rounded"
                 onClick={handleBulkCreateAttendance}
               >
-                Create Attendance
+                {isPending ? "Creating Attendance" : "Create Attendance"}
               </button>
             </div>
           )}

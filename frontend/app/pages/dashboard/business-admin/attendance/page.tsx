@@ -47,13 +47,22 @@ export default function AttendancePage() {
     return storedData?.business_id;
   });
 
-  const { data: attendanceData } = useAllAttendances({ page, limit: 10, business_id:businessId });
+  const { data: attendanceData } = useAllAttendances({
+    page,
+    business_id: businessId,
+  });
 
   const {
     data: users,
     isLoading,
     isError,
-  } = useTodayAttendance({ page: 1, limit: 1000, business_id: businessId, search: debouncedSearch, role });
+  } = useTodayAttendance({
+    page: 1,
+    limit: 1000,
+    business_id: businessId,
+    search: debouncedSearch,
+    role,
+  });
 
   const { data: attendanceStats } = useAttendanceStats();
 
@@ -61,8 +70,6 @@ export default function AttendancePage() {
     () => attendanceData?.data ?? attendanceData ?? [],
     [attendanceData],
   );
-
-  const pagination = attendanceData?.pagination;
 
   const attendanceOverview = summary?.attendance;
 
@@ -209,16 +216,49 @@ export default function AttendancePage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Check-in Method Split
               </h3>
-              <ResponsiveContainer width="100%" height={280}>
+
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
+                  {/* CENTER TOTAL LABEL (custom overlay) */}
+                  <text
+                    x="50%"
+                    y="50%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="text-sm fill-gray-500"
+                  >
+                    Total
+                  </text>
+
+                  <text
+                    x="50%"
+                    y="54%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="text-lg font-semibold fill-gray-900"
+                  >
+                    {attendanceMethodData.reduce(
+                      (acc, curr) => acc + curr.value,
+                      0,
+                    )}
+                  </text>
+
                   <Pie
                     data={attendanceMethodData}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
-                    label
+                    outerRadius={105}
+                    innerRadius={60}
+                    paddingAngle={3}
+                    labelLine={false}
+                    label={({ name, percent }) => {
+                      const safePercent =
+                        typeof percent === "number" ? percent : 0;
+
+                      return `${name} (${(safePercent * 100).toFixed(0)}%)`;
+                    }}
                   >
                     {attendanceMethodData.map((entry, index) => (
                       <Cell
@@ -229,15 +269,53 @@ export default function AttendancePage() {
                       />
                     ))}
                   </Pie>
+
+                  {/* TOOLTIP */}
                   <Tooltip
+                    formatter={(value, name) => [`${value} records`, name]}
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: 8,
+                      fontSize: 12,
                     }}
                   />
                 </PieChart>
               </ResponsiveContainer>
+
+              {/* LEGEND */}
+              <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-gray-600">
+                {attendanceMethodData.map((item, index) => {
+                  const total = attendanceMethodData.reduce(
+                    (acc, curr) => acc + curr.value,
+                    0,
+                  );
+                  const percent = total ? (item.value / total) * 100 : 0;
+
+                  return (
+                    <div
+                      key={item.name}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{
+                            backgroundColor:
+                              ATTENDANCE_COLORS[
+                                index % ATTENDANCE_COLORS.length
+                              ],
+                          }}
+                        />
+                        <span>{item.name}</span>
+                      </div>
+                      <span className="font-medium text-gray-700">
+                        {percent.toFixed(1)}%
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">

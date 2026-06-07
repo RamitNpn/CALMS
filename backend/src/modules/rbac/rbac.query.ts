@@ -54,6 +54,7 @@ export const getPermissions: AppRouteQueryImplementation<
   typeof rbacContract.getPermissions
 > = async () => {
   const permissions = await permissionRepository.getAll();
+
   return {
     status: 200,
     body: permissions.map((permission) => ({

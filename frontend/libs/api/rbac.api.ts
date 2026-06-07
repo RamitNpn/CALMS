@@ -1,16 +1,16 @@
 import { apiClient } from "@/utils/api";
 
-export const getAllRbacRoles = async () => {
+const getAllRbacRoles = async () => {
   const response = await apiClient.get("/staff-role");
   return response.data;
 };
 
-export const getAllRbacPermissions = async () => {
-  const response = await apiClient.get("/staff-role/permissions");
+const getAllRbacPermissions = async () => {
+  const response = await apiClient.get("/staff-permissions");
   return response.data;
 };
 
-export const createRbacRole = async (data: {
+const createRbacRole = async (data: {
   role_name: string;
   description?: string;
   permissionCodes?: string[];
@@ -19,7 +19,14 @@ export const createRbacRole = async (data: {
   return response.data;
 };
 
-export const deleteRbacRole = async (roleId: string) => {
+const deleteRbacRole = async (roleId: string) => {
   const response = await apiClient.delete(`/staff-role/${roleId}`);
   return response.data;
 };
+
+export const rbacApi = {
+  getAllRbacRoles,
+  getAllRbacPermissions,
+  createRbacRole,
+  deleteRbacRole,
+}

@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
   message?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  isPending?: boolean;
 }
 
 export default function ConfirmDialog({
@@ -17,6 +18,7 @@ export default function ConfirmDialog({
   message,
   onConfirm,
   onCancel,
+  isPending,
 }: ConfirmDialogProps) {
   if (!open) return null;
 
@@ -30,7 +32,9 @@ export default function ConfirmDialog({
           <Button className="bg-red-400 hover:bg-red-500 text-white cursor-pointer" variant="primary" onClick={onCancel}>
             Cancel
           </Button>
-          <Button className="bg-green-400 hover:bg-green-500 text-white cursor-pointer" onClick={onConfirm}>
+          <Button
+          disabled={isPending}
+           className="bg-green-400 hover:bg-green-500 text-white cursor-pointer" onClick={onConfirm}>
             Proceed
           </Button>
         </div>

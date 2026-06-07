@@ -154,7 +154,7 @@ export default function LoginForm() {
             admin@example.com / admin@123
           </span>
           <span className="text-sm text-gray-500">
-            ganesh@gmail.com / ganesh@123
+            gauravkarki0927@gmail.com / Gaurav@123
           </span>
         </p>
       </div>

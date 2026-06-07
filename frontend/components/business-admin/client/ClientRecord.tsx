@@ -179,7 +179,6 @@ export default function ClientRecord({
             <th className="py-2 px-2 text-left">Email</th>
             <th className="py-2 px-2 text-left">Phone</th>
             <th className="py-2 px-2 text-left">Gender</th>
-            <th className="py-2 px-2 text-left">Role</th>
             <th className="py-2 px-2 text-left">Created At</th>
             <th className="py-2 px-2 text-left">Action</th>
           </tr>
@@ -212,10 +211,6 @@ export default function ClientRecord({
 
                 <td className="py-2 px-2 text-left capitalize">
                   {client.gender || "-"}
-                </td>
-
-                <td className="py-2 px-2 text-left capitalize">
-                  {client.role}
                 </td>
 
                 <td className="py-2 px-2 text-left">

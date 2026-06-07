@@ -22,7 +22,6 @@ interface StaffTableProps {
   onPageChange: (page: number) => void;
   search: string;
   setSearch: (value: string) => void;
-  onManagePermissions?: (staff: TStaff) => void;
   dateFilter: string;
   setDateFilter: (value: string) => void;
 }
@@ -38,7 +37,6 @@ export default function StaffRecord({
 
   dateFilter,
   setDateFilter,
-  onManagePermissions,
 }: StaffTableProps) {
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -173,7 +171,6 @@ export default function StaffRecord({
             <th className="py-3 px-2 text-left">Email</th>
             <th className="py-3 px-2 text-left">Phone</th>
             <th className="py-3 px-2 text-left">Gender</th>
-            <th className="py-3 px-2 text-left">Role</th>
             <th className="py-3 px-2 text-left">Created At</th>
             <th className="py-3 px-2 text-left">Action</th>
           </tr>
@@ -208,8 +205,6 @@ export default function StaffRecord({
                   {staff.gender || "-"}
                 </td>
 
-                <td className="py-3 px-2 text-left capitalize">{staff.role}</td>
-
                 <td className="py-3 px-2 text-left">
                   {moment(staff.createdAt).format("lll")}
                 </td>
@@ -226,14 +221,6 @@ export default function StaffRecord({
                       className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
                     >
                       <Eye size={16} className="text-yellow-600" />
-                    </button>
-
-                    {/* EDIT */}
-                    <button
-                      onClick={() => onManagePermissions?.(staff)}
-                      className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
-                    >
-                      <ShieldCheck size={16} className="text-blue-600" />
                     </button>
 
                     <button

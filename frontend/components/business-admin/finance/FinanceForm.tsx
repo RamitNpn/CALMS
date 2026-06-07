@@ -225,8 +225,10 @@ export function FinanceForm({ onClose, size = "lg" }: FinancialFormProps) {
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 >
                   <option value="cash">Cash</option>
-                  <option value="bank">Bank</option>
-                  <option value="online">Online</option>
+                  <option value="esewa">eSewa</option>
+                  <option value="khalti">Khalti</option>
+                  <option value="card">Card</option>
+                  <option value="bank_transfer">Bank</option>
                 </select>
               </div>
 

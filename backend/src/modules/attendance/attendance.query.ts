@@ -7,7 +7,7 @@ export const getTodayAttendance: AppRouteQueryImplementation<
   typeof attendanceContract.getTodayAttendance
 > = async ({ req }) => {
   const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
+  const limit = parseInt(req.query.limit as string);
   const skip = (page - 1) * limit;
 
   const search = (req.query.search as string) || undefined;
@@ -67,7 +67,7 @@ export const getAllAttendance: AppRouteQueryImplementation<
 > = async ({ req }) => {
   try {
     const page = Number(req.query?.page) || 1;
-    const limit = Number(req.query.limit) || 10;
+    const limit = Number(req.query.limit);
     const skip = (page - 1) * limit;
     const search = (req.query.search as string) || undefined;
     const dateFilter = (req.query.dateFilter as string) || undefined;

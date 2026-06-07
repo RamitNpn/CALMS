@@ -30,6 +30,14 @@ export const rbacContract = c.router({
       500: errorSchema,
     },
   },
+  getPermissions: {
+    method: "GET",
+    path: "/staff-permissions",
+    responses: {
+      200: getAllPermissionsSchema,
+      500: errorSchema,
+    },
+  },
   getRoleById: {
     method: "GET",
     path: "/staff-role/:roleId",
@@ -56,17 +64,10 @@ export const rbacContract = c.router({
     method: "DELETE",
     path: "/staff-role/:roleId",
     pathParams: z.object({ roleId: z.string().min(1) }),
+    body: z.object({}),
     responses: {
       200: z.object({ success: z.literal(true) }),
       404: errorSchema,
-      500: errorSchema,
-    },
-  },
-  getPermissions: {
-    method: "GET",
-    path: "/staff-role/permissions",
-    responses: {
-      200: getAllPermissionsSchema,
       500: errorSchema,
     },
   },

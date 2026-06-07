@@ -13,21 +13,6 @@ import {
 const c = initContract();
 
 export const serviceContract = c.router({
-  initializeService: {
-    method: "POST",
-    path: "/services/initialize",
-    summary: "Initialize default system services",
-    body: z.object({}),
-    responses: {
-      200: z.object({
-        success: z.boolean(),
-        message: z.string(),
-        data: getAllServicesSchema.optional(),
-      }),
-      400: errorSchema,
-      500: errorSchema,
-    },
-  },
 
   getAllServices: {
     method: "GET",
