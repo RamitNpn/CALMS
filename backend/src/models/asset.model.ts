@@ -1,9 +1,12 @@
 import mongoose, { Document } from "mongoose";
+import { string } from "zod/v4";
 
 export interface IAsset extends Document {
   business_id: mongoose.Types.ObjectId;
   name: string;
   type: string;
+  price: number;
+  image: string;
   customFields: Record<string, string>;
   status: string;
   createdAt: Date;
@@ -30,6 +33,14 @@ const AssetSchema = new mongoose.Schema(
       trim: true,
     },
 
+    price: {
+      type: Number,
+    },
+
+    image: {
+      type: string,
+    },
+
     customFields: {
       type: Map,
       of: String,
@@ -42,7 +53,7 @@ const AssetSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const AssetModel = mongoose.model<IAsset>("Asset", AssetSchema);

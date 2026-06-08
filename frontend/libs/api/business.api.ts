@@ -5,15 +5,16 @@ import {
   TGetAllBusinessByIdSchema,
   TAdminUpdateBusinessSchema,
 } from "../validation/business.validation";
+import { UsePaginationParams } from "../types/shared.types";
 
 const createBusiness = async (data: TCreateBusinessSchema) => {
   const res = await apiClient.post("/business", data);
   return res.data;
 };
 
-const getAllBusinessApi = async (page = 1, limit = 10) => {
+const getAllBusinessApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/business", {
-    params: { page, limit },
+    params,
   });
   return response.data;
 };

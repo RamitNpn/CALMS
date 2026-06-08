@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil, Plus } from "lucide-react";
+import { Trash2, Eye, Pencil, Plus, Printer } from "lucide-react";
 import moment from "moment";
 import TablePagination from "@/components/shared/Pagination";
 import { useState } from "react";
@@ -14,6 +14,7 @@ import { ViewBillingRecord } from "./ViewBillingRecord";
 import { EditBillingRecord } from "./EditBillingRecord";
 import { BillingForm } from "./BillingForm";
 import Button from "@/components/ui/button";
+import Select from "@/components/ui/select";
 
 interface BillingTableProps {
   billings: TBilling[];
@@ -22,8 +23,12 @@ interface BillingTableProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-}
+  search: string;
+  setSearch: (value: string) => void;
 
+  dateFilter: string;
+  setDateFilter: (value: string) => void;
+}
 export default function BillingRecord({
   billings,
   isLoading,
@@ -31,6 +36,11 @@ export default function BillingRecord({
   page,
   totalPages,
   onPageChange,
+  search,
+  setSearch,
+
+  dateFilter,
+  setDateFilter,
 }: BillingTableProps) {
   const [open, setOpen] = useState(false);
 
@@ -65,6 +75,51 @@ export default function BillingRecord({
     });
   };
 
+  const downloadRecords = () => {
+    if (!billings?.length) return;
+
+    const headers = [
+      "SN",
+      "Billing ID",
+      "Client Name",
+      "Client Email",
+      "Total Amount",
+      "Paid Amount",
+      "Status",
+      "Due Date",
+      "Created At",
+    ];
+
+    const rows = billings.map((b, i) => [
+      i + 1,
+      b._id,
+      b.clientName,
+      b.clientEmail || "",
+      b.totalAmount,
+      b.paidAmount,
+      b.status,
+      b.dueDate ? moment(b.dueDate).format("YYYY-MM-DD") : "",
+      moment(b.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `billing-records-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   if (isLoading) {
     return <p className="p-4">Loading...</p>;
   }
@@ -75,30 +130,68 @@ export default function BillingRecord({
 
   return (
     <div className="w-full h-[75vh] overflow-y-scroll">
-      <div className="flex justify-end mb-2">
-        <Button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
-        >
-          <Plus size={18} />
-          Create Business Billings
-        </Button>
+      <div className="flex items-center justify-between mr-2">
+        <div className="mb-4 flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onPageChange(1);
+            }}
+            className="border border-gray-300 rounded px-3 py-2 w-full md:w-80 outline-none text-[13px] focus:border-blue-600 bg-white shadow"
+          />
+
+          <Select
+            value={dateFilter}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              onPageChange(1);
+            }}
+            options={[
+              { label: "All Records", value: "all" },
+              { label: "Today", value: "current_day" },
+              { label: "This Week", value: "current_week" },
+              { label: "This Month", value: "current_month" },
+              { label: "This Year", value: "current_year" },
+            ]}
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+          >
+            <Plus size={18} />
+            Create Business Billings
+          </Button>
+
+          <Button
+            onClick={downloadRecords}
+            className="flex items-center justify-end gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
+          >
+            <Printer size={18} />
+            Export
+          </Button>
+        </div>
       </div>
       <table className="w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-800 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">SN</th>
-            <th className="py-3 px-6 text-left">Client</th>
-            <th className="py-3 px-6 text-left">Total Amount</th>
-            <th className="py-3 px-6 text-left">Paid Amount</th>
-            <th className="py-3 px-6 text-left">Status</th>
-            <th className="py-3 px-6 text-left">Due Date</th>
-            <th className="py-3 px-6 text-left">Created At</th>
-            <th className="py-3 px-6 text-left">Action</th>
+          <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">
+            <th className="py-3 px-2 text-left">SN</th>
+            <th className="py-3 px-2 text-left">Client</th>
+            <th className="py-3 px-2 text-left">Total Amount</th>
+            <th className="py-3 px-2 text-left">Paid Amount</th>
+            <th className="py-3 px-2 text-left">Status</th>
+            <th className="py-3 px-2 text-left">Due Date</th>
+            <th className="py-3 px-2 text-left">Created At</th>
+            <th className="py-3 px-2 text-left">Action</th>
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm">
+        <tbody className="text-gray-700 text-[13px]">
           {billings.length === 0 ? (
             <tr>
               <td colSpan={9} className="py-6 px-6 text-center text-gray-500">
@@ -109,13 +202,13 @@ export default function BillingRecord({
             billings.map((billing, index) => (
               <tr
                 key={billing._id}
-                className="border-b border-gray-200 hover:bg-gray-100 transition"
+                className="border-b border-gray-200 hover:bg-white transition rounded hover:translate-x-1"
               >
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {(page - 1) * 10 + index + 1}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <div className="flex flex-col">
                     <span className="font-medium">{billing.clientName}</span>
 
@@ -125,15 +218,15 @@ export default function BillingRecord({
                   </div>
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   Rs. {billing.totalAmount}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   Rs. {billing.paidAmount}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
                       billing.status === "paid"
@@ -147,15 +240,15 @@ export default function BillingRecord({
                   </span>
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {moment(billing.dueDate).format("ll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   {moment(billing.createdAt).format("lll")}
                 </td>
 
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-2 text-left">
                   <div className="flex items-center gap-2">
                     {/* VIEW */}
                     <button

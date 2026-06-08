@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { X, Plus, Trash2 } from "lucide-react";
 import clsx from "clsx";
@@ -10,6 +10,7 @@ import { assetApi } from "@/libs/api/asset.api";
 import { useToast } from "@/components/ui/toast";
 import { useAllAssetTypes } from "@/hooks/business-admin/asset-management/getAllAssetTypes";
 import { TAssetType } from "@/libs/types/assetType.types";
+import Image from "next/image";
 
 type AssetFormProps = {
   onClose?: () => void;
@@ -22,10 +23,11 @@ type AssetFormData = Omit<TCreateAsset, "customFields"> & {
 
 export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
   const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
+  const businessId = storedData?.business_id;
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const toast = useToast.getState();
-
-  const businessId = storedData?.business_id;
 
   const { data: assetTypesData } = useAllAssetTypes({
     page: 1,
@@ -50,6 +52,8 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       business_id: businessId,
       name: "",
       type: "",
+      price: 0,
+      image: undefined,
       status: "active",
       customFieldsArray: [{ key: "", value: "" }],
     },
@@ -62,7 +66,10 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
 
   const { mutate, isPending } = useMutation({
     mutationFn: assetApi.createAsset,
-    onSuccess: (data: { response?: { data?: { error?: string } }; message?: string }) => {
+    onSuccess: (data: {
+      response?: { data?: { error?: string } };
+      message?: string;
+    }) => {
       toast.show({
         message: data?.message || "Asset created successfully",
         type: "success",
@@ -71,7 +78,10 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
       reset();
       onClose?.();
     },
-    onError: (err: { response?: { data?: { error?: string } }; message?: string }) => {
+    onError: (err: {
+      response?: { data?: { error?: string } };
+      message?: string;
+    }) => {
       const errorMessage =
         err?.response?.data?.error || err?.message || "Failed to create asset";
       toast.show({
@@ -95,27 +105,28 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
         .map((f) => [f.key.trim(), f.value.trim()]),
     );
 
-    const payload: TCreateAsset = {
-      business_id: data.business_id,
-      name: data.name.trim(),
-      type: data.type.trim(),
-      status: data.status,
-      customFields:
-        Object.keys(customFieldsObject).length > 0
-          ? customFieldsObject
-          : ({} as Record<string, string>),
-    };
+    const formData = new FormData();
 
-    console.log("✅ FINAL PAYLOAD:", payload);
+    formData.append("business_id", businessId);
+    formData.append("name", data.name);
+    formData.append("type", data.type);
+    formData.append("price", String(data.price));
+    formData.append("status", data.status);
 
-    mutate(payload);
+    if (data.image?.[0]) {
+      formData.append("image", data.image[0]);
+    }
+
+    formData.append("customFields", JSON.stringify(customFieldsObject));
+
+    mutate(formData);
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div
         className={clsx(
-          "bg-white rounded-lg shadow-lg w-full h-auto overflow-y-auto",
+          "bg-white rounded-lg shadow-lg w-full h-[95vh] overflow-y-scroll",
           {
             "max-w-md": size === "sm",
             "max-w-lg": size === "md",
@@ -127,13 +138,16 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
         {/* HEADER */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-100 sticky top-0">
           <h2 className="text-xl font-semibold">Create Asset</h2>
-          <button onClick={onClose}>
-            <X className="text-red-500 border border-gray-200 cursor-pointer hover:bg-red-500 hover:text-white rounded" />
+          <button
+            onClick={onClose}
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
+          >
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* FORM */}
-        <div className="p-6">
+        <div className="p-6 text-[13px]">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <div>
@@ -178,9 +192,18 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
                     </option>
                   ))}
                 </select>
-
-                {errors.type && (
-                  <p className="text-red-500 text-sm">{errors.type.message}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Asset Price <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  {...register("price")}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                />
+                {errors.price && (
+                  <p className="text-red-500 text-sm">{errors.price.message}</p>
                 )}
               </div>
 
@@ -197,6 +220,36 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
                   <option value="inactive">Inactive</option>
                   <option value="maintenance">Maintenance</option>
                 </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium">Asset Image</label>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  {...register("image")}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+
+                    if (file) {
+                      setImagePreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                />
+
+                {imagePreview && (
+                  <div className="mt-3">
+                    <Image
+                      height={32}
+                      width={32}
+                      src={imagePreview}
+                      alt="Preview"
+                      className="h-32 w-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

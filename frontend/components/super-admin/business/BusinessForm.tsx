@@ -16,6 +16,59 @@ type BusinessFormProps = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
+const MOCK_SERVICES = [
+  {
+    service_key: "asset_management",
+    default_name: "Asset Management",
+  },
+
+  {
+    service_key: "attendance_management",
+    default_name: "Attendance Management",
+  },
+
+  {
+    service_key: "billing_management",
+    default_name: "Billing and Payments",
+  },
+
+  {
+    service_key: "business_management",
+    default_name: "Business Management",
+  },
+
+  {
+    service_key: "client_management",
+    default_name: "Client Management",
+  },
+
+    {
+    service_key: "inquiry_management",
+    default_name: "Inquiry Management",
+  },
+
+  {
+    service_key: "staff_management",
+    default_name: "Staff Management",
+  },
+
+  {
+    service_key: "profile_management",
+    default_name: "Profile Management",
+  },
+
+  {
+    service_key: "revenue_management",
+    default_name: "Revenue Management",
+  },
+
+  {
+    service_key: "token_management",
+    default_name: "Token Management",
+  },
+];
+
+
 export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
   const toast = useToast.getState();
 
@@ -98,7 +151,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 text-[13px]">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <div>
@@ -114,7 +167,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("businessName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
                 {errors.businessName && (
                   <p className="text-red-500 text-sm">
@@ -130,7 +183,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("businessType")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -141,7 +194,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("operatorName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -153,7 +206,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <input
                   type="email"
                   {...register("operatorEmail")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -162,7 +215,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <label className="block text-sm font-medium">Package</label>
                 <select
                   {...register("package")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 >
                   <option value="starter">Starter</option>
                   <option value="growth">Growth</option>
@@ -175,7 +228,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <label className="block text-sm font-medium">Branch Name</label>
                 <input
                   {...register("branch.name")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -186,7 +239,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("branch.location")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -195,7 +248,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <label className="block text-sm font-medium">Teams</label>
                 <input
                   {...register("teams")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -207,7 +260,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <input
                   type="date"
                   {...register("payment_initiation")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -236,24 +289,21 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
 
                       return (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {[
-                            "business_management",
-                            "asset_management",
-                            "client_management",
-                            "staff_management",
-                            "attendance_management",
-                            "billing_management",
-                          ].map((service) => (
+                          {MOCK_SERVICES.map((service) => (
                             <label
-                              key={service}
+                              key={service.service_key}
                               className="flex items-center gap-2 text-sm"
                             >
                               <input
                                 type="checkbox"
-                                checked={field.value.includes(service)}
-                                onChange={() => toggleService(service)}
+                                checked={field.value.includes(
+                                  service.service_key,
+                                )}
+                                onChange={() =>
+                                  toggleService(service.service_key)
+                                }
                               />
-                              {service}
+                              {service.default_name}
                             </label>
                           ))}
                         </div>

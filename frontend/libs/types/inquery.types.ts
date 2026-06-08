@@ -12,20 +12,11 @@ export type TLicenseType =
   | "bus"
   | "truck";
 
-export type TPackageType =
-  | "basic"
-  | "standard"
-  | "premium";
+export type TPackageType = "basic" | "standard" | "premium";
 
-export type TTrainingShift =
-  | "morning"
-  | "day"
-  | "evening";
+export type TTrainingShift = "morning" | "day" | "evening";
 
-export type TExperienceLevel =
-  | "beginner"
-  | "intermediate"
-  | "experienced";
+export type TExperienceLevel = "beginner" | "intermediate" | "experienced";
 
 export type TDocumentType =
   | "citizenship_copy"
@@ -41,8 +32,8 @@ export type TDrivingInquiry = {
   age?: number;
   gender?: string;
   state: string;
-district: string;
-street: string;
+  district: string;
+  street: string;
   occupation?: string;
   inquiryType: TInquiryType;
   licenseType: TLicenseType;

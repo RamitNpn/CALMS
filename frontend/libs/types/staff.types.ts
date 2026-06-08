@@ -8,6 +8,8 @@ export interface TStaff {
   gender: Gender;
   profile?: string;
   role: string;
+  staffRoleId?: string;
+  staffPermissions?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,5 +21,6 @@ export interface TCreateStaff {
   userPhone: string;
   gender: Gender;
   profile?: FileList;
-  role:string;
+  role: string;
+  staffPermissions?: string[];
 }

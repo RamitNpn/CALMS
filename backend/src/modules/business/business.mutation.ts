@@ -17,25 +17,50 @@ const MOCK_SERVICES = [
     service_key: "asset_management",
     default_name: "Asset Management",
   },
+
   {
     service_key: "attendance_management",
     default_name: "Attendance Management",
   },
+
   {
     service_key: "billing_management",
     default_name: "Billing and Payments",
   },
+
   {
     service_key: "business_management",
     default_name: "Business Management",
   },
+
   {
     service_key: "client_management",
     default_name: "Client Management",
   },
+
+    {
+    service_key: "inquiry_management",
+    default_name: "Inquiry Management",
+  },
+
   {
     service_key: "staff_management",
     default_name: "Staff Management",
+  },
+
+  {
+    service_key: "profile_management",
+    default_name: "Profile Management",
+  },
+
+  {
+    service_key: "revenue_management",
+    default_name: "Revenue Management",
+  },
+
+  {
+    service_key: "token_management",
+    default_name: "Token Management",
   },
 ];
 
@@ -143,7 +168,6 @@ export const createBusiness: AppRouteMutationImplementation<
         normalizedServices = [services];
       }
     }
-
 
     await ensureServicesInitialized();
 

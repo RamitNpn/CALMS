@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const createAttendanceSchema = z.object({
+  userIds: z.array(z.string().min(1)).min(1, "At least one user ID is required"),
   business_id: z.string().min(1, "Business ID is required"),
-  clientName: z.string().min(2, "Client name is required").max(100),
-  clientEmail: z.string().email(),
-  userType: z.string().min(1, "User type is required"),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
+  status: z.enum(["Present", "Absent", "Leave", "Late"]),
+  date: z.string().optional(),
   method: z.enum(["QR", "Manual"]).optional(),
 });
 
@@ -15,11 +15,11 @@ export type TCreateAttendanceSchema = z.infer<typeof createAttendanceSchema>;
 export const attendanceSchema = z.object({
   _id: z.string(),
   business_id: z.string(),
-  clientName: z.string(),
-  clientEmail: z.string().email(),
+  userIds: z.array(z.string().min(1)).min(1, "At least one user ID is required"),
   userType: z.string().min(1, "User type is required"),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
+  status: z.string().optional(),
   method: z.enum(["QR", "Manual"]).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -35,9 +35,10 @@ export type TGetAttendanceByIdSchema = z.infer<typeof getAttendanceByIDSchema>;
 
 export const updateAttendanceSchema = z.object({
   _id: z.string().min(1, "Attendance ID is required"),
-  clientName: z.string().min(2, "Client name is required").max(100).optional(),
+  userId: z.string().min(1, "User ID is required").optional(),
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
+  status: z.enum(["Present", "Absent", "Leave", "Late"]).optional(),
   method: z.enum(["QR", "Manual"]).optional(),
 });
 

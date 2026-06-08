@@ -10,14 +10,14 @@ export function useDeleteAttendance() {
 
   return useMutation({
     mutationFn: (id: string) => attendanceApi.deleteAttendanceApi(id),
-    onSuccess: (data: any) => {
-      queryClient.invalidateQueries({ queryKey: ["delete attendance"] });
+    onSuccess: (data: { message?: string } | undefined) => {
+      queryClient.invalidateQueries({ queryKey: ["attendances"] });
       toast.show({
         message: data?.message || "Attendance deleted successfully",
         type: "success",
       });
     },
-    onError: (error: any) => {
+    onError: (error: { response?: { data?: { error?: string } }; message?: string }) => {
       const errorMessage = error?.response?.data?.error || error?.message || "Failed to delete attendance";
       toast.show({
         message: errorMessage,

@@ -1,16 +1,28 @@
 import { apiClient } from "@/utils/api";
-import { TCreateAttendanceSchema, TDeleteAttendanceSchema, TGetAttendanceByIdSchema, TUpdateAttendanceSchema } from "../validation/attendance.validation";
-
+import {
+  TCreateAttendanceSchema,
+  TDeleteAttendanceSchema,
+  TGetAttendanceByIdSchema,
+  TUpdateAttendanceSchema,
+} from "../validation/attendance.validation";
+import { UsePaginationParams } from "../types/shared.types";
 
 const createAttendance = async (data: TCreateAttendanceSchema) => {
   const response = await apiClient.post("/attendance", data);
   return response.data;
 };
 
-const getAllAttendanceApi = async (  page = 1,
-  limit = 10) => {
+const getTodayAttendanceApi = async (params: UsePaginationParams) => {
+  const response = await apiClient.get(`/today`, {
+    params,
+  });
+  console.log(params);
+  return response.data;
+};
+
+const getAllAttendanceApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/attendance", {
-    params: { page, limit }
+    params,
   });
   return response.data;
 };
@@ -22,6 +34,17 @@ const getAttendanceByIdApi = async (
   return response.data;
 };
 
+const getAttendanceByUserApi = async (userId: string, page = 1, dateFilter: string) => {
+  const response = await apiClient.get(`/attendance/user/${userId}`, {
+    params: {
+      page,
+      dateFilter,
+    },
+  });
+
+  return response.data;
+};
+
 const updateAttendanceApi = async (
   attendanceId: string,
   data: Partial<TUpdateAttendanceSchema>,
@@ -30,15 +53,19 @@ const updateAttendanceApi = async (
   return response.data;
 };
 
-const deleteAttendanceApi = async (attendanceId: TDeleteAttendanceSchema["_id"]) => {
+const deleteAttendanceApi = async (
+  attendanceId: TDeleteAttendanceSchema["_id"],
+) => {
   const response = await apiClient.delete(`/attendance/${attendanceId}`);
   return response.data;
 };
 
 export const attendanceApi = {
   createAttendance,
+  getTodayAttendanceApi,
   getAllAttendanceApi,
   getAttendanceByIdApi,
   updateAttendanceApi,
   deleteAttendanceApi,
+  getAttendanceByUserApi,
 };

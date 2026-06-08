@@ -13,10 +13,6 @@ export default function Header() {
   const userRole = storedData?.role || [];
   const userName = storedData?.userName;
 
-  const handleLogout = () => {
-    logout();
-  };
-
   return (
     <header className="flex items-center justify-between border-b border-gray-200 bg-white shadow-sm px-3 sm:px-4 lg:px-6 py-2">
       {/* LEFT */}
@@ -64,7 +60,7 @@ export default function Header() {
 
         {/* Logout */}
         <button
-          onClick={handleLogout}
+          onClick={logout}
           className="p-1.5 lg:p-2 bg-gray-100 hover:bg-black hover:text-white text-gray-700 rounded-full transition"
         >
           <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />

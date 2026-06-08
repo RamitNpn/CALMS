@@ -3,6 +3,7 @@ export interface TAsset {
   business_id: string;
   name: string;
   type: string;
+  price: number;
   customFields: Record<string, string>;
   status: string;
   createdAt: Date;
@@ -13,6 +14,8 @@ export interface TCreateAsset {
   business_id: string;
   name: string;
   type: string;
+  price: number;
+  image: FileList;
   customFields: Record<string, string>;
   status: string;
 }

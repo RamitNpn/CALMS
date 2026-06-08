@@ -33,7 +33,7 @@ export function AssetTypeForm({ onClose, size = "lg" }: AssetTypeFormProps) {
   } = useForm<TCreateAssetType>({
     defaultValues: {
       business_id: businessId,
-      typeName: "",
+      typeName: undefined,
       description: "",
     },
   });

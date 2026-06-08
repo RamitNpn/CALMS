@@ -31,25 +31,33 @@ export default function LoginForm() {
 
     onSuccess: (data) => {
       toast.show({
-        message: "Login success:",
+        message: "Login success",
         type: "success",
       });
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("auth-data", JSON.stringify(data));
+      const normalizedData = {
+        ...data,
+        role: Array.isArray(data.role) ? data.role : [data.role],
+        permissions: Array.isArray(data.permissions)
+          ? data.permissions
+          : data.permissions
+          ? [data.permissions]
+          : [],
+      };
 
-      document.cookie = `token=${data.token}; path=/; max-age=86400`;
+      localStorage.setItem("token", normalizedData.token);
+      localStorage.setItem("auth-data", JSON.stringify(normalizedData));
 
-      setAuthData(data);
+      document.cookie = `token=${normalizedData.token}; path=/; max-age=86400`;
 
-      if (data.role === "admin") {
+      setAuthData(normalizedData);
+
+      if (normalizedData.role.includes("admin")) {
         router.push("/pages/dashboard/super-admin");
-      } else if (data.role === "business") {
-        router.push("/pages/dashboard/business-admin");
-      } else if (data.role === "staff") {
+      } else if (normalizedData.role.includes("business") || normalizedData.role.includes("staff")) {
         router.push("/pages/dashboard/business-admin");
       } else {
-        router.push("/");
+        router.push("/pages/login");
       }
     },
 
@@ -146,7 +154,7 @@ export default function LoginForm() {
             admin@example.com / admin@123
           </span>
           <span className="text-sm text-gray-500">
-            ganesh@gmail.com / ganesh@123
+            gauravkarki0927@gmail.com / Gaurav@123
           </span>
         </p>
       </div>

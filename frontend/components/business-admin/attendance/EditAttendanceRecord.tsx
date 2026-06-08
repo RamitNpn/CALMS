@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,11 +30,12 @@ export function EditAttendanceRecord({
   onSuccess,
   size = "lg",
 }: Props) {
+  const toast = useToast.getState();
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isError } = useAttendanceById(attendanceId);
 
   const attendance = data?.data ?? data;
-
-  const toast = useToast.getState();
 
   const {
     register,
@@ -46,10 +47,9 @@ export function EditAttendanceRecord({
 
     defaultValues: {
       _id: attendanceId,
-      clientName: "",
       checkIn: "",
       checkOut: "",
-      method: undefined,
+      status: undefined,
     },
   });
 
@@ -67,7 +67,7 @@ export function EditAttendanceRecord({
         ? new Date(attendance.checkOut).toISOString().slice(0, 16)
         : "",
 
-      method: attendance.method ?? "Manual",
+      status: attendance.status ?? "Present",
     });
   }, [attendanceId, attendance, reset]);
 
@@ -81,6 +81,7 @@ export function EditAttendanceRecord({
     }) => attendanceApi.updateAttendanceApi(attendanceId, data),
 
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attendances"] });
       toast.show({
         message: "Attendance updated successfully",
         type: "success",
@@ -104,10 +105,9 @@ export function EditAttendanceRecord({
   const onSubmit = (values: TUpdateAttendanceSchema) => {
     const payload = {
       _id: attendanceId,
-      clientName: values.clientName,
       checkIn: values.checkIn,
       checkOut: values.checkOut,
-      method: values.method,
+      status: values.status,
     };
 
     mutate({
@@ -140,8 +140,11 @@ export function EditAttendanceRecord({
             Flowdesk - Edit Attendance
           </h2>
 
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
+          <button
+            onClick={onClose}
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
+          >
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
@@ -151,24 +154,6 @@ export function EditAttendanceRecord({
             <p className="text-xl font-semibold">Edit Attendance Record</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* CLIENT NAME */}
-              <div>
-                <label className="block text-sm font-medium">
-                  Client Name <span className="text-red-500">*</span>
-                </label>
-
-                <input
-                  {...register("clientName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-
-                {errors.clientName && (
-                  <p className="text-red-500 text-sm">
-                    {errors.clientName.message}
-                  </p>
-                )}
-              </div>
-
               {/* CHECK IN */}
               <div>
                 <label className="block text-sm font-medium">Check In</label>
@@ -203,16 +188,18 @@ export function EditAttendanceRecord({
                 )}
               </div>
 
-              {/* METHOD */}
+              {/* STATUS */}
               <div>
-                <label className="block text-sm font-medium">Method</label>
+                <label className="block text-sm font-medium">Status</label>
 
                 <select
-                  {...register("method")}
+                  {...register("status")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 >
-                  <option value="Manual">Manual</option>
-                  <option value="QR">QR</option>
+                  <option value="Present">Present</option>
+                  <option value="Absent">Absent</option>
+                  <option value="Leave">Leave</option>
+                  <option value="Late">Late</option>
                 </select>
               </div>
             </div>

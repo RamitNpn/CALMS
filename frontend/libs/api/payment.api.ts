@@ -6,6 +6,7 @@ import {
   TGetPaymentByIdSchema,
   TRenewPaymentSchema,
 } from "../validation/payment.validation";
+import { UsePaginationParams } from "../types/shared.types";
 
 const createPayment = async (data: TCreatePaymentSchema) => {
   const res = await apiClient.post("/payment", data);
@@ -17,9 +18,9 @@ const renewPayment = async (data: TRenewPaymentSchema) => {
   return res.data;
 };
 
-const getAllPaymentsApi = async (page = 1, limit = 10) => {
+const getAllPaymentsApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/payment", {
-    params: { page, limit },
+    params,
   });
   return response.data;
 };

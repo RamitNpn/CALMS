@@ -20,7 +20,6 @@ export interface TCreateClient {
   userName: string;
   userEmail: string;
   userPhone: string;
-  userPassword: string;
   gender?: Gender;
   profile?: FileList;
   citizenship?: FileList;

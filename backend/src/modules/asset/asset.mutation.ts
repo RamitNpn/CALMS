@@ -10,13 +10,27 @@ export const createAsset: AppRouteMutationImplementation<
   typeof assetContract.createAsset
 > = async ({ req }) => {
   try {
-    const { business_id, name, type, customFields, status } = req.body;
+    const { business_id, name, type, price, image, customFields, status } =
+      req.body;
+
+    const customFieldsArray =
+      typeof req.body.customFields === "string"
+        ? JSON.parse(req.body.customFields)
+        : req.body.customFields;
+
+    const files = req.files as {
+      image?: Express.Multer.File[];
+    };
+
+    const imageUrl = files?.image?.[0]?.path || "";
 
     const asset = await assetRepository.create({
       business_id: new mongoose.Types.ObjectId(business_id),
       name,
       type,
-      customFields,
+      price,
+      image: imageUrl,
+      customFields: customFieldsArray,
       status,
     });
 
@@ -70,31 +84,29 @@ export const updateAsset: AppRouteMutationImplementation<
 > = async ({ req }) => {
   try {
     const { assetID } = req.params;
-    const { name, type, customFields, status } = req.body;
+    const { name, type, price, image, customFields, status } = req.body;
 
-    console.log("UPDATING ASSET:", assetID);
-    console.log("NAME:", name);
-    console.log("TYPE:", type);
-    console.log("STATUS:", status);
-    console.log(
-      "CUSTOM FIELDS RECEIVED:",
-      JSON.stringify(customFields, null, 2),
-    );
-    console.log("FULL REQ BODY:", JSON.stringify(req.body, null, 2));
+    const customFieldsArray =
+      typeof req.body.customFields === "string"
+        ? JSON.parse(req.body.customFields)
+        : req.body.customFields;
 
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (type !== undefined) updateData.type = type;
+    if (price !== undefined) updateData.price = price;
     if (status !== undefined) updateData.status = status;
     if (customFields !== undefined) {
-      console.log(
-        "SETTING CUSTOM FIELDS TO:",
-        JSON.stringify(customFields, null, 2),
-      );
-      updateData.customFields = customFields;
+      updateData.customFields = customFieldsArray;
     }
 
-    console.log("FINAL UPDATE DATA:", JSON.stringify(updateData, null, 2));
+    const files = req.files as {
+      image?: Express.Multer.File[];
+    };
+
+    const imageUrl = files?.image?.[0]?.path || "";
+
+    if (imageUrl !== undefined) updateData.image = imageUrl;
 
     const updated = await assetRepository.update(assetID, updateData);
 
@@ -107,11 +119,6 @@ export const updateAsset: AppRouteMutationImplementation<
         },
       };
     }
-
-    console.log(
-      "ASSET UPDATED SUCCESSFULLY. NEW CUSTOM FIELDS:",
-      JSON.stringify(updated.customFields, null, 2),
-    );
 
     return {
       status: 200,

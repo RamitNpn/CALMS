@@ -68,8 +68,8 @@ export function ViewAssetRecord({
         <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-100 sticky top-0">
           <h2 className="text-lg font-semibold">Asset Details - <span className="italic text-red-500 text-sm font-md">{asset.name}</span></h2>
 
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 

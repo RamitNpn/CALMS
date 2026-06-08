@@ -28,8 +28,10 @@ export const businessContract = c.router({
     method: "GET",
     path: "/business",
     query: z.object({
-      page: z.string().optional(),
-      limit: z.string().optional(),
+      page: z.coerce.number().optional(),
+      limit: z.coerce.number().optional(),
+      search: z.string().optional(),
+      dateFilter: z.string().optional(),
     }),
     summary: "Get all businesses with pagination",
     responses: {

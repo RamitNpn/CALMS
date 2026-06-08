@@ -13,6 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   CardSim,
+  Book,
+  FileQuestion,
 } from "lucide-react";
 
 import { useAllService } from "@/hooks/business-admin/service/getAllServiceDatas";
@@ -21,7 +23,7 @@ const menu = [
   // ADMIN
   {
     id: "super-dashboard",
-    name: "Dashboard",
+    name: "Analytic Dashboard",
     href: "/pages/dashboard/super-admin",
     icon: LayoutDashboard,
     exact: true,
@@ -37,7 +39,7 @@ const menu = [
   },
   {
     id: "super-payment",
-    name: "Payment Management",
+    name: "Billing Management",
     href: "/pages/dashboard/super-admin/payments",
     icon: CreditCard,
     exact: false,
@@ -52,38 +54,55 @@ const menu = [
     icon: LayoutDashboard,
     exact: true,
     roles: ["business", "staff"],
+    permission: ["business_management:view", "staff_management:view"],
   },
-
+    {
+    id: "business-inquiry",
+    name: "Client Inquiries",
+    href: "/pages/dashboard/business-admin/inquiry",
+    icon: FileQuestion,
+    exact: true,
+    roles: ["business", "staff"],
+    permission: "reports:view",
+  },
   {
     id: "profile",
-    serviceKey: "business_management",
-    href: "/pages/dashboard/business-admin/business",
+    name: "Revenue Management",
+    serviceKey: "revenue_management",
+    href: "/pages/dashboard/business-admin/finance",
     icon: Building2,
     roles: ["business", "staff"],
+    permission: "business_management:view",
   },
 
   {
     id: "asset",
+    name: "Assets",
     serviceKey: "asset_management",
     href: "/pages/dashboard/business-admin/assets",
     icon: BarChart,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "asset_management:view",
   },
 
   {
     id: "client",
+    name: "Clients",
     serviceKey: "client_management",
     href: "/pages/dashboard/business-admin/clients",
     icon: Users,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "client_management:view",
   },
 
   {
     id: "staff",
+    name: "Staff",
     serviceKey: "staff_management",
     href: "/pages/dashboard/business-admin/staff",
     icon: Users,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "staff_management:view",
   },
 
   {
@@ -92,32 +111,46 @@ const menu = [
     href: "/pages/dashboard/business-admin/token",
     icon: CardSim,
     exact: true,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "token_management:view",
   },
 
   {
     id: "attendance",
+    name: "Attendance",
     serviceKey: "attendance_management",
     href: "/pages/dashboard/business-admin/attendance",
     icon: LayoutDashboard,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "attendance_management:view",
   },
 
   {
     id: "billing",
+    name: "Billing",
     serviceKey: "billing_management",
     href: "/pages/dashboard/business-admin/billing",
     icon: CreditCard,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "billing_management:view",
+  },
+    {
+    id: "profile-management",
+    name: "Profile Management",
+    href: "/pages/dashboard/business-admin/profile",
+    icon: Book,
+    exact: true,
+    roles: ["business", "staff"],
   },
 ];
 
 type Props = {
   userRole: string[];
+  permissions?: string[];
   userName?: string;
 };
 
-export default function Sidebar({ userRole, userName }: Props) {
+export default function Sidebar({ userRole, permissions = [], userName }: Props) {
   const pathname = usePathname();
 
   const { data: serviceData } = useAllService();
@@ -174,12 +207,19 @@ export default function Sidebar({ userRole, userName }: Props) {
   const filteredMenu = useMemo(() => {
     return menu.filter((item) => {
       const hasRoleAccess = item.roles.some((r) => userRole.includes(r));
-
       if (!hasRoleAccess) return false;
 
       if (userRole.includes("admin")) return true;
 
-      if (item.id === "business-dashboard") return true;
+      if (item.permission) {
+        const permissionMatch = Array.isArray(item.permission)
+          ? item.permission.some((code) => permissions.includes(code))
+          : permissions.includes(item.permission);
+
+        if (!permissionMatch) {
+          return false;
+        }
+      }
 
       if (item.serviceKey) {
         return allowedServices.includes(item.serviceKey);
@@ -187,7 +227,7 @@ export default function Sidebar({ userRole, userName }: Props) {
 
       return true;
     });
-  }, [allowedServices, userRole]);
+  }, [allowedServices, permissions, userRole]);
 
   return (
     <aside

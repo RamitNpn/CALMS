@@ -10,12 +10,17 @@ const createInquiry = async (data: TCreateDrivingInquirySchema) => {
   return response.data;
 };
 
-const getAllInquiries = async (page = 1, limit = 10) => {
-  const response = await apiClient.get("/inquiry", {
-    params: { page, limit },
+const getAllInquiries = async (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  dateFilter?: string;
+}) => {
+  const res = await apiClient.get("/inquiry", {
+    params,
   });
 
-  return response.data;
+  return res.data;
 };
 
 const getInquiryById = async (id: string) => {
