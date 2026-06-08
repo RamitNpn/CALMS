@@ -64,7 +64,6 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute
       allowedRoles={["business", "staff"]}
-      allowedPermissions={["business_management:view", "staff_management:view"]}
     >
       <div className="space-y-8">
         <div>

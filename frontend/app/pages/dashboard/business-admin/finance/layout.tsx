@@ -2,7 +2,7 @@
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-export default function BusinessLayout({
+export default function RevenueLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ export default function BusinessLayout({
   return (
     <ProtectedRoute
       allowedRoles={["business", "staff"]}
-      allowedPermissions={["profile_management:view"]}
+      allowedPermissions={["revenue_management:view"]}
     >
       {children}
     </ProtectedRoute>
