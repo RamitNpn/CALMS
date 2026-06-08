@@ -81,9 +81,16 @@ export function ViewBusinessRecord({
           <div>
             <p className="font-medium">Services</p>
             <div className="flex flex-wrap gap-2 mt-1">
-              {business.services?.map((s: string) => (
-                <span key={s} className="px-2 py-1 bg-gray-100 rounded text-xs">
-                  {s}
+              {business.services?.map((s: any) => (
+                <span
+                  key={s.service_key}
+                  className={`px-2 py-1 rounded text-xs ${
+                    s.enabled
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {s.default_name}
                 </span>
               ))}
             </div>
