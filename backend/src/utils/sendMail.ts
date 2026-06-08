@@ -1,5 +1,7 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import env from "../config/env";
+
+const resend = new Resend(env.email_pass);
 
 type SendMailOptions = {
   to: string;
@@ -7,34 +9,19 @@ type SendMailOptions = {
   html: string;
 };
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: env.email_user,
-    pass: env.email_pass,
-  },
-});
-
-export const sendMail = async ({
-  to,
-  subject,
-  html,
-}: SendMailOptions) => {
+export const sendMail = async ({ to, subject, html }: SendMailOptions) => {
   try {
-    const info = await transporter.sendMail({
-      from: `"FlowDesk" <${env.email_user}>`,
+    const result = await resend.emails.send({
+      from: env.email_user || "FlowDesk <onboarding@resend.dev>",
       to,
       subject,
       html,
     });
 
-    console.log("Email sent:", info.messageId);
-
-    return info;
+    console.log("Email sent via Resend:", result);
+    return result;
   } catch (error) {
-    console.error("Email error:", error);
+    console.error("Resend email error:", error);
     throw error;
   }
 };
