@@ -8,8 +8,9 @@ type SendMailOptions = {
 };
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
     user: env.email_user,
     pass: env.email_pass,
