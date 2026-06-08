@@ -96,7 +96,9 @@ export default function TokenRecord({
       t.fullName,
       t.phone,
       t.vehicleCategory,
-      t.participationDate ? moment(t.participationDate).format("YYYY-MM-DD") : "",
+      t.participationDate
+        ? moment(t.participationDate).format("YYYY-MM-DD")
+        : "",
       moment(t.createdAt).format("YYYY-MM-DD HH:mm:ss"),
     ]);
 
@@ -160,7 +162,7 @@ export default function TokenRecord({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setOpen(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded flex items-center gap-2"
+            className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
           >
             <Plus size={16} />
             Generate Token
@@ -168,7 +170,7 @@ export default function TokenRecord({
 
           <button
             onClick={downloadRecords}
-            className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2"
+            className="flex items-center justify-end gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
           >
             <Printer size={14} />
             Export
