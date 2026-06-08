@@ -94,7 +94,7 @@ export const authLogin: AppRouteMutationImplementation<
       status: 200,
       body: {
         id: account._id.toString(),
-        business_id,
+        business_id: business_id.toString(),
         businessName,
         userName,
         userEmail,

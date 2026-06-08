@@ -6,11 +6,19 @@ export const getAllBusinesses: AppRouteQueryImplementation<
   typeof businessContract.getAllBusinesses
 > = async ({ req }) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
     const skip = (page - 1) * limit;
 
-    const { data: businesses, total } = await businessRepository.getAll(skip, limit);
+    const search = req.query.search?.trim() || "";
+    const dateFilter = req.query.dateFilter || "all";
+
+    const { data: businesses, total } = await businessRepository.getAll({
+      skip,
+      limit,
+      search,
+      dateFilter,
+    });
     const totalPages = Math.ceil(total / limit);
 
     const formattedBusinesses = businesses.map((b: any) => ({

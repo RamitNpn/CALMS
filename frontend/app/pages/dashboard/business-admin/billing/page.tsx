@@ -7,12 +7,7 @@ import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import CustomizeSection from "@/components/shared/CustomizeSection";
 import { useAllBillings } from "@/hooks/business-admin/billing-management/getAllBillings";
-import {
-  BarChart3,
-  Settings,
-  ActivitySquare,
-  FileText,
-} from "lucide-react";
+import { BarChart3, Settings, ActivitySquare, FileText } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -51,7 +46,10 @@ export default function BillingPage() {
     isError,
   } = useAllBillings({ page, limit: 10, search: debouncedSearch, dateFilter });
 
-  const billings: TBilling[] = billingData?.data ?? billingData ?? [];
+  const billings = useMemo<TBilling[]>(
+    () => billingData?.data ?? billingData ?? [],
+    [billingData],
+  );
   const pagination = billingData?.pagination;
 
   const billingOverview = summary?.billing;
@@ -263,13 +261,19 @@ export default function BillingPage() {
               </h3>
               <div className="space-y-4 text-sm text-gray-600">
                 <p>
-                  Revenue is currently ${billingStats.totalRevenue.toLocaleString()}.
+                  Revenue is currently $
+                  {billingStats.totalRevenue.toLocaleString()}.
                 </p>
                 <p>
-                  Outstanding balance sits at ${billingStats.pendingPayments.toLocaleString()} with {billingStats.overdueCount.toLocaleString()} overdue invoices.
+                  Outstanding balance sits at $
+                  {billingStats.pendingPayments.toLocaleString()} with{" "}
+                  {billingStats.overdueCount.toLocaleString()} overdue invoices.
                 </p>
                 <p>
-                  Average invoice value is ${billingStats.averageInvoiceValue.toFixed(0)} across {billingStats.invoiceCount.toLocaleString()} live billing records.
+                  Average invoice value is $
+                  {billingStats.averageInvoiceValue.toFixed(0)} across{" "}
+                  {billingStats.invoiceCount.toLocaleString()} live billing
+                  records.
                 </p>
               </div>
             </div>

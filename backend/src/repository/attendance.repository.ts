@@ -61,7 +61,11 @@ class AttendanceRepository {
 
         switch (dateFilter) {
           case "current_day":
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            startDate = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate(),
+            );
             filter.createdAt = { $gte: startDate, $lte: now };
             break;
 
@@ -107,21 +111,64 @@ class AttendanceRepository {
     }
   }
 
-  getAttendanceByUserId = async (
-    userId: string,
-    skip: number,
-    limit: number,
-  ) => {
-    const query = {
-      userId: new mongoose.Types.ObjectId(userId),
-    };
+  async getAttendanceByUserId({
+    userId,
+    skip,
+    dateFilter,
+  }: {
+    userId: string;
+    skip: number;
+    dateFilter?: string;
+  }) {
+    const query: any = {};
+
+    if (userId) {
+      query.userId = userId;
+    }
+
+    const now = new Date();
+
+    if (dateFilter && dateFilter !== "all") {
+      let startDate: Date;
+
+      switch (dateFilter) {
+        case "current_day":
+          startDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+          );
+          query.createdAt = { $gte: startDate, $lte: now };
+          break;
+
+        case "current_week": {
+          const firstDayOfWeek = new Date(now);
+          const day = firstDayOfWeek.getDay();
+          const diff = day === 0 ? -6 : 1 - day;
+          firstDayOfWeek.setDate(firstDayOfWeek.getDate() + diff);
+          firstDayOfWeek.setHours(0, 0, 0, 0);
+
+          query.createdAt = { $gte: firstDayOfWeek, $lte: now };
+          break;
+        }
+
+        case "current_month":
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          query.createdAt = { $gte: startDate, $lte: now };
+          break;
+
+        case "current_year":
+          startDate = new Date(now.getFullYear(), 0, 1);
+          query.createdAt = { $gte: startDate, $lte: now };
+          break;
+      }
+    }
 
     const [data, total] = await Promise.all([
       AttendanceModel.find(query)
         .populate("userId", "fullName email role")
         .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
+        .skip(skip),
 
       AttendanceModel.countDocuments(query),
     ]);
@@ -130,7 +177,7 @@ class AttendanceRepository {
       data,
       total,
     };
-  };
+  }
 
   async updateAttendance(id: string, data: Partial<IAttendance>) {
     try {

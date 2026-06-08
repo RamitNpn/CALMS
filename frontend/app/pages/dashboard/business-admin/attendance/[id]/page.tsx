@@ -35,6 +35,7 @@ const getAttendanceStatus = (attendance: TAttendance) => {
 
 export default function AttendanceProfileRecord() {
   const [page, setPage] = useState(1);
+  const [dateFilter, setDateFilter] = useState("all");
 
   const [activeTab, setActiveTab] = useState("record");
   const params = useParams();
@@ -45,7 +46,7 @@ export default function AttendanceProfileRecord() {
     data: attendanceData,
     isLoading,
     error: isError,
-  } = useAttendanceByUser(userId, page);
+  } = useAttendanceByUser(userId, page, dateFilter);
 
   const attendances = useMemo(() => {
     if (!attendanceData) {
@@ -108,6 +109,8 @@ export default function AttendanceProfileRecord() {
           page={page}
           totalPages={attendanceData?.pagination?.totalPages || 1}
           onPageChange={setPage}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
         />
       )}
 

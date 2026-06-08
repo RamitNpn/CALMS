@@ -28,7 +28,6 @@ import {
   YAxis,
 } from "recharts";
 
-import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 import { useAllFinance } from "@/hooks/business-admin/business-management/getAllFinance";
 import { TFinance } from "@/libs/types/finance.types";
 import FinanceRecord from "@/components/business-admin/finance/FinanceRecord";
@@ -53,11 +52,12 @@ export default function FinancePage() {
     dateFilter,
   });
 
-  const records: TFinance[] = financeData?.data ?? financeData ?? [];
+  const records = useMemo<TFinance[]>(
+    () => financeData?.data ?? financeData ?? [],
+    [financeData],
+  );
 
   const pagination = financeData?.pagination;
-
-  const { summary } = useBusinessAnalytics();
 
   const incomeRecords = useMemo(
     () => records.filter((r) => r.type === "income"),
@@ -69,13 +69,9 @@ export default function FinancePage() {
     [records],
   );
 
-  const totalIncome =
-    summary?.finance?.totalIncome ??
-    incomeRecords.reduce((acc, r) => acc + r.amount, 0);
+  const totalIncome = incomeRecords.reduce((acc, r) => acc + r.amount, 0);
 
-  const totalExpense =
-    summary?.finance?.totalExpense ??
-    expenseRecords.reduce((acc, r) => acc + r.amount, 0);
+  const totalExpense = expenseRecords.reduce((acc, r) => acc + r.amount, 0);
 
   const netProfit = totalIncome - totalExpense;
 

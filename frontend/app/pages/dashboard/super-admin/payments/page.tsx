@@ -5,23 +5,16 @@ import {
   AlertTriangle,
   BarChart3,
   Briefcase,
-  Download,
-  Plus,
   TrendingUp,
 } from "lucide-react";
-import Button from "@/components/ui/button";
 import TabNavigation from "@/components/shared/TabNavigation";
 import { useAllPayments } from "@/hooks/super-admin/payment-records/getAllPayment";
 import PaymentTable from "@/components/super-admin/payment/PaymentRecords";
-import { PaymentForm } from "@/components/super-admin/payment/PaymentForm";
 import CustomizeSection, {
   defaultCustomizeOptions,
 } from "@/components/shared/CustomizeSection";
 import LogDetails from "@/components/shared/LogDetails";
-import { exportToExcel } from "@/utils/export";
 import {
-  BarChart,
-  Bar,
   CartesianGrid,
   Cell,
   LineChart,
@@ -34,6 +27,7 @@ import {
   YAxis,
 } from "recharts";
 import type { TPayment } from "@/libs/types/payment.types";
+import { useDebounce } from "use-debounce";
 
 const PAYMENT_COLORS = ["#16a34a", "#f59e0b", "#2563eb", "#8b5cf6"];
 
@@ -43,20 +37,26 @@ const formatMonthKey = (date: Date) =>
 const PAYMENT_TABS = [
   { id: "inventory", label: "Inventory" },
   { id: "analysis", label: "Analysis" },
-  { id: "logs", label: "Logs" },
   { id: "customize", label: "Customize" },
+  { id: "logs", label: "Log Records" },
 ];
 
 export default function AdminPaymentPage() {
-  const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
   const [paymentCustomizeOptions, setPaymentCustomizeOptions] = useState(
     defaultCustomizeOptions.Payments,
   );
 
   const visiblePaymentColumns = useMemo(
-    () => paymentCustomizeOptions.filter((option) => option.enabled).map((option) => option.id),
+    () =>
+      paymentCustomizeOptions
+        .filter((option) => option.enabled)
+        .map((option) => option.id),
     [paymentCustomizeOptions],
   );
 
@@ -64,17 +64,21 @@ export default function AdminPaymentPage() {
     data: paymentData,
     isLoading,
     isError,
-  } = useAllPayments({ page, limit: 10 });
+  } = useAllPayments({ page, limit: 10, search: debouncedSearch, dateFilter });
 
-  const payments: TPayment[] = paymentData?.data ?? paymentData ?? [];
+  const payments = useMemo<TPayment[]>(
+    () => paymentData?.data ?? paymentData ?? [],
+    [paymentData],
+  );
   const pagination = paymentData?.pagination;
 
   const paymentStats = {
     totalPaid: payments.reduce((sum, payment) => sum + payment.paidAmount, 0),
     totalDue: payments.reduce((sum, payment) => sum + payment.dueAmount, 0),
     activeCount: payments.filter((payment) => payment.isActive).length,
-    pendingCount: payments.filter((payment) => payment.paymentStatus === "pending")
-      .length,
+    pendingCount: payments.filter(
+      (payment) => payment.paymentStatus === "pending",
+    ).length,
   };
 
   const paymentTrend = useMemo(() => {
@@ -104,23 +108,14 @@ export default function AdminPaymentPage() {
       .map(([, value]) => value);
   }, [payments]);
 
-  const paymentStatusData = useMemo(() => {
-    const byStatus = payments.reduce<Record<string, number>>((acc, payment) => {
-      acc[payment.paymentStatus] = (acc[payment.paymentStatus] ?? 0) + 1;
-      return acc;
-    }, {});
-
-    return ["paid", "partial", "pending"].map((status) => ({
-      name: status.charAt(0).toUpperCase() + status.slice(1),
-      value: byStatus[status] ?? 0,
-    }));
-  }, [payments]);
-
   const packageData = useMemo(() => {
-    const byPackage = payments.reduce<Record<string, number>>((acc, payment) => {
-      acc[payment.package] = (acc[payment.package] ?? 0) + 1;
-      return acc;
-    }, {});
+    const byPackage = payments.reduce<Record<string, number>>(
+      (acc, payment) => {
+        acc[payment.package] = (acc[payment.package] ?? 0) + 1;
+        return acc;
+      },
+      {},
+    );
 
     return ["starter", "growth", "enterprise"].map((packageName) => ({
       name: packageName.charAt(0).toUpperCase() + packageName.slice(1),
@@ -128,101 +123,65 @@ export default function AdminPaymentPage() {
     }));
   }, [payments]);
 
-  const paymentExportRows = payments.map((payment) => ({
-    "Business Name": payment.businessName,
-    "Package": payment.package,
-    "Status": payment.paymentStatus,
-    "Paid Amount": payment.paidAmount,
-    "Due Amount": payment.dueAmount,
-    "Subscription End": new Date(payment.endAt).toLocaleDateString(),
-    "Created At": new Date(payment.createdAt).toLocaleDateString(),
-  }));
-
-  const handleExportPayments = () => {
-    exportToExcel(
-      paymentExportRows,
-      `payment-inventory-${new Date().toISOString().slice(0, 10)}.xlsx`,
-      [
-        "Business Name",
-        "Package",
-        "Status",
-        "Paid Amount",
-        "Due Amount",
-        "Subscription End",
-        "Created At",
-      ],
-    );
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Payments Management</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Payments Management
+          </h2>
           <p className="text-sm text-gray-500">
-            Track billing, view analysis, and manage blocks for overdue payments.
+            Track billing, view analysis, and manage blocks for overdue
+            payments.
           </p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Button
-            onClick={handleExportPayments}
-            className="flex items-center gap-2 bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
-          >
-            <Download size={16} />
-            Export Visible Data
-          </Button>
-          <Button
-            onClick={() => setOpen(true)}
-            className="flex items-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700 transition"
-          >
-            <Plus size={18} />
-            Create Payment
-          </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Total Paid</p>
             <Briefcase className="h-5 w-5 text-indigo-600" />
           </div>
-          <p className="mt-4 text-3xl font-semibold text-gray-900">
-            ${paymentStats.totalPaid.toLocaleString()}
+          <p className="mt-4 text-2xl font-semibold text-gray-900">
+            Rs.{paymentStats.totalPaid.toLocaleString()}
           </p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Total Due</p>
             <AlertTriangle className="h-5 w-5 text-amber-500" />
           </div>
-          <p className="mt-4 text-3xl font-semibold text-gray-900">
-            ${paymentStats.totalDue.toLocaleString()}
+          <p className="mt-4 text-2xl font-semibold text-gray-900">
+            Rs.{paymentStats.totalDue.toLocaleString()}
           </p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Active Payments</p>
             <TrendingUp className="h-5 w-5 text-green-600" />
           </div>
-          <p className="mt-4 text-3xl font-semibold text-gray-900">
+          <p className="mt-4 text-2xl font-semibold text-gray-900">
             {paymentStats.activeCount.toLocaleString()}
           </p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-md border border-gray-200 bg-white p-3 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">Pending Records</p>
             <BarChart3 className="h-5 w-5 text-blue-600" />
           </div>
-          <p className="mt-4 text-3xl font-semibold text-gray-900">
+          <p className="mt-4 text-2xl font-semibold text-gray-900">
             {paymentStats.pendingCount.toLocaleString()}
           </p>
         </div>
       </div>
 
       <div className="rounded-3xl border border-gray-200 bg-white p-6">
-        <TabNavigation tabs={PAYMENT_TABS} activeTab={activeTab} onTabChange={setActiveTab} />
+        <TabNavigation
+          tabs={PAYMENT_TABS}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
 
         {activeTab === "analysis" && (
           <div className="space-y-6 py-4">
@@ -294,7 +253,9 @@ export default function AdminPaymentPage() {
             </div>
 
             <div className="rounded-3xl border border-gray-200 bg-white p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Live Insight</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Live Insight
+              </h3>
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 <div className="rounded-3xl bg-slate-50 p-4">
                   <p className="text-sm text-gray-500">Active Records</p>
@@ -322,7 +283,8 @@ export default function AdminPaymentPage() {
         {activeTab === "inventory" && (
           <div className="space-y-6 py-4">
             <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">
-              Payments inventory shows all recorded payment history with support for export, pagination, and status filtering.
+              Payments inventory shows all recorded payment history with support
+              for export, pagination, and status filtering.
             </div>
             <PaymentTable
               payments={payments}
@@ -331,6 +293,10 @@ export default function AdminPaymentPage() {
               page={page}
               totalPages={pagination?.totalPages || 1}
               onPageChange={setPage}
+              search={search}
+              setSearch={setSearch}
+              dateFilter={dateFilter}
+              setInquiryType={setDateFilter}
               visibleColumns={visiblePaymentColumns}
             />
           </div>
@@ -339,7 +305,8 @@ export default function AdminPaymentPage() {
         {activeTab === "logs" && (
           <div className="space-y-6 py-4">
             <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">
-              Review payment activity and user interactions for the payments module.
+              Review payment activity and user interactions for the payments
+              module.
             </div>
             <LogDetails
               module="Payments"
@@ -354,7 +321,8 @@ export default function AdminPaymentPage() {
         {activeTab === "customize" && (
           <div className="space-y-6 py-4">
             <div className="rounded-3xl border border-dashed border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">
-              Configure the payment module experience and preferred display settings.
+              Configure the payment module experience and preferred display
+              settings.
             </div>
             <CustomizeSection
               module="Payments"
@@ -366,8 +334,6 @@ export default function AdminPaymentPage() {
           </div>
         )}
       </div>
-
-      {open && <PaymentForm onClose={() => setOpen(false)} />}
     </div>
   );
 }

@@ -10,7 +10,6 @@ import {
   Users,
   CreditCard,
   BarChart,
-  LineChart,
   ChevronLeft,
   ChevronRight,
   CardSim,
@@ -24,17 +23,9 @@ const menu = [
   // ADMIN
   {
     id: "super-dashboard",
-    name: "Dashboard",
+    name: "Analytic Dashboard",
     href: "/pages/dashboard/super-admin",
     icon: LayoutDashboard,
-    exact: true,
-    roles: ["admin"],
-  },
-  {
-    id: "super-analysis",
-    name: "Analysis",
-    href: "/pages/dashboard/super-admin/analytics",
-    icon: LineChart,
     exact: true,
     roles: ["admin"],
   },
@@ -48,7 +39,7 @@ const menu = [
   },
   {
     id: "super-payment",
-    name: "Payments",
+    name: "Billing Management",
     href: "/pages/dashboard/super-admin/payments",
     icon: CreditCard,
     exact: false,

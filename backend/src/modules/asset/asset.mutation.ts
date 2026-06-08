@@ -10,14 +10,27 @@ export const createAsset: AppRouteMutationImplementation<
   typeof assetContract.createAsset
 > = async ({ req }) => {
   try {
-    const { business_id, name, type, price, customFields, status } = req.body;
+    const { business_id, name, type, price, image, customFields, status } =
+      req.body;
+
+    const customFieldsArray =
+      typeof req.body.customFields === "string"
+        ? JSON.parse(req.body.customFields)
+        : req.body.customFields;
+
+    const files = req.files as {
+      image?: Express.Multer.File[];
+    };
+
+    const imageUrl = files?.image?.[0]?.path || "";
 
     const asset = await assetRepository.create({
       business_id: new mongoose.Types.ObjectId(business_id),
       name,
       type,
       price,
-      customFields,
+      image: imageUrl,
+      customFields: customFieldsArray,
       status,
     });
 
@@ -71,7 +84,12 @@ export const updateAsset: AppRouteMutationImplementation<
 > = async ({ req }) => {
   try {
     const { assetID } = req.params;
-    const { name, type, price, customFields, status } = req.body;
+    const { name, type, price, image, customFields, status } = req.body;
+
+    const customFieldsArray =
+      typeof req.body.customFields === "string"
+        ? JSON.parse(req.body.customFields)
+        : req.body.customFields;
 
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
@@ -79,8 +97,16 @@ export const updateAsset: AppRouteMutationImplementation<
     if (price !== undefined) updateData.price = price;
     if (status !== undefined) updateData.status = status;
     if (customFields !== undefined) {
-      updateData.customFields = customFields;
+      updateData.customFields = customFieldsArray;
     }
+
+    const files = req.files as {
+      image?: Express.Multer.File[];
+    };
+
+    const imageUrl = files?.image?.[0]?.path || "";
+
+    if (imageUrl !== undefined) updateData.image = imageUrl;
 
     const updated = await assetRepository.update(assetID, updateData);
 

@@ -4,16 +4,16 @@ import { useQuery } from "@tanstack/react-query";
 export const useAttendanceByUser = (
   userId: string,
   page: number,
-  limit = 10,
+  dateFilter: string,
 ) => {
   return useQuery({
-    queryKey: ["attendance-user", userId, page],
+    queryKey: ["attendance-user", userId, page, dateFilter],
 
     queryFn: () =>
       attendanceApi.getAttendanceByUserApi(
         userId,
         page,
-        limit,
+        dateFilter,
       ),
 
     enabled: !!userId,

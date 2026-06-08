@@ -8,12 +8,19 @@ export const getAllPayments: AppRouteQueryImplementation<
   typeof paymentContract.getAllPayments
 > = async ({ req }) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
     const skip = (page - 1) * limit;
 
-    const { data: payments, total } = await paymentRepository.getAll(skip, limit);
+    const search = req.query.search?.trim() || "";
+    const dateFilter = req.query.dateFilter || "all";
+
+    const { data: payments, total } = await paymentRepository.getAll({
+      skip,
+      limit,
+      search,
+      dateFilter,
+    });
 
     const totalPages = Math.ceil(total / limit);
 

@@ -34,11 +34,11 @@ const getAttendanceByIdApi = async (
   return response.data;
 };
 
-const getAttendanceByUserApi = async (userId: string, page = 1, limit = 10) => {
+const getAttendanceByUserApi = async (userId: string, page = 1, dateFilter: string) => {
   const response = await apiClient.get(`/attendance/user/${userId}`, {
     params: {
       page,
-      limit,
+      dateFilter,
     },
   });
 

@@ -44,7 +44,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
       userName: "",
       userEmail: "",
       userPhone: "",
-      userPassword: "",
       profile: "",
       certificate: "",
       citizenship: "",
@@ -63,7 +62,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
       userName: client.userName ?? "",
       userEmail: client.userEmail ?? "",
       userPhone: client.userPhone ?? "",
-      userPassword: "",
       certificate: "",
       citizenship: "",
       license: "",
@@ -106,10 +104,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
     if (values.userEmail) formData.append("userEmail", values.userEmail);
     if (values.userPhone) formData.append("userPhone", values.userPhone);
     if (values.role) formData.append("role", values.role);
-
-    if (values.userPassword?.trim()) {
-      formData.append("userPassword", values.userPassword);
-    }
 
     if (values.gender) {
       formData.append("gender", values.gender);
@@ -203,17 +197,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
                 </label>
                 <input
                   {...register("userPhone")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-              </div>
-
-              {/* PASSWORD */}
-              <div>
-                <label className="block text-sm font-medium">Password</label>
-                <input
-                  type="password"
-                  {...register("userPassword")}
-                  placeholder="Leave empty if unchanged...."
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>

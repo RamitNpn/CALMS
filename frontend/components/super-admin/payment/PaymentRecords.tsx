@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, Eye, Pencil, RefreshCcw } from "lucide-react";
+import { Trash2, Eye, Pencil, RefreshCcw, Plus, Printer } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 
@@ -12,6 +12,9 @@ import { useDeletePayment } from "@/hooks/super-admin/payment-records/removePaym
 import { EditPaymentForm } from "./EditPaymentRecord";
 import { ViewPaymentRecord } from "./ViewPaymentRecord";
 import { RenewPaymentForm } from "./RenewPaymentForm";
+import Button from "@/components/ui/button";
+import Select from "@/components/ui/select";
+import { PaymentForm } from "./PaymentForm";
 
 interface PaymentTableProps {
   payments: TPayment[];
@@ -21,6 +24,11 @@ interface PaymentTableProps {
   totalPages: number;
   onPageChange: (page: number) => void;
   visibleColumns?: string[];
+  search: string;
+  setSearch: (value: string) => void;
+
+  dateFilter: string;
+  setInquiryType: (value: string) => void;
 }
 
 export default function PaymentTable({
@@ -30,6 +38,11 @@ export default function PaymentTable({
   page,
   totalPages,
   onPageChange,
+  search,
+  setSearch,
+
+  dateFilter,
+  setInquiryType,
   visibleColumns = [
     "show-business-name",
     "show-business-email",
@@ -40,6 +53,7 @@ export default function PaymentTable({
     "show-end-date",
   ],
 }: PaymentTableProps) {
+  const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [viewId, setViewId] = useState<string | null>(null);
   const [renewId, setRenewId] = useState<string | null>(null);
@@ -56,6 +70,68 @@ export default function PaymentTable({
       },
     });
   };
+  const downloadRecords = () => {
+    if (!payments?.length) return;
+
+    const headers = [
+      "SN",
+      "Payment ID",
+      "Business ID",
+      "Business Name",
+      "Business Email",
+      "Package",
+      "Started At",
+      "End At",
+      "Paid Amount",
+      "Due Amount",
+      "Payment Status",
+      "Active Status",
+      "Created At",
+      "Updated At",
+    ];
+
+    const rows = payments.map((payment, index) => [
+      index + 1,
+      payment._id,
+      payment.business_id,
+      payment.businessName,
+      payment.businessEmail,
+      payment.package,
+      moment(payment.startedAt).format("YYYY-MM-DD HH:mm:ss"),
+      moment(payment.endAt).format("YYYY-MM-DD HH:mm:ss"),
+      payment.paidAmount,
+      payment.dueAmount,
+      payment.paymentStatus,
+      payment.isActive ? "Active" : "Inactive",
+      moment(payment.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+      moment(payment.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `payment-records-${
+      new Date().toISOString().split("T")[0]
+    }.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
 
   if (isLoading) return <p className="p-4">Loading...</p>;
 
@@ -63,6 +139,66 @@ export default function PaymentTable({
 
   return (
     <div className="w-full h-[71vh] overflow-y-scroll">
+      <div className="flex items-center justify-between mr-2">
+        <div className="mb-4 flex flex-col md:flex-row gap-3">
+          <input
+            type="text"
+            placeholder="Search by name, email or package..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onPageChange(1);
+            }}
+            className="border border-gray-300 rounded px-3 py-2 w-full md:w-80 outline-none text-[13px] focus:border-blue-600 bg-white shadow"
+          />
+
+          <Select
+            value={dateFilter}
+            onChange={(e) => {
+              setInquiryType(e.target.value);
+              onPageChange(1);
+            }}
+            options={[
+              {
+                label: "All Revenue",
+                value: "all",
+              },
+              {
+                label: "Today",
+                value: "current_day",
+              },
+              {
+                label: "This Week",
+                value: "current_week",
+              },
+              {
+                label: "This Month",
+                value: "current_month",
+              },
+              {
+                label: "This Year",
+                value: "current_year",
+              },
+            ]}
+          />
+        </div>
+        <div className="flex justify-end gap-2 mb-2">
+          <Button
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-2 bg-indigo-600 text-white text-[12px] px-4 py-2 hover:bg-indigo-700 transition cursor-pointer"
+          >
+            <Plus size={18} />
+            Add Business
+          </Button>
+          <Button
+            onClick={downloadRecords}
+            className="flex items-center justify-end gap-2 bg-green-500 text-white text-[12px] px-4 py-2 hover:bg-green-600 transition cursor-pointer"
+          >
+            <Printer size={18} />
+            Export
+          </Button>
+        </div>
+      </div>
       <table className="w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-800 uppercase text-sm">
@@ -139,8 +275,8 @@ export default function PaymentTable({
                         payment.paymentStatus === "paid"
                           ? "bg-green-100 text-green-700"
                           : payment.paymentStatus === "partial"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-red-100 text-red-700"
                       }`}
                     >
                       {payment.paymentStatus}
@@ -211,6 +347,8 @@ export default function PaymentTable({
       {viewId && (
         <ViewPaymentRecord paymentId={viewId} onClose={() => setViewId(null)} />
       )}
+
+      {open && <PaymentForm onClose={() => setOpen(false)} />}
 
       {renewId && (
         <RenewPaymentForm

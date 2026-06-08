@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthData(null);
     localStorage.removeItem("token");
     localStorage.removeItem("auth-data");
-    router.push("/");
+    router.push("/pages/login");
   };
 
   const updateAuthData = (data: AuthData) => {

@@ -57,7 +57,7 @@ export default function LoginForm() {
       } else if (normalizedData.role.includes("business") || normalizedData.role.includes("staff")) {
         router.push("/pages/dashboard/business-admin");
       } else {
-        router.push("/");
+        router.push("/pages/login");
       }
     },
 

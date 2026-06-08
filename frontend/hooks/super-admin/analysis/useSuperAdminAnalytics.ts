@@ -64,8 +64,8 @@ export function useSuperAdminAnalytics() {
     queryKey: ["super-admin-analytics"],
     queryFn: async () => {
       const [businessResponse, paymentResponse, logsResponse] = await Promise.all([
-        businessApi.getAllBusinessApi(1, 500),
-        paymentApi.getAllPaymentsApi(1, 500),
+        businessApi.getAllBusinessApi({page: 1}),
+        paymentApi.getAllPaymentsApi({page:1}),
         logApi.getActivityLogsApi(1, 5),
       ]);
 

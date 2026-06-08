@@ -162,16 +162,16 @@ export const getAttendanceByUserId: AppRouteQueryImplementation<
   try {
     const { userId } = req.params;
 
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
     const skip = (page - 1) * limit;
+    const dateFilter = (req.query.dateFilter as string) || undefined;
 
-    const { data, total } = await attendanceRepository.getAttendanceByUserId(
+    const { data, total } = await attendanceRepository.getAttendanceByUserId({
       userId,
       skip,
-      limit,
-    );
+      dateFilter,
+    });
 
     const user = await userRepository.getByID(userId);
 

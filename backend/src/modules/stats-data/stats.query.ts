@@ -166,7 +166,7 @@ const getBusinessAssetStats: AppRouteQueryImplementation<
           $group: {
             _id: null,
             total: {
-              $sum: "$assetValue",
+              $sum: "$price",
             },
           },
         },
@@ -185,7 +185,7 @@ const getBusinessAssetStats: AppRouteQueryImplementation<
           $group: {
             _id: null,
             total: {
-              $sum: "$assetValue",
+              $sum: "$price",
             },
           },
         },
@@ -209,7 +209,7 @@ const getBusinessAssetStats: AppRouteQueryImplementation<
         $group: {
           _id: null,
           total: {
-            $sum: "$assetValue",
+            $sum: "$price",
           },
         },
       },

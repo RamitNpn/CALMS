@@ -15,6 +15,7 @@ export interface TCreateAsset {
   name: string;
   type: string;
   price: number;
+  image: FileList;
   customFields: Record<string, string>;
   status: string;
 }
