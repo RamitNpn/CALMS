@@ -7,21 +7,24 @@ type TEnv = {
   api_key: string;
   api_secret: string;
   frontend_url: string;
-  email_user: string;
-  email_pass: string;
+
+  RESEND_API_KEY: string;
+  EMAIL_FROM: string;
 };
 
 const env: TEnv = {
   PORT: process.env.PORT ? parseInt(process.env.PORT) : 4000,
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key",
-  MONGO_URI: process.env.MONGO_URI || "mongodb+srv://gauravkarki0927:gauravkarki0927@cluster0.lp3l6vb.mongodb.net/flowdesk-deployment?appName=Cluster0",
+  MONGO_URI:
+    process.env.MONGO_URI ||
+    "mongodb+srv://gauravkarki0927:gauravkarki0927@cluster0.lp3l6vb.mongodb.net/flowdesk-deployment?appName=Cluster0",
   DB_NAME: process.env.DB_NAME || "flowdesk-deployment",
   cloud_name: process.env.CLOUD_NAME || "dslzx6qks",
   api_key: process.env.API_KEY || "619242651474882",
   api_secret: process.env.API_SECRET || "Bfx5e7n0jx9daRq_D0rfPpUWzPc",
   frontend_url: process.env.FRONTEND_URL || "https://calms-frontend.vercel.app",
-  email_user: process.env.EMAIL_USER || "FlowDesk <onboarding@resend.dev>",
-  email_pass: process.env.EMAIL_PASS || "re_hCtW5Nn5_8TG1p6zPSHda9njbss5q3Szh",
+  RESEND_API_KEY: process.env.RESEND_API_KEY || "re_hCtW5Nn5_8TG1p6zPSHda9njbss5q3Szh",
+  EMAIL_FROM: process.env.EMAIL_FROM || "FlowDesk <onboarding@resend.dev>",
 };
 
 export default env;

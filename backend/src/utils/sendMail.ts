@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import env from "../config/env";
 
-const resend = new Resend(env.email_pass);
+const resend = new Resend(env.RESEND_API_KEY);
 
 type SendMailOptions = {
   to: string;
@@ -12,7 +12,7 @@ type SendMailOptions = {
 export const sendMail = async ({ to, subject, html }: SendMailOptions) => {
   try {
     const result = await resend.emails.send({
-      from: env.email_user || "FlowDesk <onboarding@resend.dev>",
+      from: env.EMAIL_FROM || "FlowDesk <onboarding@resend.dev>",
       to,
       subject,
       html,
