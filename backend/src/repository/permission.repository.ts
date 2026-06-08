@@ -4,11 +4,6 @@ export const DEFAULT_RBAC_PERMISSIONS: Array<{
   module_name: string;
   permission_type: PermissionType;
 }> = [
-  // Business Management
-  { module_name: "business_management", permission_type: "view" },
-  { module_name: "business_management", permission_type: "create" },
-  { module_name: "business_management", permission_type: "edit" },
-  { module_name: "business_management", permission_type: "delete" },
 
   // Revenue Management
   { module_name: "revenue_management", permission_type: "view" },
@@ -53,7 +48,7 @@ export const DEFAULT_RBAC_PERMISSIONS: Array<{
   { module_name: "billing_management", permission_type: "delete" },
 
   // Reports (Client Inquiries)
-  { module_name: "reports", permission_type: "view" },
+  { module_name: "inquiries_management", permission_type: "view" },
 
   // Profile Management
   { module_name: "profile_management", permission_type: "view" },

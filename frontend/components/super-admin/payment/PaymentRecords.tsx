@@ -199,32 +199,32 @@ export default function PaymentTable({
           </Button>
         </div>
       </div>
-      <table className="w-full table-auto">
+      <table className="w-full table-auto text-[13px]">
         <thead>
-          <tr className="bg-gray-200 text-gray-800 uppercase text-sm">
-            <th className="py-2 px-6 text-left">SN</th>
+          <tr className="bg-gray-200 text-gray-800">
+            <th className="py-2 px-2 text-left">SN</th>
             {visibleColumns.includes("show-business-name") && (
-              <th className="py-2 px-6 text-left">Business</th>
+              <th className="py-2 px-2 text-left">Business</th>
             )}
             {visibleColumns.includes("show-business-email") && (
-              <th className="py-2 px-6 text-left">Email</th>
+              <th className="py-2 px-2 text-left">Email</th>
             )}
             {visibleColumns.includes("show-package") && (
-              <th className="py-2 px-6 text-left">Package</th>
+              <th className="py-2 px-2 text-left">Package</th>
             )}
             {visibleColumns.includes("show-paid") && (
-              <th className="py-2 px-6 text-left">Paid</th>
+              <th className="py-2 px-2 text-left">Paid</th>
             )}
             {visibleColumns.includes("show-due") && (
-              <th className="py-2 px-6 text-left">Due</th>
+              <th className="py-2 px-2 text-left">Due</th>
             )}
             {visibleColumns.includes("show-status") && (
-              <th className="py-2 px-6 text-left">Status</th>
+              <th className="py-2 px-2 text-left">Status</th>
             )}
             {visibleColumns.includes("show-end-date") && (
-              <th className="py-2 px-6 text-left">End Date</th>
+              <th className="py-2 px-2 text-left">End Date</th>
             )}
-            <th className="py-2 px-6 text-left">Action</th>
+            <th className="py-2 px-2 text-left">Action</th>
           </tr>
         </thead>
 
@@ -271,7 +271,7 @@ export default function PaymentTable({
                 {visibleColumns.includes("show-status") && (
                   <td className="py-2 px-6">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
+                      className={`px-2 py-1 rounded text-xs capitalize font-medium ${
                         payment.paymentStatus === "paid"
                           ? "bg-green-100 text-green-700"
                           : payment.paymentStatus === "partial"
@@ -285,7 +285,7 @@ export default function PaymentTable({
                 )}
 
                 {visibleColumns.includes("show-end-date") && (
-                  <td className="py-2 px-6">
+                  <td className="py-2 px-2">
                     {moment(payment.endAt).format("lll")}
                   </td>
                 )}

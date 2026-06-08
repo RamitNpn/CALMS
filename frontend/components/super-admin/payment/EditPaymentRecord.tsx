@@ -121,17 +121,14 @@ export function EditPaymentForm({
             Edit Payment Record
           </h2>
 
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X size={24} className="text-red-400 cursor-pointer" />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* FORM */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             <div>
               <p className="text-xl font-semibold">
                 Edit Subscription / Payment

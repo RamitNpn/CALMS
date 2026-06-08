@@ -126,14 +126,14 @@ export function RenewPaymentForm({ paymentId, onClose, size = "lg" }: Props) {
             Renew Subscription
           </h2>
 
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* FORM */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* BUSINESS NAME */}
               <div>

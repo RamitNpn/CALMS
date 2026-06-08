@@ -28,6 +28,7 @@ class BusinessRepository {
   }) {
     try {
       const query: any = {};
+      query.role = "business" 
 
       if (search) {
         query.$or = [
