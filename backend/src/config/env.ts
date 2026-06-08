@@ -20,7 +20,7 @@ const env: TEnv = {
   api_key: process.env.API_KEY || "619242651474882",
   api_secret: process.env.API_SECRET || "Bfx5e7n0jx9daRq_D0rfPpUWzPc",
   frontend_url: process.env.FRONTEND_URL || "https://calms-frontend.vercel.app",
-  email_user: process.env.EMAIL_USER || "FlowDesk <noreply@yourdomain.com>",
+  email_user: process.env.EMAIL_USER || "FlowDesk <onboarding@resend.dev>",
   email_pass: process.env.EMAIL_PASS || "re_hCtW5Nn5_8TG1p6zPSHda9njbss5q3Szh",
 };
 
