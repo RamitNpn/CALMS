@@ -86,7 +86,7 @@ export const authLogin: AppRouteMutationImplementation<
       permissions = Array.from(permissionSet);
 
       if (permissions.length === 0) {
-        permissions = ["staff_management:view"];
+        permissions = [];
       }
     }
 

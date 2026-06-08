@@ -1,6 +1,8 @@
 import { AppRouteQueryImplementation } from "@ts-rest/express";
 import { businessContract } from "../../contract/business/business.contract";
 import businessRepository from "../../repository/business.repository";
+import serviceRepository from "../../repository/service.repository";
+import businessServiceConfigRepository from "../../repository/business-service-config.repository";
 
 export const getAllBusinesses: AppRouteQueryImplementation<
   typeof businessContract.getAllBusinesses
@@ -21,6 +23,15 @@ export const getAllBusinesses: AppRouteQueryImplementation<
     });
     const totalPages = Math.ceil(total / limit);
 
+    const businessIds = businesses.map((b) => b._id.toString());
+
+    const serviceConfigs =
+      await businessServiceConfigRepository.getByBusinessIDs(businessIds);
+
+    const serviceMap = new Map(
+      serviceConfigs.map((s) => [s.business_id.toString(), s.services]),
+    );
+
     const formattedBusinesses = businesses.map((b: any) => ({
       _id: b._id.toString(),
       businessName: b.businessName,
@@ -32,7 +43,9 @@ export const getAllBusinesses: AppRouteQueryImplementation<
       teams: b.teams,
       branch: b.branch,
       package: b.package,
-      services: b.services,
+
+      services: serviceMap.get(b._id.toString()) || [],
+
       status: b.status,
       payment_status: b.payment_status,
       payment_initiation: b.payment_initiation,
@@ -92,6 +105,9 @@ export const getBusinessById: AppRouteQueryImplementation<
       };
     }
 
+    const serviceConfig =
+      await businessServiceConfigRepository.getByBusinessID(businessID);
+
     return {
       status: 200,
       body: {
@@ -105,6 +121,9 @@ export const getBusinessById: AppRouteQueryImplementation<
         teams: business.teams,
         branch: business.branch,
         package: business.package,
+
+        services: serviceConfig?.services || [],
+
         status: business.status,
         payment_status: business.payment_status,
         payment_initiation: business.payment_initiation,

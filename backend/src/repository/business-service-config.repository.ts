@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import BusinessServiceConfigModel, {
   IBusinessServiceConfig,
 } from "../models/business-service-config.model";
@@ -20,10 +21,22 @@ class BusinessServiceConfigRepository {
   async getByBusinessID(business_id: string) {
     try {
       return await this.model.findOne({
-        business_id,
+        business_id: new Types.ObjectId(business_id),
       });
     } catch (error) {
       throw new Error(`Error fetching business service config: ${error}`);
+    }
+  }
+
+  async getByBusinessIDs(businessIds: string[]) {
+    try {
+      return await this.model.find({
+        business_id: { $in: businessIds.map((id) => new Types.ObjectId(id)) },
+      });
+    } catch (error) {
+      throw new Error(
+        `Error fetching business service configs by IDs: ${error}`,
+      );
     }
   }
 
