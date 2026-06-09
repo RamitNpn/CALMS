@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/toast";
 import { TCreateFinanceSchema } from "@/libs/validation/finance.validation";
 import { financeApi } from "@/libs/api/finance.api";
+import FormHeader from "@/components/shared/FormHeader";
 
 type FinancialFormProps = {
   onClose?: () => void;
@@ -130,12 +131,7 @@ export function FinanceForm({ onClose, size = "lg" }: FinancialFormProps) {
           },
         )}
       >
-        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-100 sticky top-0">
-          <h2 className="text-xl font-semibold">Create Financial Record</h2>
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
-            <X className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         <div className="p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">

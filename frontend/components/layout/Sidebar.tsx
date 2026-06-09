@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useAllService } from "@/hooks/business-admin/service/getAllServiceDatas";
+import Image from "next/image";
 
 const menu = [
   // ADMIN
@@ -55,7 +56,7 @@ const menu = [
     exact: true,
     roles: ["business", "staff"],
   },
-    {
+  {
     id: "business-inquiry",
     name: "Client Inquiries",
     href: "/pages/dashboard/business-admin/inquiry",
@@ -134,7 +135,7 @@ const menu = [
     roles: ["business", "staff"],
     permission: "billing_management:view",
   },
-    {
+  {
     id: "profile-management",
     name: "Profile Management",
     href: "/pages/dashboard/business-admin/profile",
@@ -151,7 +152,11 @@ type Props = {
   userName?: string;
 };
 
-export default function Sidebar({ userRole, permissions = [], userName }: Props) {
+export default function Sidebar({
+  userRole,
+  permissions = [],
+  userName,
+}: Props) {
   const pathname = usePathname();
 
   const { data: serviceData } = useAllService();
@@ -236,8 +241,33 @@ export default function Sidebar({ userRole, permissions = [], userName }: Props)
       ${collapsed ? "w-20" : "w-64"}`}
     >
       {/* HEADER */}
-      <div className={`p-[9px] lg:p-[14px] font-bold text-indigo-600 border-b border-gray-200 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
-        {!collapsed ? <span>FlowDesk</span> : <span>FD</span>}
+      <div
+        className={`p-[9px] lg:p-[14px] font-bold text-indigo-600 border-b border-gray-200 flex items-center transition-all
+  ${collapsed ? "justify-center" : "justify-between"}`}
+      >
+        {!collapsed ? (
+          <div className="flex items-center gap-2">
+            <Image
+              src="/DrivingLogo.png"
+              alt="PDMS"
+              width={32}
+              height={32}
+              className="h-8 w-auto"
+            />
+
+            <span className="text-indigo-600 font-bold text-sm lg:text-base">
+              PDMS
+            </span>
+          </div>
+        ) : (
+          <Image
+            src="/DrivingLogo.png"
+            alt="PDMS"
+            width={28}
+            height={28}
+            className="h-7 w-auto"
+          />
+        )}
       </div>
 
       {/* MENU */}

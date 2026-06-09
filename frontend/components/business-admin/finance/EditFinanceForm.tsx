@@ -10,6 +10,7 @@ import { X } from "lucide-react";
 import { financeApi } from "@/libs/api/finance.api";
 import { useFinanceById } from "@/hooks/business-admin/business-management/getFinanceById";
 import { TUpdateFinanceSchema } from "@/libs/validation/finance.validation";
+import FormHeader from "@/components/shared/FormHeader";
 
 type Props = {
   financeId: string;
@@ -150,12 +151,7 @@ export function EditFinanceForm({ financeId, onClose, size = "lg" }: Props) {
         )}
       >
         {/* HEADER */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-100 sticky top-0">
-          <h2 className="text-xl font-semibold">Edit Financial Record</h2>
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
-            <X className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* FORM */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6 text-[13px]">

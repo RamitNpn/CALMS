@@ -74,7 +74,7 @@ function About() {
 
             <div className="relative overflow-hidden rounded-[2rem] border border-black/5 bg-white shadow-2xl">
               <Image
-                src="https://cdn.rareblocks.xyz/collection/celebration/images/hero/1/hero-img.png"
+                src="https://www.techieflare.com/wp-content/uploads/2025/02/about-us1.png"
                 alt="About FlowDesk"
                 width={700}
                 height={700}

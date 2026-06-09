@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/toast";
 import { useAllAssetTypes } from "@/hooks/business-admin/asset-management/getAllAssetTypes";
 import { TAssetType } from "@/libs/types/assetType.types";
 import Image from "next/image";
+import FormHeader from "@/components/shared/FormHeader";
 
 type AssetFormProps = {
   onClose?: () => void;
@@ -136,15 +137,7 @@ export function AssetForm({ onClose, size = "lg" }: AssetFormProps) {
         )}
       >
         {/* HEADER */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-100 sticky top-0">
-          <h2 className="text-xl font-semibold">Create Asset</h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
-          >
-            <X className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* FORM */}
         <div className="p-6 text-[13px]">

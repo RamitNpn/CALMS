@@ -12,6 +12,8 @@ import { billingApi } from "@/libs/api/billing.api";
 import { updateBillingSchema } from "@/libs/validation/billing.validation";
 import { useBillingById } from "@/hooks/business-admin/billing-management/getBillingById";
 import { useToast } from "@/components/ui/toast";
+import Image from "next/image";
+import FormHeader from "@/components/shared/FormHeader";
 
 type BillingFormData = z.infer<typeof updateBillingSchema>;
 
@@ -214,15 +216,7 @@ export function EditBillingRecord({
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Flowdesk - Edit Billing Details
-          </h2>
-
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
-            <X className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* FORM */}
         <div className="p-6">

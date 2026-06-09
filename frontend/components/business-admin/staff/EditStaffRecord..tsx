@@ -13,6 +13,7 @@ import { staffApi } from "@/libs/api/staff.api";
 import Image from "next/image";
 import { updateStaffSchema } from "@/libs/validation/staff.validation";
 import { useStaffById } from "@/hooks/business-admin/staff-management/getStaffDataById";
+import FormHeader from "@/components/shared/FormHeader";
 
 type StaffForm = z.infer<typeof updateStaffSchema>;
 
@@ -135,18 +136,7 @@ export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Flowdesk - Edit Staff Details
-          </h2>
-
-          <button
-            onClick={onClose}
-            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
-          >
-            <X className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* FORM */}
         <div className="p-6">

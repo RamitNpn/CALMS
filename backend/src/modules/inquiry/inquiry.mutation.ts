@@ -29,17 +29,14 @@ export const createDrivingInquiry: AppRouteMutationImplementation<
       referredBy,
       message,
       emergencyContact,
-      document,
       documentType,
       agreeTerms,
     } = req.body;
 
-    // Ensure JSON parsing (if sent via FormData)
     if (typeof emergencyContact === "string") {
       emergencyContact = JSON.parse(emergencyContact);
     }
 
-    // Basic safety check
     if (!agreeTerms) {
       return {
         status: 400,
@@ -81,7 +78,6 @@ export const createDrivingInquiry: AppRouteMutationImplementation<
       agreeTerms,
     });
 
-    // Optional: Activity Log
     await activityLogRepository.create({
       module: "Driving Inquiry",
       action: "CREATE",
@@ -140,7 +136,6 @@ export const removeDrivingInquiry: AppRouteMutationImplementation<
       };
     }
 
-    // Optional log
     await activityLogRepository.create({
       module: "Driving Inquiry",
       action: "DELETE",

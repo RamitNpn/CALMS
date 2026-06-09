@@ -74,13 +74,16 @@ export default function ClientDetailPage({ clientId }: Props) {
   const { data, isLoading, isError } = useClientById(clientId);
   const client = (data?.data ?? data) as ClientRecord | undefined;
 
-  const { data: attendanceData, isLoading: isAttendanceLoading } = useAllAttendances({
-    page: 1,
-    limit: 1000,
-  });
+  const { data: attendanceData, isLoading: isAttendanceLoading } =
+    useAllAttendances({
+      page: 1,
+      limit: 1000,
+    });
 
   const attendances = useMemo(() => {
-    const records = (attendanceData?.data ?? attendanceData ?? []) as TAttendance[];
+    const records = (attendanceData?.data ??
+      attendanceData ??
+      []) as TAttendance[];
 
     if (!client) return records;
 
@@ -124,7 +127,8 @@ export default function ClientDetailPage({ clientId }: Props) {
 
     const latestAttendance = [...attendances].sort(
       (left, right) =>
-        new Date(getAttendanceDate(right)).getTime() - new Date(getAttendanceDate(left)).getTime(),
+        new Date(getAttendanceDate(right)).getTime() -
+        new Date(getAttendanceDate(left)).getTime(),
     )[0];
 
     return new Date(getAttendanceDate(latestAttendance));
@@ -224,19 +228,49 @@ export default function ClientDetailPage({ clientId }: Props) {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[520px]">
                 <MetricCard label="Role" value={client.role || "client"} />
                 <MetricCard label="Gender" value={client.gender || "N/A"} />
-                <MetricCard label="Created" value={formatDate(client.createdAt)} />
-                <MetricCard label="Updated" value={formatDate(client.updatedAt)} />
+                <MetricCard
+                  label="Created"
+                  value={formatDate(client.createdAt)}
+                />
+                <MetricCard
+                  label="Updated"
+                  value={formatDate(client.updatedAt)}
+                />
               </div>
             </div>
           </div>
 
           <div className="grid gap-4 px-6 py-6 md:grid-cols-2 xl:grid-cols-3">
-            <InfoCard icon={<User size={16} />} label="Full Name" value={client.userName} />
-            <InfoCard icon={<Mail size={16} />} label="Email Address" value={client.userEmail} />
-            <InfoCard icon={<Phone size={16} />} label="Phone Number" value={client.userPhone} />
-            <InfoCard icon={<Users2 size={16} />} label="Business Name" value={client.businessName || "N/A"} />
-            <InfoCard icon={<ShieldCheck size={16} />} label="Role" value={client.role || "client"} />
-            <InfoCard icon={<CalendarDays size={16} />} label="Joined On" value={formatDate(client.createdAt)} />
+            <InfoCard
+              icon={<User size={16} />}
+              label="Full Name"
+              value={client.userName}
+            />
+            <InfoCard
+              icon={<Mail size={16} />}
+              label="Email Address"
+              value={client.userEmail}
+            />
+            <InfoCard
+              icon={<Phone size={16} />}
+              label="Phone Number"
+              value={client.userPhone}
+            />
+            <InfoCard
+              icon={<Users2 size={16} />}
+              label="Business Name"
+              value={client.businessName || "N/A"}
+            />
+            <InfoCard
+              icon={<ShieldCheck size={16} />}
+              label="Role"
+              value={client.role || "client"}
+            />
+            <InfoCard
+              icon={<CalendarDays size={16} />}
+              label="Joined On"
+              value={formatDate(client.createdAt)}
+            />
           </div>
         </section>
       )}
@@ -257,7 +291,7 @@ export default function ClientDetailPage({ clientId }: Props) {
               type="button"
               onClick={handleExportCertificate}
               disabled={isExporting}
-              className="inline-flex items-center justify-center gap-2 self-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
+              className="inline-flex items-center justify-center gap-2 self-center rounded border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
             >
               <Download size={16} />
               {isExporting ? "Exporting..." : "Export Certificate"}
@@ -273,11 +307,18 @@ export default function ClientDetailPage({ clientId }: Props) {
                 <div className="relative bg-[#fcfcfc] px-8 py-10 sm:px-12 sm:py-12">
                   <div className="mx-auto flex max-w-[520px] flex-col items-center text-center text-[#2d2d2d]">
                     <div className="flex flex-col items-center gap-2">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#7bbd2a] text-[#7bbd2a] shadow-sm">
-                        <BadgeCheck size={26} strokeWidth={2.2} />
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm">
+                        <Image
+                          src="/DrivingLogo.png"
+                          alt="PDMS Logo"
+                          width={80}
+                          height={80}
+                          className="h-auto w-auto object-contain"
+                        />
                       </div>
+
                       <p className="text-[10px] uppercase tracking-[0.35em] text-[#84a92d]">
-                        Driving Logo
+                        PDMS Certified
                       </p>
                     </div>
 
@@ -296,7 +337,9 @@ export default function ClientDetailPage({ clientId }: Props) {
                         </p>
                         <p className="text-[12px] text-[#666666] sm:text-[13px]">
                           {client.role || "Client"}
-                          {client.businessName ? `, ${client.businessName}` : ""}
+                          {client.businessName
+                            ? `, ${client.businessName}`
+                            : ""}
                         </p>
                       </div>
 
@@ -323,7 +366,9 @@ export default function ClientDetailPage({ clientId }: Props) {
                           By Date
                         </p>
                         <p className="text-[11px] tracking-[0.16em] text-[#666666] sm:text-[13px]">
-                          {client.createdAt ? moment(client.createdAt).format("DD MMMM YYYY") : "-"}
+                          {client.createdAt
+                            ? moment(client.createdAt).format("DD MMMM YYYY")
+                            : "-"}
                         </p>
                       </div>
                     </div>
@@ -365,8 +410,12 @@ export default function ClientDetailPage({ clientId }: Props) {
         <section className="space-y-6 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Attendance Records</h2>
-              <p className="text-sm text-gray-500">Attendance records linked to {client.userName || "this client"}</p>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Attendance Records
+              </h2>
+              <p className="text-sm text-gray-500">
+                Attendance records linked to {client.userName || "this client"}
+              </p>
             </div>
           </div>
 
@@ -376,9 +425,17 @@ export default function ClientDetailPage({ clientId }: Props) {
           />
 
           {isAttendanceLoading ? (
-            <EmptyState icon={<CalendarDays size={22} />} title="Loading attendances..." description="Fetching attendance records for this client" />
+            <EmptyState
+              icon={<CalendarDays size={22} />}
+              title="Loading attendances..."
+              description="Fetching attendance records for this client"
+            />
           ) : attendances.length === 0 ? (
-            <EmptyState icon={<CalendarDays size={22} />} title="No attendances found" description="No attendance records match this client yet" />
+            <EmptyState
+              icon={<CalendarDays size={22} />}
+              title="No attendances found"
+              description="No attendance records match this client yet"
+            />
           ) : (
             <div className="overflow-hidden rounded-2xl border border-gray-200">
               <div className="overflow-x-auto">
@@ -396,11 +453,25 @@ export default function ClientDetailPage({ clientId }: Props) {
                     {attendances.map((att, index) => (
                       <tr key={att._id} className="hover:bg-gray-50">
                         <td className="px-4 py-4 text-gray-700">{index + 1}</td>
-  
-                        <td className="px-4 py-4 text-gray-700">{att.checkIn ? moment(att.checkIn).format("lll") : "-"}</td>
-                        <td className="px-4 py-4 text-gray-700">{att.checkOut ? moment(att.checkOut).format("lll") : "-"}</td>
-                        <td className="px-4 py-4 text-gray-700">{att.method || "-"}</td>
-                        <td className="px-4 py-4 text-gray-700">{att.createdAt ? moment(att.createdAt).format("lll") : "-"}</td>
+
+                        <td className="px-4 py-4 text-gray-700">
+                          {att.checkIn
+                            ? moment(att.checkIn).format("lll")
+                            : "-"}
+                        </td>
+                        <td className="px-4 py-4 text-gray-700">
+                          {att.checkOut
+                            ? moment(att.checkOut).format("lll")
+                            : "-"}
+                        </td>
+                        <td className="px-4 py-4 text-gray-700">
+                          {att.method || "-"}
+                        </td>
+                        <td className="px-4 py-4 text-gray-700">
+                          {att.createdAt
+                            ? moment(att.createdAt).format("lll")
+                            : "-"}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -439,12 +510,13 @@ function InfoCard({
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-sm">
-      <p className="text-xs uppercase tracking-[0.2em] text-white/60">{label}</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+        {label}
+      </p>
       <p className="mt-2 text-sm font-semibold text-white">{value}</p>
     </div>
   );
 }
-
 
 function EmptyState({
   icon,
@@ -457,7 +529,9 @@ function EmptyState({
 }) {
   return (
     <div className="flex min-h-[280px] flex-col items-center justify-center rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-6 text-center">
-      <div className="rounded-2xl bg-white p-4 text-gray-400 shadow-sm">{icon}</div>
+      <div className="rounded-2xl bg-white p-4 text-gray-400 shadow-sm">
+        {icon}
+      </div>
       <h3 className="mt-4 text-lg font-semibold text-gray-900">{title}</h3>
       <p className="mt-1 max-w-md text-sm text-gray-500">{description}</p>
     </div>
@@ -538,8 +612,5 @@ function getAttendanceDate(attendance: TAttendance) {
   return new Date(source).toISOString().slice(0, 10);
 }
 
-
-
 const FALLBACK_PROFILE =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIPCfcvp9e7k8T4Wi3kZ0wyY5EeA1BOsEqp3Uqmn79ww&s";
-
