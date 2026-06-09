@@ -10,6 +10,24 @@ import env from "../../config/env";
 import { sendMail } from "../../utils/sendMail";
 import { welcomeTemplate } from "../../template/welcome.template";
 
+const parsePermissions = (value: unknown): string[] | undefined => {
+  if (!value) return undefined;
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((item): item is string => typeof item === "string");
+      }
+    } catch {
+      return [value];
+    }
+  }
+  return undefined;
+};
+
 export const createUser: AppRouteMutationImplementation<
   typeof userContract.createUser
 > = async ({ req }) => {
@@ -21,6 +39,8 @@ export const createUser: AppRouteMutationImplementation<
       userPhone,
       gender,
       role,
+      staffRoleId,
+      staffPermissions,
     } = req.body;
 
     const files = req.files as {
@@ -62,6 +82,8 @@ export const createUser: AppRouteMutationImplementation<
       license: licenseUrl,
       certificate: certificateUrl,
       role,
+      staffRoleId: staffRoleId ? new mongoose.Types.ObjectId(staffRoleId) : undefined,
+      staffPermissions: parsePermissions(staffPermissions),
     });
 
     const user = await businessRepository.getByID(business_id);
@@ -141,7 +163,7 @@ export const updateUser: AppRouteMutationImplementation<
   try {
     const { userID } = req.params;
 
-    const { userName, userEmail, userPhone, userPassword, gender, role } =
+    const { userName, userEmail, userPhone, userPassword, gender, role, staffRoleId, staffPermissions } =
       req.body;
 
     const files = req.files as {
@@ -167,8 +189,9 @@ export const updateUser: AppRouteMutationImplementation<
       citizenship: citizenshipUrl,
       license: licenseUrl,
       certificate: certificateUrl,
-
       role,
+      staffRoleId: staffRoleId ? new mongoose.Types.ObjectId(staffRoleId) : undefined,
+      staffPermissions: parsePermissions(staffPermissions),
     });
 
     if (!updated) {

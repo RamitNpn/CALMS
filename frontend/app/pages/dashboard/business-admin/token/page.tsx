@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useDebounce } from "use-debounce";
 import { BusinessForm } from "@/components/super-admin/business/BusinessForm";
 import { useAllTokens } from "@/hooks/super-admin/token-records/getAllTokens";
 import TokenRecords from "@/components/business-admin/token/TokenRecords";
@@ -8,11 +9,15 @@ import TokenRecords from "@/components/business-admin/token/TokenRecords";
 export default function TokenPage() {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
 
   const {
     data: tokenData,
     isError,
-  } = useAllTokens({ page, limit: 10 });
+  } = useAllTokens({ page, limit: 10, search: debouncedSearch, dateFilter });
 
   const tokens = tokenData?.data ?? tokenData ?? [];
   const pagination = tokenData?.pagination;
@@ -36,6 +41,10 @@ export default function TokenPage() {
         page={page}
         totalPages={pagination?.totalPages || 1}
         onPageChange={setPage}
+        search={search}
+        setSearch={setSearch}
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
       />
 
       {/* MODAL */}

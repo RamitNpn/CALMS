@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
@@ -8,7 +8,6 @@ import { X, Plus, Trash2 } from "lucide-react";
 
 import { assetApi } from "@/libs/api/asset.api";
 import {
-  TUpdateAssetSchema,
   TUpdateAssetFormSchema,
   updateAssetFormSchema,
 } from "@/libs/validation/asset.validation";
@@ -17,6 +16,8 @@ import { useToast } from "@/components/ui/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAllAssetTypes } from "@/hooks/business-admin/asset-management/getAllAssetTypes";
 import { TAssetType } from "@/libs/types/assetType.types";
+import Image from "next/image";
+import FormHeader from "@/components/shared/FormHeader";
 
 type AssetFormData = TUpdateAssetFormSchema;
 
@@ -36,6 +37,8 @@ export function EditAssetRecord({
   const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
 
   const businessId = storedData?.business_id;
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useAssetById(assetId);
   const asset = data?.data ?? data;
@@ -57,12 +60,13 @@ export function EditAssetRecord({
     control,
     formState: { errors },
   } = useForm<AssetFormData>({
-    resolver: zodResolver(updateAssetFormSchema),
     defaultValues: {
       _id: assetId,
       name: "",
       type: "",
+      price: 0,
       status: "active",
+      image: "",
       customFieldsArray: [{ key: "", value: "" }],
     },
   });
@@ -93,22 +97,20 @@ export function EditAssetRecord({
       _id: assetId,
       name: asset.name ?? "",
       type: asset.type ?? "",
+      price: asset.price ?? 0,
       status: asset.status ?? "active",
       customFieldsArray,
     });
+
+    if (asset?.image) {
+      setImagePreview(asset.image);
+    }
 
     console.log("FORM RESET WITH", customFieldsArray.length, "CUSTOM FIELDS");
   }, [assetId, asset, reset]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: ({
-      assetId,
-      data,
-    }: {
-      assetId: string;
-      data: Omit<TUpdateAssetSchema, "_id">;
-    }) => {
-      console.log("MUTATION FN - SENDING DATA:", JSON.stringify(data, null, 2));
+    mutationFn: ({ assetId, data }: { assetId: string; data: FormData }) => {
       return assetApi.updateAssetApi(assetId, data);
     },
     onSuccess: () => {
@@ -129,43 +131,35 @@ export function EditAssetRecord({
   });
 
   const onSubmit = (values: AssetFormData) => {
-    console.log("FORM VALUES:", JSON.stringify(values, null, 2));
-
     const customFieldsArray = values.customFieldsArray || [];
-    console.log(
-      "CUSTOM FIELDS ARRAY:",
-      JSON.stringify(customFieldsArray, null, 2),
-    );
 
-    // Filter out empty fields
     const filteredFields = customFieldsArray.filter((f) => {
       const hasKey = f.key?.trim();
       const hasValue = f.value?.trim();
       return hasKey && hasValue;
     });
 
-    console.log("FILTERED FIELDS:", JSON.stringify(filteredFields, null, 2));
-
-    // Convert array to object for API
     const customFieldsObject = Object.fromEntries(
       filteredFields.map((f) => [f.key.trim(), f.value.trim()]),
     );
 
-    console.log(
-      "CUSTOM FIELDS OBJECT:",
-      JSON.stringify(customFieldsObject, null, 2),
-    );
+    const formData = new FormData();
 
-    const payload: Omit<TUpdateAssetSchema, "_id"> = {
-      name: values.name?.trim(),
-      type: values.type?.trim(),
-      status: values.status,
-      customFields: customFieldsObject,
-    };
+    formData.append("name", values.name.trim());
+    formData.append("type", values.type.trim());
+    formData.append("price", String(values.price || 0));
+    formData.append("status", values.status || "active");
 
-    console.log("FINAL PAYLOAD:", JSON.stringify(payload, null, 2));
+    formData.append("customFields", JSON.stringify(customFieldsObject));
 
-    mutate({ assetId, data: payload });
+    if (values.image?.[0]) {
+      formData.append("image", values.image[0]);
+    }
+
+    mutate({
+      assetId,
+      data: formData,
+    });
   };
 
   if (isLoading) return <div className="p-6">Loading asset...</div>;
@@ -176,7 +170,7 @@ export function EditAssetRecord({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div
         className={clsx(
-          "bg-white rounded-lg shadow-lg h-auto overflow-y-auto w-full",
+          "bg-white rounded-lg shadow-lg h-[95vh] overflow-y-scroll w-full",
           {
             "max-w-md": size === "sm",
             "max-w-lg": size === "md",
@@ -186,18 +180,10 @@ export function EditAssetRecord({
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Flowdesk - Edit Asset Details
-          </h2>
-
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* FORM */}
-        <div className="p-6">
+        <div className="p-6 text-[13px]">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <p className="text-xl font-semibold">Edit Asset Information</p>
 
@@ -246,6 +232,20 @@ export function EditAssetRecord({
                 )}
               </div>
 
+              <div>
+                <label className="block text-sm font-medium">
+                  Asset Price <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  {...register("price")}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                />
+                {errors.price && (
+                  <p className="text-red-500 text-sm">{errors.price.message}</p>
+                )}
+              </div>
+
               {/* STATUS */}
               <div>
                 <label className="block text-sm font-medium">
@@ -259,6 +259,36 @@ export function EditAssetRecord({
                   <option value="inactive">Inactive</option>
                   <option value="maintenance">Maintenance</option>
                 </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium">Asset Image</label>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  {...register("image")}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+
+                    if (file) {
+                      setImagePreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
+                />
+
+                {imagePreview && (
+                  <div className="mt-3">
+                    <Image
+                      height={32}
+                      width={32}
+                      src={imagePreview}
+                      alt="Asset Preview"
+                      className="h-32 w-32 object-cover rounded border"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

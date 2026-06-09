@@ -30,7 +30,6 @@ export default function SuperAdminDashboard() {
     paymentStatusDistribution,
     businessStatusDistribution,
     recentLogs,
-    isLoading,
     isError,
   } = useSuperAdminAnalytics();
 
@@ -82,7 +81,7 @@ export default function SuperAdminDashboard() {
         {kpiData.map((kpi) => {
           const Icon = kpi.icon;
           return (
-            <div key={kpi.label} className="p-6 bg-white shadow-md rounded-lg">
+            <div key={kpi.label} className="p-3 bg-white shadow-md rounded-md">
               <div className="flex items-start justify-between mb-4">
                 <div className="p-2 bg-primary/10 rounded-lg">
                   <Icon className="w-6 h-6 text-primary" />

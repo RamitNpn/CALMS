@@ -28,8 +28,10 @@ export const billingContract = c.router({
     method: "GET",
     path: "/billing",
     query: z.object({
-      page: z.string().optional(),
-      limit: z.string().optional(),
+      page: z.coerce.number().optional(),
+      limit: z.coerce.number().optional(),
+      search: z.string().optional(),
+      dateFilter: z.string().optional(),
     }),
     summary: "Get all billings with pagination",
     responses: {

@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import { useAllStaff } from "@/hooks/business-admin/staff-management/getAllStaffDatas";
+
 import StaffRecord from "@/components/business-admin/staff/StaffRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
@@ -28,16 +30,21 @@ import {
   YAxis,
 } from "recharts";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
+import StaffPermission from "@/components/business-admin/staff/StaffPermission";
 
 export default function StaffPage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
 
   const {
     data: staffData,
     isLoading,
     isError,
-  } = useAllStaff({ page, limit: 10 });
+  } = useAllStaff({ page, limit: 10, search: debouncedSearch, dateFilter });
 
   const { summary } = useBusinessAnalytics();
 
@@ -47,9 +54,9 @@ export default function StaffPage() {
   const staffGenderData = useMemo(() => {
     const counts: Record<string, number> = staffs.reduce(
       (acc: Record<string, number>, staff: TStaff) => {
-      const key = staff.gender || "other";
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = staff.gender || "other";
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -60,12 +67,12 @@ export default function StaffPage() {
   const staffGrowth = useMemo(() => {
     const monthly: Record<string, number> = staffs.reduce(
       (acc: Record<string, number>, staff: TStaff) => {
-      const createdAt = new Date(staff.createdAt);
-      if (Number.isNaN(createdAt.getTime())) return acc;
+        const createdAt = new Date(staff.createdAt);
+        if (Number.isNaN(createdAt.getTime())) return acc;
 
-      const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -93,7 +100,13 @@ export default function StaffPage() {
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
     { id: "permission", label: "Permission", icon: <Wrench size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
-    { id: "customize", label: "Customize", icon: <Settings size={16} /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 
@@ -134,19 +147,22 @@ export default function StaffPage() {
           page={page}
           totalPages={pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
         />
       )}
 
       {activeTab === "permission" && (
-        <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            Role-Based Access Control
-          </h3>
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-600">
-            Permission details are managed from staff records and role settings.
-            Live permission analytics are not exposed by the current API yet.
-          </div>
-        </div>
+        <StaffPermission
+          staffs={staffs}
+          isLoading={isLoading}
+          error={isError ? "Failed to load staff records" : null}
+          page={page}
+          totalPages={pagination?.totalPages || 1}
+          onPageChange={setPage}
+        />
       )}
 
       {activeTab === "analysis" && (
@@ -159,7 +175,12 @@ export default function StaffPage() {
                 <XAxis dataKey="label" stroke="var(--muted-foreground)" />
                 <YAxis stroke="var(--muted-foreground)" />
                 <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--primary)"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>

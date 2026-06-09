@@ -15,7 +15,7 @@ export default function Select({ label, options, error, ...props }: Props) {
       {label && <label className="text-sm">{label}</label>}
 
       <select
-        className={clsx('border px-3 py-2 rounded-md', error && 'border-red-500')}
+        className={clsx('border border-gray-200 px-3 py-2 outline-none rounded shadow text-gray-700 text-[13px] focus:border-blue-600 bg-white', error && 'border-red-500')}
         {...props}
       >
         {options.map((o) => (

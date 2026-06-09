@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function RegisterPage() {
   const services = [
     {
@@ -67,7 +69,7 @@ export default function RegisterPage() {
       {/* Header */}
       <div className="max-w-5xl mx-auto text-center mb-12">
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-          Register Your Business with FlowDesk
+          Register Your Business with PDMS
         </h1>
 
         <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
@@ -132,12 +134,12 @@ export default function RegisterPage() {
 
         {/* CTA */}
         <div className="mt-8">
-          <a
-            href="/pages/login-page"
+          <Link
+            href="/"
             className="inline-block bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
           >
-            Back to Login
-          </a>
+            Back to dashboard
+          </Link>
         </div>
       </div>
     </div>

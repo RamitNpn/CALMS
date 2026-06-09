@@ -10,29 +10,23 @@ import {
   Users,
   CreditCard,
   BarChart,
-  LineChart,
   ChevronLeft,
   ChevronRight,
   CardSim,
+  Book,
+  FileQuestion,
 } from "lucide-react";
 
 import { useAllService } from "@/hooks/business-admin/service/getAllServiceDatas";
+import Image from "next/image";
 
 const menu = [
   // ADMIN
   {
     id: "super-dashboard",
-    name: "Dashboard",
+    name: "Analytic Dashboard",
     href: "/pages/dashboard/super-admin",
     icon: LayoutDashboard,
-    exact: true,
-    roles: ["admin"],
-  },
-  {
-    id: "super-analysis",
-    name: "Analysis",
-    href: "/pages/dashboard/super-admin/analytics",
-    icon: LineChart,
     exact: true,
     roles: ["admin"],
   },
@@ -46,7 +40,7 @@ const menu = [
   },
   {
     id: "super-payment",
-    name: "Payments",
+    name: "Billing Management",
     href: "/pages/dashboard/super-admin/payments",
     icon: CreditCard,
     exact: false,
@@ -63,21 +57,22 @@ const menu = [
     roles: ["business", "staff"],
   },
   {
-    id: "business-analysis",
-    name: "Analysis",
-    href: "/pages/dashboard/business-admin/analytics",
-    icon: LineChart,
+    id: "business-inquiry",
+    name: "Client Inquiries",
+    href: "/pages/dashboard/business-admin/inquiry",
+    icon: FileQuestion,
     exact: true,
     roles: ["business", "staff"],
+    permission: "inquiries_management:view",
   },
-
   {
     id: "profile",
-    name: "Business Profile",
-    serviceKey: "business_management",
-    href: "/pages/dashboard/business-admin/business",
+    name: "Revenue Management",
+    serviceKey: "revenue_management",
+    href: "/pages/dashboard/business-admin/finance",
     icon: Building2,
     roles: ["business", "staff"],
+    permission: "revenue_management:view",
   },
 
   {
@@ -86,7 +81,8 @@ const menu = [
     serviceKey: "asset_management",
     href: "/pages/dashboard/business-admin/assets",
     icon: BarChart,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "asset_management:view",
   },
 
   {
@@ -95,7 +91,8 @@ const menu = [
     serviceKey: "client_management",
     href: "/pages/dashboard/business-admin/clients",
     icon: Users,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "client_management:view",
   },
 
   {
@@ -104,16 +101,19 @@ const menu = [
     serviceKey: "staff_management",
     href: "/pages/dashboard/business-admin/staff",
     icon: Users,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "staff_management:view",
   },
 
   {
     id: "token-management",
     name: "Token Management",
+    serviceKey: "token_management",
     href: "/pages/dashboard/business-admin/token",
     icon: CardSim,
     exact: true,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "token_management:view",
   },
 
   {
@@ -122,7 +122,8 @@ const menu = [
     serviceKey: "attendance_management",
     href: "/pages/dashboard/business-admin/attendance",
     icon: LayoutDashboard,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "attendance_management:view",
   },
 
   {
@@ -131,16 +132,31 @@ const menu = [
     serviceKey: "billing_management",
     href: "/pages/dashboard/business-admin/billing",
     icon: CreditCard,
-    roles: ["business"],
+    roles: ["business", "staff"],
+    permission: "billing_management:view",
+  },
+  {
+    id: "profile-management",
+    name: "Profile Management",
+    href: "/pages/dashboard/business-admin/profile",
+    icon: Book,
+    exact: true,
+    roles: ["business", "staff"],
+    permission: "profile_management:view",
   },
 ];
 
 type Props = {
   userRole: string[];
+  permissions?: string[];
   userName?: string;
 };
 
-export default function Sidebar({ userRole, userName }: Props) {
+export default function Sidebar({
+  userRole,
+  permissions = [],
+  userName,
+}: Props) {
   const pathname = usePathname();
 
   const { data: serviceData } = useAllService();
@@ -197,12 +213,19 @@ export default function Sidebar({ userRole, userName }: Props) {
   const filteredMenu = useMemo(() => {
     return menu.filter((item) => {
       const hasRoleAccess = item.roles.some((r) => userRole.includes(r));
-
       if (!hasRoleAccess) return false;
 
       if (userRole.includes("admin")) return true;
 
-      if (item.id === "business-dashboard") return true;
+      if (item.permission) {
+        const permissionMatch = Array.isArray(item.permission)
+          ? item.permission.some((code) => permissions.includes(code))
+          : permissions.includes(item.permission);
+
+        if (!permissionMatch) {
+          return false;
+        }
+      }
 
       if (item.serviceKey) {
         return allowedServices.includes(item.serviceKey);
@@ -210,7 +233,7 @@ export default function Sidebar({ userRole, userName }: Props) {
 
       return true;
     });
-  }, [allowedServices, userRole]);
+  }, [allowedServices, permissions, userRole]);
 
   return (
     <aside
@@ -218,8 +241,33 @@ export default function Sidebar({ userRole, userName }: Props) {
       ${collapsed ? "w-20" : "w-64"}`}
     >
       {/* HEADER */}
-      <div className={`p-[9px] lg:p-[14px] font-bold text-indigo-600 border-b border-gray-200 flex items-center ${collapsed ? "justify-center" : "justify-between"}`}>
-        {!collapsed ? <span>FlowDesk</span> : <span>FD</span>}
+      <div
+        className={`p-[9px] lg:p-[14px] font-bold text-indigo-600 border-b border-gray-200 flex items-center transition-all
+  ${collapsed ? "justify-center" : "justify-between"}`}
+      >
+        {!collapsed ? (
+          <div className="flex items-center gap-2">
+            <Image
+              src="/DrivingLogo.png"
+              alt="PDMS"
+              width={32}
+              height={32}
+              className="h-8 w-auto"
+            />
+
+            <span className="text-indigo-600 font-bold text-sm lg:text-base">
+              PDMS
+            </span>
+          </div>
+        ) : (
+          <Image
+            src="/DrivingLogo.png"
+            alt="PDMS"
+            width={28}
+            height={28}
+            className="h-7 w-auto"
+          />
+        )}
       </div>
 
       {/* MENU */}

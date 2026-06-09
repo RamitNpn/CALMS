@@ -10,10 +10,7 @@ import {
   renewPaymentSchema,
 } from "./payment.schema";
 
-import {
-  errorSchema,
-  successSchema,
-} from "../common.schema";
+import { errorSchema, successSchema } from "../common.schema";
 
 const c = initContract();
 
@@ -30,7 +27,7 @@ export const paymentContract = c.router({
     },
   },
 
-    renewPayment: {
+  renewPayment: {
     method: "POST",
     path: "/payment/renew",
     body: renewPaymentSchema,
@@ -46,8 +43,10 @@ export const paymentContract = c.router({
     method: "GET",
     path: "/payment",
     query: z.object({
-      page: z.string().optional(),
-      limit: z.string().optional(),
+      page: z.coerce.number().optional(),
+      limit: z.coerce.number().optional(),
+      search: z.string().optional(),
+      dateFilter: z.string().optional(),
     }),
     summary: "Get all payments with pagination",
     responses: {

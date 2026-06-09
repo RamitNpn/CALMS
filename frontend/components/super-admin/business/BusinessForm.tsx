@@ -8,13 +8,70 @@ import { businessApi } from "@/libs/api/business.api";
 import { z } from "zod";
 import clsx from "clsx";
 import { X } from "lucide-react";
-import { createBusinessSchema } from "@/libs/validation/business.validation";
+import {
+  createBusinessSchema,
+  TServiceKey,
+} from "@/libs/validation/business.validation";
 import { useToast } from "@/components";
 
 type BusinessFormProps = {
   onClose?: () => void;
   size?: "sm" | "md" | "lg" | "xl";
 };
+
+const MOCK_SERVICES = [
+  {
+    service_key: "asset_management",
+    default_name: "Asset Management",
+  },
+
+  {
+    service_key: "attendance_management",
+    default_name: "Attendance Management",
+  },
+
+  {
+    service_key: "billing_management",
+    default_name: "Billing and Payments",
+  },
+
+  {
+    service_key: "business_management",
+    default_name: "Business Management",
+  },
+
+  {
+    service_key: "client_management",
+    default_name: "Client Management",
+  },
+
+  {
+    service_key: "inquiry_management",
+    default_name: "Inquiry Management",
+  },
+
+  {
+    service_key: "staff_management",
+    default_name: "Staff Management",
+  },
+
+  {
+    service_key: "profile_management",
+    default_name: "Profile Management",
+  },
+
+  {
+    service_key: "revenue_management",
+    default_name: "Revenue Management",
+  },
+
+  {
+    service_key: "token_management",
+    default_name: "Token Management",
+  },
+] as const;
+
+type ServiceType = (typeof MOCK_SERVICES)[number]["service_key"];
 
 export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
   const toast = useToast.getState();
@@ -67,6 +124,10 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
     mutate(data);
   };
 
+  const onError = (errors: any) => {
+    console.log("FORM ERRORS", errors);
+  };
+
   return (
     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div
@@ -87,19 +148,18 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Close modal"
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
           >
-            <X
-              size={24}
-              className="text-red-400 cursor-pointer border border-gray-200"
-            />
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="p-6 text-[13px]">
+          <form
+            onSubmit={handleSubmit(onSubmit, onError)}
+            className="space-y-6"
+          >
             {/* Title */}
             <div>
               <p className="text-xl font-semibold">Create Business Account</p>
@@ -114,10 +174,10 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("businessName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
                 {errors.businessName && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-[12px] mt-1">
                     {errors.businessName.message}
                   </p>
                 )}
@@ -130,8 +190,13 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("businessType")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
+                {errors.businessType && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.businessType.message}
+                  </p>
+                )}
               </div>
 
               {/* Operator Name */}
@@ -141,8 +206,13 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("operatorName")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
+                {errors.operatorName && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.operatorName.message}
+                  </p>
+                )}
               </div>
 
               {/* Operator Email */}
@@ -153,8 +223,13 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <input
                   type="email"
                   {...register("operatorEmail")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
+                {errors.operatorEmail && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.operatorEmail.message}
+                  </p>
+                )}
               </div>
 
               {/* Package */}
@@ -162,12 +237,17 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <label className="block text-sm font-medium">Package</label>
                 <select
                   {...register("package")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 >
                   <option value="starter">Starter</option>
                   <option value="growth">Growth</option>
                   <option value="enterprise">Enterprise</option>
                 </select>
+                {errors.package && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.package.message}
+                  </p>
+                )}
               </div>
 
               {/* Branch Name */}
@@ -175,7 +255,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <label className="block text-sm font-medium">Branch Name</label>
                 <input
                   {...register("branch.name")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -186,7 +266,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 </label>
                 <input
                   {...register("branch.location")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -195,7 +275,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <label className="block text-sm font-medium">Teams</label>
                 <input
                   {...register("teams")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -207,7 +287,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 <input
                   type="date"
                   {...register("payment_initiation")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded"
+                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>
 
@@ -222,38 +302,39 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                     control={control}
                     name="services"
                     render={({ field }) => {
-                      const toggleService = (value: string) => {
-                        const exists = field.value.includes(value);
+                      const selectedServices = field.value ?? [];
+
+                      const toggleService = (value: ServiceType) => {
+                        const exists = selectedServices.includes(value);
 
                         if (exists) {
                           field.onChange(
-                            field.value.filter((v: string) => v !== value),
+                            selectedServices.filter(
+                              (v: ServiceType) => v !== value,
+                            ),
                           );
                         } else {
-                          field.onChange([...field.value, value]);
+                          field.onChange([...selectedServices, value]);
                         }
                       };
 
                       return (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {[
-                            "business_management",
-                            "asset_management",
-                            "client_management",
-                            "staff_management",
-                            "attendance_management",
-                            "billing_management",
-                          ].map((service) => (
+                          {MOCK_SERVICES.map((service) => (
                             <label
-                              key={service}
+                              key={service.service_key}
                               className="flex items-center gap-2 text-sm"
                             >
                               <input
                                 type="checkbox"
-                                checked={field.value.includes(service)}
-                                onChange={() => toggleService(service)}
+                                checked={selectedServices.includes(
+                                  service.service_key,
+                                )}
+                                onChange={() =>
+                                  toggleService(service.service_key)
+                                }
                               />
-                              {service}
+                              {service.default_name}
                             </label>
                           ))}
                         </div>
@@ -261,6 +342,11 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                     }}
                   />
                 </div>
+                {errors.services && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.services.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -279,7 +365,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 disabled={isPending}
                 className="px-5 py-2 bg-gray-700 text-white rounded"
               >
-                {isPending ? "Creating..." : "Submit"}
+                {isPending ? "Creating..." : "Create"}
               </button>
             </div>
           </form>

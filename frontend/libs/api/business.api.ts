@@ -1,19 +1,21 @@
 import { apiClient } from "@/utils/api";
 import {
+  TAdminUpdateBusinessSchema,
   TCreateBusinessSchema,
   TDeleteBusinessSchema,
   TGetAllBusinessByIdSchema,
-  TAdminUpdateBusinessSchema,
+  TUpdateBusinessSchema,
 } from "../validation/business.validation";
+import { UsePaginationParams } from "../types/shared.types";
 
 const createBusiness = async (data: TCreateBusinessSchema) => {
   const res = await apiClient.post("/business", data);
   return res.data;
 };
 
-const getAllBusinessApi = async (page = 1, limit = 10) => {
+const getAllBusinessApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/business", {
-    params: { page, limit },
+    params,
   });
   return response.data;
 };
@@ -27,11 +29,20 @@ const getBusinessByIdApi = async (
 
 const updateBusinessApi = async (
   businessId: string,
+  data: FormData,
+) => {
+  const response = await apiClient.put(`/business/${businessId}`, data);
+  return response.data;
+};
+
+const updateBusinessByAdminApi = async (
+  businessId: string,
   data: TAdminUpdateBusinessSchema,
 ) => {
   const response = await apiClient.put(`/business/${businessId}`, data);
   return response.data;
 };
+
 
 const deleteBusinessApi = async (businessId: TDeleteBusinessSchema["_id"]) => {
   const response = await apiClient.delete(`/business/${businessId}`);
@@ -43,5 +54,6 @@ export const businessApi = {
   getAllBusinessApi,
   getBusinessByIdApi,
   updateBusinessApi,
+  updateBusinessByAdminApi,
   deleteBusinessApi,
 };

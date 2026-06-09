@@ -15,13 +15,72 @@ class UserRepository {
     }
   }
 
-  async getAll(skip: number = 0, limit: number = 10, role?: string) {
+  async getAll({
+    skip = 0,
+    limit = 10,
+    role,
+    search,
+    dateFilter,
+  }: {
+    skip?: number;
+    limit?: number;
+    role?: string;
+    search?: string;
+    dateFilter?: string;
+  }) {
     try {
       const query: any = {};
 
-      if (role) {
+      if (role && role !== "all") {
         query.role = role;
       }
+      if (search) {
+        query.$or = [
+          { userName: { $regex: search, $options: "i" } },
+          { userEmail: { $regex: search, $options: "i" } },
+          { userPhone: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      const now = new Date();
+      if (dateFilter && dateFilter !== "all") {
+        let startDate: Date;
+
+        switch (dateFilter) {
+          case "current_day":
+            startDate = new Date(
+              now.getFullYear(),
+              now.getMonth(),
+              now.getDate(),
+            );
+            query.createdAt = { $gte: startDate, $lte: now };
+            break;
+          case "current_week": {
+            const firstDayOfWeek = new Date(now);
+            const day = firstDayOfWeek.getDay();
+            const diff = day === 0 ? -6 : 1 - day;
+            firstDayOfWeek.setDate(firstDayOfWeek.getDate() + diff);
+            firstDayOfWeek.setHours(0, 0, 0, 0);
+
+            query.createdAt = { $gte: firstDayOfWeek, $lte: now };
+            break;
+          }
+          case "current_month":
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            query.createdAt = { $gte: startDate, $lte: now };
+            break;
+          case "current_year":
+            startDate = new Date(now.getFullYear(), 0, 1);
+            query.createdAt = { $gte: startDate, $lte: now };
+            break;
+        }
+      }
+
+      console.log({
+        role,
+        search,
+        query,
+      });
 
       const data = await this.model
         .find(query)

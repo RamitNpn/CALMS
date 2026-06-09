@@ -13,6 +13,7 @@ import { clientApi } from "@/libs/api/client.api";
 import { updateClientSchema } from "@/libs/validation/client.validation";
 import Image from "next/image";
 import { useClientById } from "@/hooks/business-admin/client-management/getClientDataById";
+import FormHeader from "@/components/shared/FormHeader";
 
 type ClientForm = z.infer<typeof updateClientSchema>;
 
@@ -44,7 +45,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
       userName: "",
       userEmail: "",
       userPhone: "",
-      userPassword: "",
       profile: "",
       certificate: "",
       citizenship: "",
@@ -63,7 +63,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
       userName: client.userName ?? "",
       userEmail: client.userEmail ?? "",
       userPhone: client.userPhone ?? "",
-      userPassword: "",
       certificate: "",
       citizenship: "",
       license: "",
@@ -107,10 +106,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
     if (values.userPhone) formData.append("userPhone", values.userPhone);
     if (values.role) formData.append("role", values.role);
 
-    if (values.userPassword?.trim()) {
-      formData.append("userPassword", values.userPassword);
-    }
-
     if (values.gender) {
       formData.append("gender", values.gender);
     }
@@ -152,19 +147,11 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Flowdesk - Edit Client Details
-          </h2>
-
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* FORM */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             <p className="text-xl font-semibold">Edit Client Account</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -203,17 +190,6 @@ export function EditClientForm({ clientId, onClose, size = "lg" }: Props) {
                 </label>
                 <input
                   {...register("userPhone")}
-                  className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
-                />
-              </div>
-
-              {/* PASSWORD */}
-              <div>
-                <label className="block text-sm font-medium">Password</label>
-                <input
-                  type="password"
-                  {...register("userPassword")}
-                  placeholder="Leave empty if unchanged...."
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
               </div>

@@ -2,7 +2,11 @@ import { initContract } from "@ts-rest/core";
 import z from "zod";
 
 import { errorSchema, successSchema } from "../common.schema";
-import { createDrivingInquirySchema, getAllDrivingInquirySchema, getDrivingInquiryByIdSchema } from "./inquiry.schema";
+import {
+  createDrivingInquirySchema,
+  getAllDrivingInquirySchema,
+  getDrivingInquiryByIdSchema,
+} from "./inquiry.schema";
 
 const c = initContract();
 
@@ -25,6 +29,8 @@ export const inquiryContract = c.router({
     query: z.object({
       page: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
+      search: z.string().optional(),
+      dateFilter: z.string().optional(),
     }),
     responses: {
       200: z.object({

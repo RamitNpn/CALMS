@@ -10,10 +10,18 @@ export const getAllUsers: AppRouteQueryImplementation<
     // The contract validates and coerces these to numbers via z.coerce.number()
     const page = (req.query.page as unknown as number) || 1;
     const limit = (req.query.limit as unknown as number) || 10;
-    const role = req.query.role;
+    const role = req.query.role as string | undefined;
+    const search = req.query.search as string | undefined;
+    const dateFilter = req.query.dateFilter as string | undefined;
     const skip = (page - 1) * limit;
 
-    const { data: users, total } = await userRepository.getAll(skip, limit, role);
+    const { data: users, total } = await userRepository.getAll({
+      skip,
+      limit,
+      role,
+      search,
+      dateFilter,
+    });
     const totalPages = Math.ceil(total / limit);
 
     const formattedUsers = users.map((u) => ({
@@ -28,6 +36,8 @@ export const getAllUsers: AppRouteQueryImplementation<
       license: u.license,
       certificate: u.certificate,
       role: u.role,
+      staffRoleId: u.staffRoleId?.toString(),
+      staffPermissions: u.staffPermissions ?? [],
       createdAt: u.createdAt,
       updatedAt: u.updatedAt,
     }));
@@ -84,7 +94,9 @@ export const getUserByID: AppRouteQueryImplementation<
       };
     }
 
-    const businessName = await businessRepository.getByID(user.business_id.toString());
+    const businessName = await businessRepository.getByID(
+      user.business_id.toString(),
+    );
 
     return {
       status: 200,
@@ -101,6 +113,8 @@ export const getUserByID: AppRouteQueryImplementation<
         license: user.license,
         certificate: user.certificate,
         role: user.role,
+        staffRoleId: user.staffRoleId?.toString(),
+        staffPermissions: user.staffPermissions ?? [],
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

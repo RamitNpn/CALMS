@@ -22,7 +22,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -31,36 +30,52 @@ import {
   YAxis,
 } from "recharts";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
+import { useDebounce } from "use-debounce";
+import { useAssetStats } from "@/hooks/business-admin/stats-data/getAssetStats";
 
 export default function BusinessesPage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
+
+  const [businessId] = useState<string>(() => {
+    const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
+    return storedData?.business_id;
+  });
 
   const {
     data: assetData,
     isLoading,
     isError,
-  } = useAllAssets({ page, limit: 10 });
+  } = useAllAssets({ page, limit: 10, search: debouncedSearch, dateFilter });
 
-  const assets: TAsset[] = assetData?.data ?? assetData ?? [];
+  const assets = useMemo(() => {
+    if (!assetData) return [];
+    return assetData.data || assetData || [];
+  }, [assetData]);
+
   const assetPagination = assetData?.pagination;
-  const { summary, assetHealth } = useBusinessAnalytics();
 
   const { data: assetTypeData } = useAllAssetTypes({
     page: 1,
     limit: 100,
-    business_id: assets?.[0]?.business_id,
+    business_id: businessId,
   });
 
+  const { data: assetStats } = useAssetStats();
+
   const assetTypes = assetTypeData?.data ?? assetTypeData ?? [];
-  const assetTypePagination = assetData?.pagination;
+  const assetTypePagination = assetTypeData?.pagination;
 
   const assetTypeBreakdown = useMemo(() => {
     const counts: Record<string, number> = assets.reduce(
       (acc: Record<string, number>, asset: TAsset) => {
-      const key = asset.type || "Uncategorized";
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = asset.type || "Uncategorized";
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -75,9 +90,9 @@ export default function BusinessesPage() {
 
     const counts: Record<string, number> = assets.reduce(
       (acc: Record<string, number>, asset: TAsset) => {
-      const key = (asset.status || "unknown").toLowerCase();
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = (asset.status || "unknown").toLowerCase();
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -97,12 +112,12 @@ export default function BusinessesPage() {
   const assetGrowth = useMemo(() => {
     const monthly: Record<string, number> = assets.reduce(
       (acc: Record<string, number>, asset: TAsset) => {
-      const createdAt = new Date(asset.createdAt);
-      if (Number.isNaN(createdAt.getTime())) return acc;
+        const createdAt = new Date(asset.createdAt);
+        if (Number.isNaN(createdAt.getTime())) return acc;
 
-      const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -121,16 +136,6 @@ export default function BusinessesPage() {
       });
   }, [assets]);
 
-  const totalAssets = summary?.assets.totalAssets ?? assets.length;
-  const totalValue = summary?.assets.totalAssetValue ?? 0;
-  const activeAssets =
-    summary?.assets.totalActiveAssets ??
-    assets.filter((asset: TAsset) => asset.status.toLowerCase() === "active")
-      .length;
-  const inactiveAssets =
-    summary?.assets.totalInactiveAssets ??
-    assets.filter((asset: TAsset) => asset.status.toLowerCase() === "inactive")
-      .length;
   const maintenanceAssets = assets.filter((asset: TAsset) =>
     asset.status.toLowerCase().includes("maint"),
   ).length;
@@ -139,7 +144,13 @@ export default function BusinessesPage() {
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
     { id: "types", label: "Add Types", icon: <PlusCircleIcon size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
-    { id: "customize", label: "Customize", icon: <Settings size={16} /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 
@@ -160,8 +171,8 @@ export default function BusinessesPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
             <p className="text-muted-foreground text-sm">Total Assets</p>
-            <p className="text-3xl font-bold text-foreground mt-2">
-              {totalAssets.toLocaleString()}
+            <p className="text-xl font-bold text-foreground mt-2">
+              {assetStats?.totalAssets.toLocaleString()}
             </p>
             <p className="text-xs text-green-600 mt-2">
               {assetGrowth.at(-1)?.value ?? 0} added this month
@@ -169,29 +180,30 @@ export default function BusinessesPage() {
           </Card>
           <Card>
             <p className="text-muted-foreground text-sm">Total Value</p>
-            <p className="text-3xl font-bold text-foreground mt-2">
-              ${Math.round(totalValue / 1000).toLocaleString()}K
+            <p className="text-xl font-bold text-foreground mt-2">
+              Rs.{Math.round(assetStats?.totalAssetValue || 0).toLocaleString()}
             </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Live inventory value
+            <p className="text-xs text-green-600 mt-2">
+              {assetStats?.assetValueRate.toLocaleString()}% Growth from last
+              month
             </p>
           </Card>
           <Card>
             <p className="text-muted-foreground text-sm">Active Assets</p>
-            <p className="text-3xl font-bold text-foreground mt-2">
-              {activeAssets.toLocaleString()}
+            <p className="text-xl font-bold text-foreground mt-2">
+              {assetStats?.totalActiveAssets.toLocaleString()}
             </p>
             <p className="text-xs text-green-600 mt-2">
-              {totalAssets > 0 ? `${((activeAssets / totalAssets) * 100).toFixed(1)}% utilization` : "No assets yet"}
+              {assetStats?.assetRate.toLocaleString()}% Active Rate
             </p>
           </Card>
           <Card>
             <p className="text-muted-foreground text-sm">In Maintenance</p>
-            <p className="text-3xl font-bold text-foreground mt-2">
+            <p className="text-xl font-bold text-foreground mt-2">
               {maintenanceAssets.toLocaleString()}
             </p>
             <p className="text-xs text-orange-600 mt-2">
-              {inactiveAssets.toLocaleString()} inactive
+              {assetStats?.totalInactiveAssets.toLocaleString()} inactive
             </p>
           </Card>
         </div>
@@ -213,6 +225,10 @@ export default function BusinessesPage() {
           page={page}
           totalPages={assetPagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setInquiryType={setDateFilter}
         />
       )}
 
@@ -276,7 +292,12 @@ export default function BusinessesPage() {
                 <XAxis dataKey="label" stroke="var(--muted-foreground)" />
                 <YAxis stroke="var(--muted-foreground)" />
                 <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--primary)"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </Card>
@@ -285,10 +306,18 @@ export default function BusinessesPage() {
             <h3 className="text-lg font-semibold mb-4">Asset Summary</h3>
             <div className="space-y-3 text-sm text-muted-foreground">
               <p>Total asset types: {assetTypes.length.toLocaleString()}</p>
-              <p>Active assets: {activeAssets.toLocaleString()}</p>
-              <p>Inactive assets: {inactiveAssets.toLocaleString()}</p>
+              <p>
+                Active assets: {assetStats?.totalActiveAssets.toLocaleString()}
+              </p>
+              <p>
+                Inactive assets:{" "}
+                {assetStats?.totalInactiveAssets.toLocaleString()}
+              </p>
               <p>Maintenance assets: {maintenanceAssets.toLocaleString()}</p>
-              <p>Total value: ${Math.round(totalValue).toLocaleString()}</p>
+              <p>
+                Total value: $
+                {Math.round(assetStats?.totalAssetValue || 0).toLocaleString()}
+              </p>
             </div>
           </Card>
         </div>

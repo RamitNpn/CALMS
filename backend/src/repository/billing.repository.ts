@@ -17,17 +17,58 @@ class InvoiceRepository {
 
   async getAll(
     skip: number = 0,
-    limit: number = 10
+    limit: number = 10,
+    search?: string,
+    dateFilter?: string,
   ) {
     try {
-      const data = await this.model
-        .find()
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
+      const filter: any = {};
 
-      const total =
-        await this.model.countDocuments();
+      if (search) {
+        filter.$or = [
+          { clientName: { $regex: search, $options: "i" } },
+          { clientEmail: { $regex: search, $options: "i" } },
+          { title: { $regex: search, $options: "i" } },
+        ];
+      }
+
+      const now = new Date();
+
+      if (dateFilter && dateFilter !== "all") {
+        let startDate: Date;
+
+        switch (dateFilter) {
+          case "current_day":
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            filter.createdAt = { $gte: startDate, $lte: now };
+            break;
+
+          case "current_week": {
+            const firstDayOfWeek = new Date(now);
+            const day = firstDayOfWeek.getDay();
+            const diff = day === 0 ? -6 : 1 - day;
+            firstDayOfWeek.setDate(firstDayOfWeek.getDate() + diff);
+            firstDayOfWeek.setHours(0, 0, 0, 0);
+
+            filter.createdAt = { $gte: firstDayOfWeek, $lte: now };
+            break;
+          }
+
+          case "current_month":
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            filter.createdAt = { $gte: startDate, $lte: now };
+            break;
+
+          case "current_year":
+            startDate = new Date(now.getFullYear(), 0, 1);
+            filter.createdAt = { $gte: startDate, $lte: now };
+            break;
+        }
+      }
+
+      const data = await this.model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+      const total = await this.model.countDocuments(filter);
 
       return { data, total };
     } catch (error) {

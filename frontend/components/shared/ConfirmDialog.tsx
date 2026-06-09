@@ -9,6 +9,7 @@ interface ConfirmDialogProps {
   message?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  isPending?: boolean;
 }
 
 export default function ConfirmDialog({
@@ -17,12 +18,13 @@ export default function ConfirmDialog({
   message,
   onConfirm,
   onCancel,
+  isPending,
 }: ConfirmDialogProps) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+      <div className="bg-white rounded-md shadow-xl w-full max-w-sm p-6">
         <h2 className="text-lg font-semibold text-foreground mb-2">{title}</h2>
         <p className="text-sm text-muted-foreground mb-6">{message}</p>
 
@@ -30,7 +32,9 @@ export default function ConfirmDialog({
           <Button className="bg-red-400 hover:bg-red-500 text-white cursor-pointer" variant="primary" onClick={onCancel}>
             Cancel
           </Button>
-          <Button className="bg-green-400 hover:bg-green-500 text-white cursor-pointer" onClick={onConfirm}>
+          <Button
+          disabled={isPending}
+           className="bg-green-400 hover:bg-green-500 text-white cursor-pointer" onClick={onConfirm}>
             Proceed
           </Button>
         </div>

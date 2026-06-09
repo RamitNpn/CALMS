@@ -99,7 +99,7 @@ export default function Contact() {
 
               <Link
                 href="/pages/inquery"
-                className="group mt-10 inline-flex items-center justify-center rounded bg-blue-600 px-3 py-2 font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-blue-700"
+              className="lg:inline-flex items-center mt-4 justify-center px-3 py-[6px] text-base transition-all duration-200 hover:bg-gray-700 hover:text-white text-white bg-gray-600 rounded"
               >
                 Submit Inquiry
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />

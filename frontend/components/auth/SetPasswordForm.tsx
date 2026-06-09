@@ -8,7 +8,10 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 import { setPassword } from "@/libs/api/auth.api";
-import { SetPasswordFormValues, setPasswordSchema } from "@/libs/validation/set-password.validation";
+import {
+  SetPasswordFormValues,
+  setPasswordSchema,
+} from "@/libs/validation/set-password.validation";
 import { useToast } from "../ui/toast";
 
 interface SetPasswordFormProps {
@@ -38,6 +41,12 @@ export default function SetPasswordForm({
 
   const password = watch("password");
 
+  const hasMinLength = (password?.length ?? 0) >= 8;
+  const hasUpperCase = /[A-Z]/.test(password || "");
+  const hasLowerCase = /[a-z]/.test(password || "");
+  const hasNumber = /\d/.test(password || "");
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password || "");
+
   const { mutate, isPending } = useMutation({
     mutationFn: ({ password, confirmPassword }: SetPasswordFormValues) =>
       setPassword(token, password, confirmPassword),
@@ -55,7 +64,8 @@ export default function SetPasswordForm({
     },
 
     onError: (error: unknown) => {
-      const errorMessage = (error as { message?: string })?.message || "Failed to set password";
+      const errorMessage =
+        (error as { message?: string })?.message || "Failed to set password";
       console.error("Set password failed:", errorMessage);
 
       toast.show({
@@ -83,9 +93,7 @@ export default function SetPasswordForm({
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
-          <label className="text-sm font-medium text-gray-700">
-            Password
-          </label>
+          <label className="text-sm font-medium text-gray-700">Password</label>
           <div className="relative mt-1">
             <input
               {...register("password")}
@@ -102,7 +110,9 @@ export default function SetPasswordForm({
             </button>
           </div>
           {errors.password && (
-            <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+            <p className="text-xs text-red-500 mt-1">
+              {errors.password.message}
+            </p>
           )}
           {password && password.length >= 8 && (
             <p className="text-xs text-green-600 mt-1">✓ Password is strong</p>
@@ -136,14 +146,33 @@ export default function SetPasswordForm({
         </div>
 
         <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-          <p className="text-xs font-medium text-blue-900 mb-2">Password requirements:</p>
-          <ul className="text-xs text-blue-800 space-y-1">
-            <li className={password?.length >= 8 ? "text-green-700" : ""}>
-              {password?.length >= 8 ? "✓" : "•"} At least 8 characters
+          <p className="text-xs font-medium text-blue-900 mb-2">
+            Password requirements:
+          </p>
+
+          <ul className="text-xs space-y-1">
+            <li className={hasMinLength ? "text-green-700" : "text-blue-800"}>
+              {hasMinLength ? "✓" : "•"} At least 8 characters
             </li>
-            <li>• Mix of uppercase and lowercase letters recommended</li>
-            <li>• At least one number recommended</li>
-            <li>• Special characters (!@#$%^&*) recommended</li>
+
+            <li
+              className={
+                hasUpperCase && hasLowerCase
+                  ? "text-green-700"
+                  : "text-blue-800"
+              }
+            >
+              {hasUpperCase && hasLowerCase ? "✓" : "•"} Uppercase & lowercase
+              letters
+            </li>
+
+            <li className={hasNumber ? "text-green-700" : "text-blue-800"}>
+              {hasNumber ? "✓" : "•"} At least one number
+            </li>
+
+            <li className={hasSpecialChar ? "text-green-700" : "text-blue-800"}>
+              {hasSpecialChar ? "✓" : "•"} Special character (!@#$%^&*)
+            </li>
           </ul>
         </div>
 
@@ -158,7 +187,8 @@ export default function SetPasswordForm({
       </form>
 
       <p className="text-xs text-gray-500 text-center mt-4">
-        After setting your password, you&apos;ll be redirected to the login page.
+        After setting your password, you&apos;ll be redirected to the login
+        page.
       </p>
     </div>
   );

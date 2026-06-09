@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { UsePaginationParams } from "@/libs/types/shared.types";
 import { businessApi } from "@/libs/api/business.api";
+import { UsePaginationParams } from "@/libs/types/shared.types";
 
-export function useAllBusinesses({ page = 1, limit = 10 }: UsePaginationParams) {
+export function useAllBusinesses({ page = 1, limit = 10, search, dateFilter }: UsePaginationParams) {
   return useQuery({
-    queryKey: ["businesses", page, limit],
-    queryFn: () => businessApi.getAllBusinessApi(page, limit),
+    queryKey: ["businesses", page, limit, search, dateFilter],
+    queryFn: () => businessApi.getAllBusinessApi({page, limit, search, dateFilter}),
   });
 }

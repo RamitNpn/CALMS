@@ -6,11 +6,13 @@ export const getAllBillings: AppRouteQueryImplementation<
   typeof billingContract.getAllBillings
 > = async ({ req }) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
     const skip = (page - 1) * limit;
+    const search = (req.query.search as string) || undefined;
+    const dateFilter = (req.query.dateFilter as string) || undefined;
 
-    const { data: billings, total } = await billingRepository.getAll(skip, limit);
+    const { data: billings, total } = await billingRepository.getAll(skip, limit, search, dateFilter);
     const totalPages = Math.ceil(total / limit);
 
     const formattedBillings = billings.map((i: any) => ({

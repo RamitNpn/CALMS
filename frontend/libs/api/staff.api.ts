@@ -10,9 +10,13 @@ export const createStaff = async (data: TCreateStaffSchema) => {
   return res.data;
 };
 
-const getAllStaffApi = async (page = 1, limit = 10) => {
+const getAllStaffApi = async (page = 1, limit = 10, search?: string, dateFilter?: string) => {
+  const params: any = { page, limit, role: "staff" };
+  if (search) params.search = search;
+  if (dateFilter) params.dateFilter = dateFilter;
+
   const response = await apiClient.get("/user", {
-    params: { page, limit, role: "staff" },
+    params,
   });
   return response.data;
 };

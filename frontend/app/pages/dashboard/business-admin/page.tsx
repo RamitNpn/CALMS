@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { DistributionChart } from "@/components/ui/widgets";
 import Card from "@/components/ui/card";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 
 export default function DashboardPage() {
@@ -61,15 +62,18 @@ export default function DashboardPage() {
     : [];
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome back! Here&apos;s your business overview.
-        </p>
-      </div>
+    <ProtectedRoute
+      allowedRoles={["business", "staff"]}
+    >
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Welcome back! Here&apos;s your business overview.
+          </p>
+        </div>
 
-      {isError && (
+        {isError && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           Analysis data could not be loaded right now.
         </div>
@@ -183,25 +187,25 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/staff"
+            href="/pages/dashboard/business-admin/staff"
           >
             Add New Staff
           </Link>
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/clients"
+            href="/pages/dashboard/business-admin/clients"
           >
             New Client
           </Link>
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/assets"
+            href="/pages/dashboard/business-admin/assets"
           >
             Register Asset
           </Link>
           <Link
             className="px-3 py-2 text-sm text-center rounded-[8px] bg-white shadow-md text-gray-800 hover:bg-emerald-600 hover:text-white"
-            href="/business/billing"
+            href="pages/dashboard/business-admin/billing"
           >
             Create Invoice
           </Link>
@@ -222,7 +226,7 @@ export default function DashboardPage() {
           {recentLogs.length === 0 ? (
             <p className="text-sm text-muted-foreground">No recent activity yet.</p>
           ) : (
-            recentLogs.map((log) => (
+            recentLogs.map((log: any) => (
               <div
                 key={log._id}
                 className="flex items-center gap-4 pb-4 border-b border-border last:border-0 last:pb-0 hover:bg-muted/50 rounded-lg transition-colors"
@@ -245,5 +249,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

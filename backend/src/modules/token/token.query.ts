@@ -8,21 +8,18 @@ export const getAlltokens: AppRouteQueryImplementation<
   typeof tokenContract.getAllTokens
 > = async ({ req }) => {
   try {
-    const page =
-      (req.query.page as unknown as number) || 1;
-
-    const limit =
-      (req.query.limit as unknown as number) || 10;
-
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
     const skip = (page - 1) * limit;
+    const search = (req.query.search as string) || undefined;
+    const dateFilter = (req.query.dateFilter as string) || undefined;
 
-    const {
-      data: tokens,
-      total,
-    } = await tokenRepository.getAll(
+    const { data: tokens, total } = await tokenRepository.getAllWithFilter({
       skip,
       limit,
-    );
+      search,
+      dateFilter,
+    });
 
     const totalPages = Math.ceil(total / limit);
 
