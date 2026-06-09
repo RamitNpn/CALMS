@@ -91,7 +91,6 @@ export default function StaffPage() {
       });
   }, [staffs]);
 
-
   const totalStaff = summary?.users.totalStaff ?? staffs.length;
   const activeStaff = summary?.users.totalActiveStaff ?? staffs.length;
   const inactiveStaff = summary?.users.totalInactiveStaff ?? 0;
@@ -101,7 +100,13 @@ export default function StaffPage() {
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
     { id: "permission", label: "Permission", icon: <Wrench size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
-    { id: "customize", label: "Customize", icon: <Settings size={16} /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 

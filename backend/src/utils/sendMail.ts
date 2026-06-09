@@ -12,7 +12,7 @@ type SendMailOptions = {
 export const sendMail = async ({ to, subject, html }: SendMailOptions) => {
   try {
     const result = await resend.emails.send({
-      from: env.EMAIL_FROM || "FlowDesk <onboarding@resend.dev>",
+      from: env.EMAIL_FROM || "FlowDesk <noreply@mail.flowtest.cornortech.com>",
       to,
       subject,
       html,

@@ -57,9 +57,9 @@ export default function ClientPage() {
   const clientGenderData = useMemo(() => {
     const counts: Record<string, number> = clients.reduce(
       (acc: Record<string, number>, client: TClient) => {
-      const key = client.gender || "other";
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = client.gender || "other";
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -70,12 +70,12 @@ export default function ClientPage() {
   const clientGrowth = useMemo(() => {
     const monthly: Record<string, number> = clients.reduce(
       (acc: Record<string, number>, client: TClient) => {
-      const createdAt = new Date(client.createdAt);
-      if (Number.isNaN(createdAt.getTime())) return acc;
+        const createdAt = new Date(client.createdAt);
+        if (Number.isNaN(createdAt.getTime())) return acc;
 
-      const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
+        const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
       },
       {},
     );
@@ -97,12 +97,19 @@ export default function ClientPage() {
   const totalClients = summary?.users.totalClients ?? clients.length;
   const activeClients = summary?.users.totalActiveClients ?? clients.length;
   const inactiveClients = summary?.users.totalInactiveClients ?? 0;
-  const activeRate = totalClients > 0 ? (activeClients / totalClients) * 100 : 0;
+  const activeRate =
+    totalClients > 0 ? (activeClients / totalClients) * 100 : 0;
 
   const tabs = [
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
-    { id: "customize", label: "Customize", icon: <Settings size={16} /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 
@@ -158,7 +165,12 @@ export default function ClientPage() {
                 <YAxis stroke="var(--muted-foreground)" />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--primary)"
+                  strokeWidth={2}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -192,7 +204,9 @@ export default function ClientPage() {
                   className="flex items-center justify-between p-3 hover:bg-muted/50 rounded"
                 >
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">{client.userName}</p>
+                    <p className="font-medium text-foreground">
+                      {client.userName}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {client.userEmail}
                     </p>
@@ -205,7 +219,11 @@ export default function ClientPage() {
                       {new Date(client.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <Button onClick={() => router.push(`/business/clients/${client._id}`)}>
+                  <Button
+                    onClick={() =>
+                      router.push(`/business/clients/${client._id}`)
+                    }
+                  >
                     <Eye className="w-4 h-4" />
                   </Button>
                 </div>

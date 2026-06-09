@@ -22,9 +22,9 @@ const env: TEnv = {
   cloud_name: process.env.CLOUD_NAME || "dslzx6qks",
   api_key: process.env.API_KEY || "619242651474882",
   api_secret: process.env.API_SECRET || "Bfx5e7n0jx9daRq_D0rfPpUWzPc",
-  frontend_url: process.env.FRONTEND_URL || "https://calms-frontend.vercel.app",
-  RESEND_API_KEY: process.env.RESEND_API_KEY || "re_hCtW5Nn5_8TG1p6zPSHda9njbss5q3Szh",
-  EMAIL_FROM: process.env.EMAIL_FROM || "FlowDesk <onboarding@resend.dev>",
+  frontend_url: process.env.FRONTEND_URL || "https://flowtest.cornortech.com",
+  RESEND_API_KEY: process.env.RESEND_API_KEY || "re_Psizdptk_3aoAL7LHXzimTUrUWiNaJJ2A",
+  EMAIL_FROM: process.env.EMAIL_FROM || "FlowDesk <noreply@mail.flowtest.cornortech.com>",
 };
 
 export default env;

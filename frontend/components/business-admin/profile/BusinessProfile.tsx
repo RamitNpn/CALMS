@@ -34,6 +34,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ApiError } from "@/libs/types/error.types";
 import TabNavigation from "@/components/shared/TabNavigation";
+import LogDetails from "@/components/shared/LogDetails";
 type Props = {
   businessId: string;
 };
@@ -53,9 +54,23 @@ export default function BusinessProfilePage({ businessId }: Props) {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const tabs = [
-    { id: "profile", label: "Profile Management", icon: <User size={16} /> },
-    { id: "customize", label: "Customize", icon: <Settings size={16} /> },
-    { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
+    {
+      id: "profile",
+      label: "Profile Management",
+      icon: <User size={16} />,
+    },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
+    {
+      id: "logs",
+      label: "Log Details",
+      icon: <ActivitySquare size={16} />,
+    },
   ];
 
   const {
@@ -113,11 +128,12 @@ export default function BusinessProfilePage({ businessId }: Props) {
   }, [businessId, business, reset]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: TUpdateBusinessSchema) => {
+    mutationFn: (data: FormData) => {
       return businessApi.updateBusinessApi(businessId, data);
     },
 
     onSuccess: (response) => {
+      setSelectedImage(null);
       console.log("UPDATE SUCCESS:", response);
       toast.show({
         message: response?.message || "Business profile updated successfully!",
@@ -182,7 +198,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
     console.log("FORM ERRORS:", errors);
 
     try {
-      // Check for any form validation errors
       if (Object.keys(errors).length > 0) {
         console.error("VALIDATION ERRORS DETECTED:", errors);
         const errorMessages = Object.entries(errors)
@@ -227,7 +242,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
         operatorName: values.operatorName || business.operatorName,
         operatorEmail: values.operatorEmail || business.operatorEmail,
         businessType: values.businessType || business.businessType,
-        profile: business.profile,
+        profile: values.profile || business.profile,
         role: values.role || "business",
         teams: values.teams || business.teams,
 
@@ -280,7 +295,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
         formData.append("profile", selectedImage);
       }
 
-      mutate(submitData);
+      mutate(formData as any);
     } catch (err: unknown) {
       console.error("SUBMISSION ERROR:", err);
       toast.show({
@@ -333,6 +348,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
                         width={100}
                         height={100}
                         className="w-full h-full object-cover"
+                        loading="eager"
                       />
                     </div>
 
@@ -489,7 +505,8 @@ export default function BusinessProfilePage({ businessId }: Props) {
                   <StatCard
                     icon={<Wrench size={22} />}
                     title="Services"
-                    value={"All"
+                    value={
+                      "All"
                       // Array.isArray(business.services)
                       //   ? business.services.length
                       //   : "All"
@@ -633,7 +650,13 @@ export default function BusinessProfilePage({ businessId }: Props) {
       )}
 
       {activeTab === "logs" && (
-        <div className="flex items-center justify-center h-[70vh]"></div>
+        <LogDetails
+          userId={businessId}
+          module="Business"s
+          onClearLogs={() => {
+            console.log("Clearing staff logs");
+          }}
+        />
       )}
     </div>
   );

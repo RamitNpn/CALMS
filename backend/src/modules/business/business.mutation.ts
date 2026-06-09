@@ -239,6 +239,18 @@ export const updateBusiness: AppRouteMutationImplementation<
   try {
     const { businessID } = req.params;
 
+    const existingBusiness = await businessRepository.getByID(businessID);
+
+    if (!existingBusiness) {
+      return {
+        status: 404,
+        body: {
+          success: false,
+          error: "Business not found",
+        },
+      };
+    }
+
     const { operatorPassword, package: pkg, ...rest } = req.body;
 
     const files = req.files as {
@@ -265,7 +277,10 @@ export const updateBusiness: AppRouteMutationImplementation<
     }
 
     if (operatorPassword) {
-      updateData.operatorPassword = await bcrypt.hash(operatorPassword, 10);
+      updateData.operatorPassword = await bcrypt.hash(
+        operatorPassword,
+        10,
+      );
     }
 
     if (profileUrl) {
@@ -285,8 +300,68 @@ export const updateBusiness: AppRouteMutationImplementation<
     }
 
     if (updateData.payment_status !== undefined) {
-      updateData.payment_status = updateData.payment_status === "true";
+      updateData.payment_status =
+        updateData.payment_status === "true";
     }
+
+    const FIELD_LABELS: Record<string, string> = {
+      businessName: "Business Name",
+      operatorName: "Operator Name",
+      operatorEmail: "Operator Email",
+      operatorPassword: "Operator Password",
+      businessType: "Business Type",
+      profile: "Profile Image",
+      teams: "Teams",
+      branch: "Branch Information",
+      package: "Package",
+      services: "Services",
+      status: "Status",
+      payment_status: "Payment Status",
+      payment_initiation: "Payment Initiation Date",
+      team_role: "Role",
+    };
+
+    const changes: Array<{
+      field: string;
+      oldValue: string;
+      newValue: string;
+    }> = [];
+
+    Object.entries(updateData).forEach(([field, newValue]) => {
+      const oldValue = (existingBusiness as any)[field];
+
+      if (field === "operatorPassword") {
+        changes.push({
+          field: "Operator Password",
+          oldValue: "********",
+          newValue: "********",
+        });
+
+        return;
+      }
+
+      const oldString =
+        oldValue === undefined || oldValue === null
+          ? ""
+          : typeof oldValue === "object"
+            ? JSON.stringify(oldValue)
+            : String(oldValue);
+
+      const newString =
+        newValue === undefined || newValue === null
+          ? ""
+          : typeof newValue === "object"
+            ? JSON.stringify(newValue)
+            : String(newValue);
+
+      if (oldString !== newString) {
+        changes.push({
+          field: FIELD_LABELS[field] || field,
+          oldValue: oldString,
+          newValue: newString,
+        });
+      }
+    });
 
     const updatedBusiness = await businessRepository.update(
       businessID,
@@ -319,6 +394,18 @@ export const updateBusiness: AppRouteMutationImplementation<
             view: true,
           },
         })),
+      });
+    }
+
+    if (changes.length > 0) {
+      await activityLogRepository.create({
+        module: "Business",
+        action: "UPDATE",
+        userId: new mongoose.Types.ObjectId(businessID),
+        title: updatedBusiness?.businessName,
+        role: "admin",
+        description: `${updatedBusiness?.businessName} profile updated`,
+        changes,
       });
     }
 
