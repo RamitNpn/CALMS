@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Mail, LogOut, User } from "lucide-react";
+import { Mail, LogOut, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
@@ -18,9 +18,11 @@ export default function Header() {
   // ✅ ROLE-BASED PROFILE ROUTE
   const profileRoute = userRole.includes("admin")
     ? "/pages/dashboard/super-admin/profile"
+    : userRole.includes("business")
+      ? "/pages/dashboard/business-admin/profile"
     : userRole.includes("staff")
-      ? "/pages/dashboard/business-admin/staff-profile"
-        : "/pages/dashboard/business-admin";
+        ? "/pages/dashboard/business-admin/staff-profile"
+        : "";
 
   const roleLabel = userRole.includes("admin")
     ? "Super Admin"

@@ -144,7 +144,13 @@ export default function BusinessesPage() {
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
     { id: "types", label: "Add Types", icon: <PlusCircleIcon size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
-    { id: "customize", label: "Customize", icon: <Settings size={16} /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 
@@ -178,7 +184,8 @@ export default function BusinessesPage() {
               Rs.{Math.round(assetStats?.totalAssetValue || 0).toLocaleString()}
             </p>
             <p className="text-xs text-green-600 mt-2">
-                {assetStats?.assetValueRate.toLocaleString()}% Growth from last month
+              {assetStats?.assetValueRate.toLocaleString()}% Growth from last
+              month
             </p>
           </Card>
           <Card>
@@ -299,10 +306,18 @@ export default function BusinessesPage() {
             <h3 className="text-lg font-semibold mb-4">Asset Summary</h3>
             <div className="space-y-3 text-sm text-muted-foreground">
               <p>Total asset types: {assetTypes.length.toLocaleString()}</p>
-              <p>Active assets: {assetStats?.totalActiveAssets.toLocaleString()}</p>
-              <p>Inactive assets: {assetStats?.totalInactiveAssets.toLocaleString()}</p>
+              <p>
+                Active assets: {assetStats?.totalActiveAssets.toLocaleString()}
+              </p>
+              <p>
+                Inactive assets:{" "}
+                {assetStats?.totalInactiveAssets.toLocaleString()}
+              </p>
               <p>Maintenance assets: {maintenanceAssets.toLocaleString()}</p>
-              <p>Total value: ${Math.round(assetStats?.totalAssetValue || 0).toLocaleString()}</p>
+              <p>
+                Total value: $
+                {Math.round(assetStats?.totalAssetValue || 0).toLocaleString()}
+              </p>
             </div>
           </Card>
         </div>

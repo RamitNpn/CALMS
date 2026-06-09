@@ -28,7 +28,7 @@ const getBusinessByIdApi = async (
 
 const updateBusinessApi = async (
   businessId: string,
-  data: TUpdateBusinessSchema,
+  data: FormData,
 ) => {
   const response = await apiClient.put(`/business/${businessId}`, data);
   return response.data;

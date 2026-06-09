@@ -18,6 +18,9 @@ import {
   Users,
   BarChart3,
   TrendingUp,
+  Settings,
+  User,
+  ActivitySquare,
 } from "lucide-react";
 import TabNavigation from "@/components/shared/TabNavigation";
 import BusinessTable from "@/components/super-admin/business/BusinessRecords";
@@ -31,9 +34,23 @@ import { useDebounce } from "use-debounce";
 import { useAllBusinesses } from "@/hooks/super-admin/business-records/getAllBusinesses";
 
 const BUSINESS_TABS = [
-  { id: "inventory", label: "Inventory" },
-  { id: "customize", label: "Customize" },
-  { id: "logs", label: "Log Records" },
+  {
+    id: "inventory",
+    label: "Records",
+    icon: <User size={16} />,
+  },
+  {
+    id: "customize",
+    label: "Customize",
+    icon: <Settings size={16} />,
+    disabled: true,
+    badge: "Dev",
+  },
+  {
+    id: "logs",
+    label: "Log Details",
+    icon: <ActivitySquare size={16} />,
+  },
 ];
 
 const buildMonthKey = (date: Date) =>
