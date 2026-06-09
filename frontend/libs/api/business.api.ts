@@ -1,5 +1,6 @@
 import { apiClient } from "@/utils/api";
 import {
+  TAdminUpdateBusinessSchema,
   TCreateBusinessSchema,
   TDeleteBusinessSchema,
   TGetAllBusinessByIdSchema,
@@ -34,6 +35,15 @@ const updateBusinessApi = async (
   return response.data;
 };
 
+const updateBusinessByAdminApi = async (
+  businessId: string,
+  data: TAdminUpdateBusinessSchema,
+) => {
+  const response = await apiClient.put(`/business/${businessId}`, data);
+  return response.data;
+};
+
+
 const deleteBusinessApi = async (businessId: TDeleteBusinessSchema["_id"]) => {
   const response = await apiClient.delete(`/business/${businessId}`);
   return response.data;
@@ -44,5 +54,6 @@ export const businessApi = {
   getAllBusinessApi,
   getBusinessByIdApi,
   updateBusinessApi,
+  updateBusinessByAdminApi,
   deleteBusinessApi,
 };
