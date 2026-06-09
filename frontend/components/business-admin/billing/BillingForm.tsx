@@ -11,6 +11,8 @@ import { z } from "zod";
 import { billingApi } from "@/libs/api/billing.api";
 import { useToast } from "@/components/ui/toast";
 import { createBillingSchema } from "@/libs/validation/billing.validation";
+import Image from "next/image";
+import FormHeader from "@/components/shared/FormHeader";
 
 type BillingFormData = z.infer<typeof createBillingSchema>;
 
@@ -165,24 +167,16 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
         )}
       >
         {/* HEADER */}
-        <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-gray-100 px-6 py-4">
-          <div>
+        <FormHeader onClose={() => onClose?.()} />
+
+        {/* FORM */}
+        <div className="p-6">
+          <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Create Billing</h2>
             <p className="mt-1 text-sm text-gray-500">
               Generate invoice and billing details
             </p>
           </div>
-
-          <button
-            onClick={onClose}
-            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
-          >
-            <X className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
-
-        {/* FORM */}
-        <div className="p-6">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-8 text-[13px]"
@@ -487,7 +481,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
               <button
                 type="button"
                 onClick={() => reset()}
-                className="rounded-lg bg-red-500 px-5 py-2 text-white"
+                className="rounded bg-red-500 px-5 py-2 text-white"
               >
                 Reset
               </button>
@@ -495,7 +489,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-lg bg-gray-800 px-6 py-2 text-white"
+                className="rounded bg-gray-800 px-6 py-2 text-white"
               >
                 {isPending ? "Creating..." : "Create Billing"}
               </button>

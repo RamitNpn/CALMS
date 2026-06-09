@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { clientApi } from "@/libs/api/client.api";
 import { TCreateClient } from "@/libs/types/client.types";
 import { createClientSchema } from "@/libs/validation/client.validation";
+import FormHeader from "@/components/shared/FormHeader";
 
 type ClientFormProps = {
   onClose?: () => void;
@@ -109,15 +110,7 @@ export function ClientForm({ onClose, size = "lg" }: ClientFormProps) {
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 sticky top-0 bg-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Flowdesk - Create Client
-          </h2>
-
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
-            <X className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* CONTENT */}
         <div className="p-6">

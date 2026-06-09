@@ -4,6 +4,7 @@ export interface TAsset {
   name: string;
   type: string;
   price: number;
+  image: string;
   customFields: Record<string, string>;
   status: string;
   createdAt: Date;

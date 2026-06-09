@@ -14,6 +14,7 @@ import { useMutation } from "@tanstack/react-query";
 import { clientApi } from "@/libs/api/client.api";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
+import { useAllClients } from "@/hooks/business-admin/client-management/getAllClientData";
 
 interface InquiryRecordProps {
   inquiries: TDrivingInquiry[];
@@ -55,6 +56,14 @@ export default function InquiryRecord({
 
   const toast = useToast.getState();
   const { mutate: deleteInquiry } = useDeleteInquiry();
+
+  const { data: clientData } = useAllClients({});
+
+  const existingClientEmails = new Set(
+    (clientData as any)?.data?.map((c: any) =>
+      c.userEmail?.toLowerCase().trim(),
+    ) || [],
+  );
 
   const { mutate: createClient, isPending: creatingClient } = useMutation({
     mutationFn: clientApi.createClient,
@@ -278,55 +287,71 @@ export default function InquiryRecord({
               </td>
             </tr>
           ) : (
-            inquiries.map((inquiry, index) => (
-              <tr
-                key={inquiry._id}
-                className="border-b border-gray-200 hover:bg-white transition rounded hover:translate-x-1"
-              >
-                <td className="py-2 px-2 text-left">
-                  {(page - 1) * 10 + index + 1}
-                </td>
-                <td className="py-2 px-2 text-left font-medium">
-                  {inquiry.fullName}
-                </td>
-                <td className="py-2 px-2 text-left">{inquiry.email || "-"}</td>
-                <td className="py-2 px-2 text-left">{inquiry.phone}</td>
-                <td className="py-2 px-2 text-left capitalize">
-                  {inquiry.licenseType}
-                </td>
-                <td className="py-2 px-2 text-left capitalize">
-                  {inquiry.inquiryType.replaceAll("_", " ")}
-                </td>
-                <td className="py-2 px-2 text-left">
-                  {moment(inquiry.createdAt).format("lll")}
-                </td>
-                <td className="py-2 px-2 text-left">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setViewId(inquiry._id)}
-                      className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
-                    >
-                      <Eye size={16} className="text-yellow-600" />
-                    </button>
+            inquiries.map((inquiry, index) => {
+              const isAlreadyClient = existingClientEmails.has(
+                inquiry.email?.toLowerCase().trim(),
+              );
 
-                    <button
-                      onClick={() => handleCreateClient(inquiry)}
-                      disabled={creatingClient}
-                      className="p-2 border border-gray-200 rounded hover:bg-green-100 text-green-600 transition cursor-pointer disabled:opacity-50"
-                    >
-                      <PlusIcon size={16} />
-                    </button>
+              return (
+                <tr
+                  key={inquiry._id}
+                  className={`border-gray-200 transition rounded hover:translate-x-1 ${ isAlreadyClient ? "hover:bg-white" : "hover:bg-emerald-100"}`}
+                >
+                  <td className="py-2 px-2 text-left">
+                    {(page - 1) * 10 + index + 1}
+                  </td>
 
-                    <button
-                      onClick={() => setItemToRemove(inquiry)}
-                      className="p-2 border border-gray-200 rounded hover:bg-red-100 text-red-600 transition cursor-pointer"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
+                  <td className="py-2 px-2 text-left font-medium">
+                    {inquiry.fullName}
+                  </td>
+
+                  <td className="py-2 px-2 text-left">
+                    {inquiry.email || "-"}
+                  </td>
+
+                  <td className="py-2 px-2 text-left">{inquiry.phone}</td>
+
+                  <td className="py-2 px-2 text-left capitalize">
+                    {inquiry.licenseType}
+                  </td>
+
+                  <td className="py-2 px-2 text-left capitalize">
+                    {inquiry.inquiryType.replaceAll("_", " ")}
+                  </td>
+
+                  <td className="py-2 px-2 text-left">
+                    {moment(inquiry.createdAt).format("lll")}
+                  </td>
+
+                  <td className="py-2 px-2 text-left">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setViewId(inquiry._id)}
+                        className="p-2 border border-gray-200 rounded hover:bg-gray-200 transition cursor-pointer"
+                      >
+                        {" "}
+                        <Eye size={16} className="text-yellow-600" />{" "}
+                      </button>
+
+                      <button
+                        onClick={() => handleCreateClient(inquiry)}
+                        disabled={creatingClient || isAlreadyClient}
+                        className={`p-2 border border-gray-200 rounded transition${creatingClient || isAlreadyClient ? "opacity-40 cursor-not-allowed" : "hover:bg-green-100 text-green-600 cursor-pointer"}`}
+                      >
+                        <PlusIcon size={16} />
+                      </button>
+
+                      <button
+                        onClick={() => setItemToRemove(inquiry)}
+                        className="p-2 border border-gray-200 rounded hover:bg-red-100 text-red-600 transition cursor-pointer"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

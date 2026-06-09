@@ -2,39 +2,37 @@ import { Toast } from "@/components";
 import "./globals.css";
 import QueryProvider from "@/provider/queryProvider";
 import type { Metadata } from "next";
-import { Geist } from 'next/font/google'
+import { Geist } from "next/font/google";
 
 const geistSans = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "FlowDesk - Multi-Tenant Business Management SaaS",
-    template: "%s | FlowDesk",
+    default: "Public Driving Management System (PDMS)",
+    template: "%s | PDMS",
   },
+
   description:
-    "FlowDesk is a modular multi-tenant SaaS platform built with MERN Stack for managing businesses, clients, staff, billing, attendance, scheduling, token queues, reports, notifications, and more.",
+    "Public Driving Management System (PDMS) is a comprehensive platform for managing driving schools, students, instructors, training schedules, attendance, payments, licenses, examinations, and operational workflows.",
+
   keywords: [
-    "FlowDesk",
-    "CALMS",
-    "Business Management System",
-    "Learning Management System",
-    "Multi Tenant SaaS",
-    "MERN Stack SaaS",
-    "Queue Management System",
-    "Token Management",
-    "Billing System",
-    "Attendance Management",
-    "Scheduling System",
-    "Staff Management",
-    "Client Management",
+    "PDMS",
+    "Public Driving Management System",
+    "Driving School Management",
     "Driving Institute Software",
-    "Coaching Center Software",
-    "Clinic Management",
-    "Gym Management",
-    "Salon Management",
-    "Business ERP",
-    "SaaS Billing",
-    "Analytics Dashboard",
+    "Driving Training Management",
+    "Student Management System",
+    "Instructor Management",
+    "Driving Test Management",
+    "License Training System",
+    "Vehicle Management",
+    "Attendance Management",
+    "Training Scheduling",
+    "Driving School ERP",
+    "Driving Education Platform",
+    "Transportation Training Software",
+    "Driving Course Management",
+    "Cornor Tech",
   ],
 
   authors: [
@@ -45,39 +43,43 @@ export const metadata: Metadata = {
 
   creator: "Cornor Tech Private Limited",
   publisher: "Cornor Tech Private Limited",
-  applicationName: "FlowDesk",
-  category: "Business & Productivity",
-  metadataBase: new URL("https://flowdesk.cornortech.com"),
+
+  applicationName: "Public Driving Management System (PDMS)",
+  category: "Education & Transportation",
+
+  metadataBase: new URL("https://flowtest.cornortech.com"),
+
   alternates: {
     canonical: "/",
   },
 
-  // openGraph: {
-  //   title: "FlowDesk - Multi-Tenant Business Operations Platform",
-  //   description:
-  //     "A complete modular SaaS platform for business operations, billing, attendance, scheduling, token queues, analytics, and client management.",
-  //   url: "https://flowdesk.cornortech.com",
-  //   siteName: "FlowDesk",
-  //   type: "website",
-  //   locale: "en_US",
+  openGraph: {
+    title: "Public Driving Management System (PDMS)",
+    description:
+      "A complete platform for managing driving schools, instructors, students, training schedules, attendance, examinations, and payments.",
 
-  //   images: [
-  //     {
-  //       url: "/og-image.png",
-  //       width: 1200,
-  //       height: 630,
-  //       alt: "FlowDesk SaaS Platform",
-  //     },
-  //   ],
-  // },
+    url: "https://flowtest.cornortech.com",
+    siteName: "PDMS",
+    type: "website",
+    locale: "en_US",
 
-  // twitter: {
-  //   card: "summary_large_image",
-  //   title: "FlowDesk - Business Management SaaS",
-  //   description:
-  //     "Modular multi-tenant MERN SaaS platform for businesses and institutions.",
-  //   images: ["/og-image.png"],
-  // },
+    images: [
+      {
+        url: "/DrivingLogo.png",
+        width: 1200,
+        height: 630,
+        alt: "Public Driving Management System (PDMS)",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Public Driving Management System (PDMS)",
+    description:
+      "Manage driving schools, instructors, students, training sessions, exams, attendance, and payments from a single platform.",
+    images: ["/DrivingLogo.png"],
+  },
 
   robots: {
     index: true,
@@ -92,11 +94,11 @@ export const metadata: Metadata = {
     },
   },
 
-  // icons: {
-  //   icon: "/favicon.ico",
-  //   shortcut: "/favicon.ico",
-  //   apple: "/apple-touch-icon.png",
-  // },
+  icons: {
+    icon: "/DrivingLogo.png",
+    shortcut: "/DrivingLogo.png",
+    apple: "/DrivingLogo.png",
+  },
 
   manifest: "/site.webmanifest",
 };
@@ -112,10 +114,10 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body className={`${geistSans.className} bg-gray-50`}>
-          <QueryProvider>
-            {children}
-            <Toast />
-          </QueryProvider>
+        <QueryProvider>
+          {children}
+          <Toast />
+        </QueryProvider>
       </body>
     </html>
   );

@@ -13,6 +13,7 @@ import { EditAssetRecord } from "./EditAssetRecord";
 import Button from "@/components/ui/button";
 import { AssetForm } from "./AssetForm";
 import Select from "@/components/ui/select";
+import Image from "next/image";
 
 interface AssetTableProps {
   assets: TAsset[];
@@ -188,6 +189,7 @@ export default function AssetRecord({
         <thead>
           <tr className="bg-gray-200 text-gray-800 text-sm leading-normal">
             <th className="py-3 px-2 text-left">SN</th>
+            <th className="py-3 px-2 text-left">Image</th>
             <th className="py-3 px-2 text-left">Asset Name</th>
             <th className="py-3 px-2 text-left">Asset Type</th>
             <th className="py-3 px-2 text-left">Price (Rs)</th>
@@ -200,7 +202,7 @@ export default function AssetRecord({
         <tbody className="text-gray-700 text-sm text-[13px]">
           {assets.length === 0 ? (
             <tr>
-              <td colSpan={6} className="py-6 px-6 text-center text-gray-500">
+              <td colSpan={8} className="py-6 px-6 text-center text-gray-500">
                 No Assets found
               </td>
             </tr>
@@ -212,6 +214,10 @@ export default function AssetRecord({
               >
                 <td className="py-3 px-2 text-left">
                   {(page - 1) * 10 + index + 1}
+                </td>
+
+                <td className="py-3 px-2 text-left font-medium">
+                  <Image src={asset.image || "/placeholder.png"} alt={asset.name} width={40} height={40} className="rounded" />
                 </td>
 
                 <td className="py-3 px-2 text-left font-medium">

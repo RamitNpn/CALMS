@@ -22,7 +22,7 @@ const env: TEnv = {
   cloud_name: process.env.CLOUD_NAME || "dslzx6qks",
   api_key: process.env.API_KEY || "619242651474882",
   api_secret: process.env.API_SECRET || "Bfx5e7n0jx9daRq_D0rfPpUWzPc",
-  frontend_url: process.env.FRONTEND_URL || "https://flowtest.cornortech.com",
+  frontend_url: process.env.FRONTEND_URL || "http://localhost:3000",
   RESEND_API_KEY: process.env.RESEND_API_KEY || "re_Psizdptk_3aoAL7LHXzimTUrUWiNaJJ2A",
   EMAIL_FROM: process.env.EMAIL_FROM || "FlowDesk <noreply@mail.flowtest.cornortech.com>",
 };
