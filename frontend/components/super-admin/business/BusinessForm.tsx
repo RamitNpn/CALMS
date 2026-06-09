@@ -8,7 +8,10 @@ import { businessApi } from "@/libs/api/business.api";
 import { z } from "zod";
 import clsx from "clsx";
 import { X } from "lucide-react";
-import { createBusinessSchema } from "@/libs/validation/business.validation";
+import {
+  createBusinessSchema,
+  TServiceKey,
+} from "@/libs/validation/business.validation";
 import { useToast } from "@/components";
 
 type BusinessFormProps = {
@@ -66,7 +69,9 @@ const MOCK_SERVICES = [
     service_key: "token_management",
     default_name: "Token Management",
   },
-];
+] as const;
+
+type ServiceType = (typeof MOCK_SERVICES)[number]["service_key"];
 
 export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
   const toast = useToast.getState();
@@ -119,6 +124,10 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
     mutate(data);
   };
 
+  const onError = (errors: any) => {
+    console.log("FORM ERRORS", errors);
+  };
+
   return (
     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div
@@ -147,7 +156,10 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
 
         {/* Content */}
         <div className="p-6 text-[13px]">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            onSubmit={handleSubmit(onSubmit, onError)}
+            className="space-y-6"
+          >
             {/* Title */}
             <div>
               <p className="text-xl font-semibold">Create Business Account</p>
@@ -180,9 +192,9 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                   {...register("businessType")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
-                {errors.businessName && (
+                {errors.businessType && (
                   <p className="text-red-500 text-[12px] mt-1">
-                    {errors.businessName.message}
+                    {errors.businessType.message}
                   </p>
                 )}
               </div>
@@ -290,15 +302,19 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                     control={control}
                     name="services"
                     render={({ field }) => {
-                      const toggleService = (value: string) => {
-                        const exists = field.value.includes(value);
+                      const selectedServices = field.value ?? [];
+
+                      const toggleService = (value: ServiceType) => {
+                        const exists = selectedServices.includes(value);
 
                         if (exists) {
                           field.onChange(
-                            field.value.filter((v: string) => v !== value),
+                            selectedServices.filter(
+                              (v: ServiceType) => v !== value,
+                            ),
                           );
                         } else {
-                          field.onChange([...field.value, value]);
+                          field.onChange([...selectedServices, value]);
                         }
                       };
 
@@ -311,7 +327,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                             >
                               <input
                                 type="checkbox"
-                                checked={field.value.includes(
+                                checked={selectedServices.includes(
                                   service.service_key,
                                 )}
                                 onChange={() =>
