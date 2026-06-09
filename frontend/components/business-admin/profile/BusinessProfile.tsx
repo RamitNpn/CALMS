@@ -652,7 +652,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
       {activeTab === "logs" && (
         <LogDetails
           userId={businessId}
-          module="Business"s
+          module="Business"
           onClearLogs={() => {
             console.log("Clearing staff logs");
           }}

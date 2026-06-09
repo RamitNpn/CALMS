@@ -60,7 +60,7 @@ export default function AdminProfilePage() {
   }, [profileData, reset]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (payload: AdminProfileForm) =>
+    mutationFn: (payload: FormData) =>
       businessApi.updateBusinessApi(businessId, payload),
     onSuccess: (data: any) => {
       toast.show({
@@ -80,8 +80,8 @@ export default function AdminProfilePage() {
     },
   });
 
-  const onSubmit = (values: AdminProfileForm) => {
-    mutate(values);
+  const onSubmit = () => {
+    mutate(FormData as any);
   };
 
   return (

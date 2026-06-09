@@ -145,7 +145,7 @@ export function EditBusinessForm({
 
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: TAdminUpdateBusinessSchema) =>
-      businessApi.updateBusinessApi(businessId, payload),
+      businessApi.updateBusinessByAdminApi(businessId, payload),
     onSuccess: (data: any) => {
       toast.show({
         message: data?.message || "Business updated successfully",
