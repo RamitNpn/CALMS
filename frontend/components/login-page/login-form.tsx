@@ -41,8 +41,8 @@ export default function LoginForm() {
         permissions: Array.isArray(data.permissions)
           ? data.permissions
           : data.permissions
-          ? [data.permissions]
-          : [],
+            ? [data.permissions]
+            : [],
       };
 
       localStorage.setItem("token", normalizedData.token);
@@ -54,7 +54,10 @@ export default function LoginForm() {
 
       if (normalizedData.role.includes("admin")) {
         router.push("/pages/dashboard/super-admin");
-      } else if (normalizedData.role.includes("business") || normalizedData.role.includes("staff")) {
+      } else if (
+        normalizedData.role.includes("business") ||
+        normalizedData.role.includes("staff")
+      ) {
         router.push("/pages/dashboard/business-admin");
       } else {
         router.push("/pages/login");
@@ -151,10 +154,13 @@ export default function LoginForm() {
         <p className="mt-4 text-gray-800 flex flex-col gap-1">
           <strong>Credentials: </strong>
           <span className="text-sm text-gray-500">
-            admin@example.com / admin@123
+            admin@gmail.com / admin@123
           </span>
           <span className="text-sm text-gray-500">
-            gauravkarki0927@gmail.com / Gaurav@123
+            gauravkarki0927@gmail.com / admin@123
+          </span>
+          <span className="text-sm text-gray-500">
+            ram@gmail.com / admin@123
           </span>
         </p>
       </div>
