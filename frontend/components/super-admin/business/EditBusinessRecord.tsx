@@ -9,7 +9,11 @@ import clsx from "clsx";
 
 import { useBusinessById } from "@/hooks/super-admin/business-records/getBusinessRecordById";
 import { businessApi } from "@/libs/api/business.api";
-import { TAdminUpdateBusinessSchema, updateAdminBusinessSchema } from "@/libs";
+import {
+  TAdminUpdateBusinessSchema,
+  TServiceKey,
+  updateAdminBusinessSchema,
+} from "@/libs";
 import { X } from "lucide-react";
 
 const MOCK_SERVICES = [
@@ -109,8 +113,6 @@ export function EditBusinessForm({
     },
   });
 
-  // ✅ SAFE RESET LOGIC
-
   const business = data;
   useEffect(() => {
     if (!businessId || !business) return;
@@ -118,7 +120,6 @@ export function EditBusinessForm({
     console.log("RESETTING FORM WITH:", business);
 
     reset({
-      _id: business._id,
       businessName: business.businessName ?? "",
       operatorName: business.operatorName ?? "",
       operatorEmail: business.operatorEmail ?? "",
@@ -131,7 +132,9 @@ export function EditBusinessForm({
         location: business.branch?.location ?? "",
       },
       package: business.package ?? "starter",
-      services: business.services?.map((s) => s.service_key) ?? [],
+      services:
+        business.services?.map((s: { service_key: string }) => s.service_key) ??
+        [],
       status: business.status ?? true,
       payment_status: business.payment_status ?? false,
       payment_initiation: business.payment_initiation
@@ -165,7 +168,6 @@ export function EditBusinessForm({
   const onSubmit = (values: TAdminUpdateBusinessSchema) => {
     mutate({
       ...values,
-      _id: businessId,
       operatorPassword: values.operatorPassword || undefined,
     });
   };

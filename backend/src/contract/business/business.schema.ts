@@ -26,6 +26,10 @@ export const servicesEnum = z.enum([
   "staff_management",
   "billing_management",
   "attendance_management",
+  "inquiry_management",
+  "profile_management",
+  "revenue_management",
+  "token_management",
 ]);
 
 export const branchSchema = z.object({

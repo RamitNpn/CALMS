@@ -11,7 +11,13 @@ export const servicesEnum = z.enum([
   "staff_management",
   "billing_management",
   "attendance_management",
+  "inquiry_management",
+  "profile_management",
+  "revenue_management",
+  "token_management",
 ]);
+
+export type TServiceKey = z.infer<typeof servicesEnum>;
 
 export const branchSchema = z.object({
   name: z.string().optional(),
@@ -89,27 +95,19 @@ export type TGetAllBusinessByIdSchema = z.infer<
 >;
 
 export const updateAdminBusinessSchema = z.object({
-  _id: z.string(),
-
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
   operatorEmail: z.string().email().optional().or(z.literal("")),
   operatorPassword: z.string().optional(),
-
   businessType: z.string().optional(),
   profile: z.any().optional(),
-
   role: roleEnum.optional(),
   teams: z.string().optional(),
-
   branch: branchSchema.optional(),
-
   package: packageEnum.optional(),
   services: z.array(servicesEnum).optional(),
-
   status: z.boolean().optional(),
   payment_status: z.boolean().optional(),
-
   payment_initiation: z.string().optional(),
 });
 

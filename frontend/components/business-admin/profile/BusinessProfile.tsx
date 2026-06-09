@@ -28,7 +28,6 @@ import { useBusinessById } from "@/hooks/super-admin/business-records/getBusines
 import user from "@/public/user.png";
 
 import {
-  TAdminUpdateBusinessSchema,
   TUpdateBusinessSchema,
   updateBusinessSchema,
 } from "@/libs/validation/business.validation";
@@ -67,7 +66,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
   } = useForm<TUpdateBusinessSchema>({
     resolver: zodResolver(updateBusinessSchema),
     defaultValues: {
-      _id: "",
       businessName: "",
       operatorName: "",
       operatorEmail: "",
@@ -93,7 +91,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
     console.log("RESETTING FORM WITH:", business);
 
     reset({
-      _id: business._id,
       businessName: business.businessName ?? "",
       operatorName: business.operatorName ?? "",
       operatorEmail: business.operatorEmail ?? "",
@@ -116,7 +113,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
   }, [businessId, business, reset]);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: TAdminUpdateBusinessSchema) => {
+    mutationFn: (data: TUpdateBusinessSchema) => {
       return businessApi.updateBusinessApi(businessId, data);
     },
 
@@ -179,7 +176,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
     setPreviewImage(null);
   };
 
-  const onSubmit = async (values: TAdminUpdateBusinessSchema) => {
+  const onSubmit = async (values: TUpdateBusinessSchema) => {
     console.log("FORM SUBMISSION STARTED");
     console.log("FORM VALUES:", values);
     console.log("FORM ERRORS:", errors);
@@ -226,7 +223,6 @@ export default function BusinessProfilePage({ businessId }: Props) {
 
       // Prepare data for submission
       const submitData: TUpdateBusinessSchema = {
-        _id: values._id,
         businessName: values.businessName || business.businessName,
         operatorName: values.operatorName || business.operatorName,
         operatorEmail: values.operatorEmail || business.operatorEmail,
