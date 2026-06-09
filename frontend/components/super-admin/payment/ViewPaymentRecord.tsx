@@ -91,15 +91,14 @@ export function ViewPaymentRecord({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="bg-black cursor-pointer text-white px-3 py-2 rounded flex items-center gap-2"
+              className="border border-gray-200 cursor-pointer text-green-600 text-[13px] px-2 py-1 rounded flex items-center gap-2"
             >
-              <Printer size={18} />
-              Print
+              <Printer className="w-4 h-4" />
             </button>
 
-            <button onClick={onClose}>
-              <X className="text-red-500 cursor-pointer" />
-            </button>
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
+          </button>
           </div>
         </div>
 

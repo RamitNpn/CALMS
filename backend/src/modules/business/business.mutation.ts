@@ -38,7 +38,7 @@ const MOCK_SERVICES = [
     default_name: "Client Management",
   },
 
-    {
+  {
     service_key: "inquiry_management",
     default_name: "Inquiry Management",
   },
@@ -123,6 +123,7 @@ export const createBusiness: AppRouteMutationImplementation<
       role,
       teams,
       branch,
+      status: true,
       package: pkg,
       payment_initiation,
     });
@@ -271,11 +272,11 @@ export const updateBusiness: AppRouteMutationImplementation<
       updateData.profile = profileUrl;
     }
 
-    if (updateData.branch) {
+    if (typeof updateData.branch === "string") {
       updateData.branch = JSON.parse(updateData.branch);
     }
 
-    if (updateData.services) {
+    if (typeof updateData.services === "string") {
       updateData.services = JSON.parse(updateData.services);
     }
 
@@ -291,6 +292,35 @@ export const updateBusiness: AppRouteMutationImplementation<
       businessID,
       updateData,
     );
+
+    if (updateData.services) {
+      const normalizedServices = Array.isArray(updateData.services)
+        ? updateData.services
+        : JSON.parse(updateData.services);
+
+      await ensureServicesInitialized();
+
+      const masterServices = await serviceRepository.getAll();
+
+      const enabledServices = masterServices.filter((service) =>
+        normalizedServices.includes(service.service_key),
+      );
+
+      await businessServiceConfigRepository.update(businessID, {
+        services: enabledServices.map((service) => ({
+          service_key: service.service_key,
+          default_name: service.default_name,
+          custom_name: null,
+          enabled: true,
+          permissions: {
+            create: true,
+            edit: true,
+            delete: false,
+            view: true,
+          },
+        })),
+      });
+    }
 
     return {
       status: 200,

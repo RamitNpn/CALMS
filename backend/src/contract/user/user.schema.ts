@@ -41,7 +41,6 @@ export const getAllUsersSchema = z.array(userSchema);
 export const getUserByIDSchema = userSchema;
 
 export const updateUserSchema = z.object({
-  _id: z.string().min(1, "User ID is required"),
   userName: z.string().optional(),
   userEmail: z.string().email().optional(),
   userPhone: z.string().optional(),

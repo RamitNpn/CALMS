@@ -54,7 +54,6 @@ const menu = [
     icon: LayoutDashboard,
     exact: true,
     roles: ["business", "staff"],
-    permission: ["business_management:view", "staff_management:view"],
   },
     {
     id: "business-inquiry",
@@ -63,7 +62,7 @@ const menu = [
     icon: FileQuestion,
     exact: true,
     roles: ["business", "staff"],
-    permission: "reports:view",
+    permission: "inquiries_management:view",
   },
   {
     id: "profile",
@@ -72,7 +71,7 @@ const menu = [
     href: "/pages/dashboard/business-admin/finance",
     icon: Building2,
     roles: ["business", "staff"],
-    permission: "business_management:view",
+    permission: "revenue_management:view",
   },
 
   {
@@ -108,6 +107,7 @@ const menu = [
   {
     id: "token-management",
     name: "Token Management",
+    serviceKey: "token_management",
     href: "/pages/dashboard/business-admin/token",
     icon: CardSim,
     exact: true,
@@ -141,6 +141,7 @@ const menu = [
     icon: Book,
     exact: true,
     roles: ["business", "staff"],
+    permission: "profile_management:view",
   },
 ];
 

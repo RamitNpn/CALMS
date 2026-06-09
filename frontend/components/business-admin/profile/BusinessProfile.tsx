@@ -64,7 +64,7 @@ export default function BusinessProfilePage({ businessId }: Props) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<TAdminUpdateBusinessSchema>({
+  } = useForm<TUpdateBusinessSchema>({
     resolver: zodResolver(updateBusinessSchema),
     defaultValues: {
       _id: "",
@@ -493,10 +493,10 @@ export default function BusinessProfilePage({ businessId }: Props) {
                   <StatCard
                     icon={<Wrench size={22} />}
                     title="Services"
-                    value={
-                      Array.isArray(business.services)
-                        ? business.services.length
-                        : 0
+                    value={"All"
+                      // Array.isArray(business.services)
+                      //   ? business.services.length
+                      //   : "All"
                     }
                   />
                 </div>

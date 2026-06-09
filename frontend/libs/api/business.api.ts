@@ -3,7 +3,7 @@ import {
   TCreateBusinessSchema,
   TDeleteBusinessSchema,
   TGetAllBusinessByIdSchema,
-  TAdminUpdateBusinessSchema,
+  TUpdateBusinessSchema,
 } from "../validation/business.validation";
 import { UsePaginationParams } from "../types/shared.types";
 
@@ -28,7 +28,7 @@ const getBusinessByIdApi = async (
 
 const updateBusinessApi = async (
   businessId: string,
-  data: TAdminUpdateBusinessSchema,
+  data: TUpdateBusinessSchema,
 ) => {
   const response = await apiClient.put(`/business/${businessId}`, data);
   return response.data;

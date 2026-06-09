@@ -2,88 +2,129 @@ import { z } from "zod";
 
 export const packageEnum = z.enum(["starter", "growth", "enterprise"]);
 
+export const roleEnum = z.enum(["admin", "business", "staff", "client"]);
+
+export const servicesEnum = z.enum([
+  "business_management",
+  "asset_management",
+  "client_management",
+  "staff_management",
+  "billing_management",
+  "attendance_management",
+]);
+
 export const branchSchema = z.object({
-  name: z.string().min(1, "Branch name is required"),
-  location: z.string().min(1, "Location is required"),
+  name: z.string().optional(),
+  location: z.string().optional(),
 });
 
 export const createBusinessSchema = z.object({
-  businessName: z.string().min(1, "Business name is required"),
-  operatorName: z.string().min(1, "Operator name is required"),
-  operatorEmail: z.string().min(1, "Operator email is required"),
-  businessType: z.string().min(1, "Business type is required"),
-  role: z
-    .enum(["admin", "business", "staff", "client"])
-    .default("business"),
-  teams: z.string().default(""),
+  businessName: z.string().min(1, "Must be atlease 3 character long"),
+  operatorName: z.string().min(1, "Must be atlease 3 character long"),
+  operatorEmail: z.string().email(),
+  businessType: z.string().min(1, "Must be atlease 3 character long"),
+
+  role: roleEnum.default("business"),
+  teams: z.string().default("").optional(),
+
   branch: branchSchema,
+
   package: packageEnum.default("starter"),
-  services: z.array(z.string()).min(1, "Select at least one service"),
+
+  services: z.array(servicesEnum).min(1, "Select at least one service"),
+
   payment_initiation: z.coerce.date().optional(),
 });
 
 export type TCreateBusinessSchema = z.infer<typeof createBusinessSchema>;
 
-export const getAllBusinessByIdSchema = z.object({
+export const businessServiceSchema = z.object({
+  service_key: z.string(),
+  default_name: z.string(),
+  custom_name: z.string().nullable().optional(),
+  enabled: z.boolean(),
+  permissions: z.object({
+    create: z.boolean(),
+    edit: z.boolean(),
+    delete: z.boolean(),
+    view: z.boolean(),
+  }),
+});
+
+export const businessSchema = z.object({
   _id: z.string(),
-  businessName: z.string().min(1),
-  operatorName: z.string().min(1),
+
+  businessName: z.string(),
+  operatorName: z.string(),
   operatorEmail: z.string().email(),
   businessType: z.string(),
+
   profile: z.any().optional(),
-  role: z.enum(["admin", "business", "staff", "client"]),
+
+  role: roleEnum,
   teams: z.string().optional(),
+
   branch: branchSchema,
+
   package: packageEnum,
-  services: z.array(z.string()).min(1, "Select at least one service"),
+
+  services: z.array(businessServiceSchema),
+
   status: z.boolean(),
   payment_status: z.boolean(),
-  payment_initiation: z.coerce.date().optional(),
+  payment_initiation: z.string().optional(),
+
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export type TGetAllBusinessByIdSchema = z.infer<typeof getAllBusinessByIdSchema>;
-
-export const getAllBusinessSchema = z.array(getAllBusinessByIdSchema);
+export const getAllBusinessSchema = z.array(businessSchema);
 
 export type TGetAllBusinessSchema = z.infer<typeof getAllBusinessSchema>;
 
+export const getAllBusinessByIdSchema = businessSchema;
+
+export type TGetAllBusinessByIdSchema = z.infer<
+  typeof getAllBusinessByIdSchema
+>;
+
 export const updateAdminBusinessSchema = z.object({
   _id: z.string(),
+
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
-  operatorEmail: z.string().email("Invalid email format").optional().or(z.literal("")),
-  operatorPassword: z.string().refine(
-    (val) => !val || val.length >= 6,
-    "Password must be at least 6 characters"
-  ).optional(),
+  operatorEmail: z.string().email().optional().or(z.literal("")),
+  operatorPassword: z.string().optional(),
+
   businessType: z.string().optional(),
   profile: z.any().optional(),
-  role: z.enum(["admin", "business", "staff", "client"]).optional(),
+
+  role: roleEnum.optional(),
   teams: z.string().optional(),
+
   branch: branchSchema.optional(),
+
   package: packageEnum.optional(),
-  services: z.array(z.string()).optional(),
+  services: z.array(servicesEnum).optional(),
+
   status: z.boolean().optional(),
   payment_status: z.boolean().optional(),
+
   payment_initiation: z.string().optional(),
 });
 
-export type TAdminUpdateBusinessSchema = z.infer<typeof updateAdminBusinessSchema>;
+export type TAdminUpdateBusinessSchema = z.infer<
+  typeof updateAdminBusinessSchema
+>;
 
 export const updateBusinessSchema = z.object({
-  _id: z.string(),
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
-  operatorEmail: z.string().email("Invalid email format").optional().or(z.literal("")),
-  operatorPassword: z.string().refine(
-    (val) => !val || val.length >= 6,
-    "Password must be at least 6 characters"
-  ).optional(),
+  operatorEmail: z.string().email().optional().or(z.literal("")),
+  operatorPassword: z.string().optional(),
   businessType: z.string().optional(),
   profile: z.any().optional(),
-  role: z.enum(["admin", "business", "staff", "client"]).optional(),
+  role: roleEnum.optional(),
   teams: z.string().optional(),
   branch: branchSchema.optional(),
   package: packageEnum.optional(),

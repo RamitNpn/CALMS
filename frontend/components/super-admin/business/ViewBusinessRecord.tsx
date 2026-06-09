@@ -56,8 +56,8 @@ export function ViewBusinessRecord({
         <div className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-100 sticky top-0">
           <h2 className="text-lg font-semibold">Business Details</h2>
 
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
+        <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
@@ -81,9 +81,16 @@ export function ViewBusinessRecord({
           <div>
             <p className="font-medium">Services</p>
             <div className="flex flex-wrap gap-2 mt-1">
-              {business.services?.map((s: string) => (
-                <span key={s} className="px-2 py-1 bg-gray-100 rounded text-xs">
-                  {s}
+              {business.services?.map((s: any) => (
+                <span
+                  key={s.service_key}
+                  className={`px-2 py-1 rounded text-xs ${
+                    s.enabled
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {s.default_name}
                 </span>
               ))}
             </div>

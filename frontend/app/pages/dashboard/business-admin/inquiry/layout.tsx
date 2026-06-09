@@ -2,7 +2,7 @@
 
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-export default function AnalyticsLayout({
+export default function InquiryLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ export default function AnalyticsLayout({
   return (
     <ProtectedRoute
       allowedRoles={["business", "staff"]}
-      allowedPermissions={["reports:view"]}
+      allowedPermissions={["inquiries_management:view"]}
     >
       {children}
     </ProtectedRoute>

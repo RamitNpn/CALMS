@@ -42,7 +42,7 @@ const MOCK_SERVICES = [
     default_name: "Client Management",
   },
 
-    {
+  {
     service_key: "inquiry_management",
     default_name: "Inquiry Management",
   },
@@ -67,7 +67,6 @@ const MOCK_SERVICES = [
     default_name: "Token Management",
   },
 ];
-
 
 export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
   const toast = useToast.getState();
@@ -140,13 +139,9 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Close modal"
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
           >
-            <X
-              size={24}
-              className="text-red-400 cursor-pointer border border-gray-200"
-            />
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
@@ -170,7 +165,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
                 {errors.businessName && (
-                  <p className="text-red-500 text-sm">
+                  <p className="text-red-500 text-[12px] mt-1">
                     {errors.businessName.message}
                   </p>
                 )}
@@ -185,6 +180,11 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                   {...register("businessType")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
+                {errors.businessName && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.businessName.message}
+                  </p>
+                )}
               </div>
 
               {/* Operator Name */}
@@ -196,6 +196,11 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                   {...register("operatorName")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
+                {errors.operatorName && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.operatorName.message}
+                  </p>
+                )}
               </div>
 
               {/* Operator Email */}
@@ -208,6 +213,11 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                   {...register("operatorEmail")}
                   className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                 />
+                {errors.operatorEmail && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.operatorEmail.message}
+                  </p>
+                )}
               </div>
 
               {/* Package */}
@@ -221,6 +231,11 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                   <option value="growth">Growth</option>
                   <option value="enterprise">Enterprise</option>
                 </select>
+                {errors.package && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.package.message}
+                  </p>
+                )}
               </div>
 
               {/* Branch Name */}
@@ -311,6 +326,11 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                     }}
                   />
                 </div>
+                {errors.services && (
+                  <p className="text-red-500 text-[12px] mt-1">
+                    {errors.services.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -329,7 +349,7 @@ export function BusinessForm({ onClose, size = "lg" }: BusinessFormProps) {
                 disabled={isPending}
                 className="px-5 py-2 bg-gray-700 text-white rounded"
               >
-                {isPending ? "Creating..." : "Submit"}
+                {isPending ? "Creating..." : "Create"}
               </button>
             </div>
           </form>
