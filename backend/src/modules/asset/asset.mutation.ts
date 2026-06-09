@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import activityLogRepository from "../../repository/activity-log.repository";
 import businessRepository from "../../repository/business.repository";
 import userRepository from "../../repository/user.repository";
+import { uploadSingleImage } from "../../service/helperUpload";
 
 export const createAsset: AppRouteMutationImplementation<
   typeof assetContract.createAsset
@@ -22,7 +23,7 @@ export const createAsset: AppRouteMutationImplementation<
       image?: Express.Multer.File[];
     };
 
-    const imageUrl = files?.image?.[0]?.path || "";
+    const imageUrl = await uploadSingleImage(files?.image?.[0], "assets/images");
 
     const asset = await assetRepository.create({
       business_id: new mongoose.Types.ObjectId(business_id),

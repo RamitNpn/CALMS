@@ -8,7 +8,6 @@ export const uploadToCloudinary = async (filePath: string) => {
       resource_type: "image",
     });
 
-    // remove local file after upload
     fs.unlinkSync(filePath);
 
     return result.secure_url;
