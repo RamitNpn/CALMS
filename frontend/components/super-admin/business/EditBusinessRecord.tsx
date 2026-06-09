@@ -131,10 +131,7 @@ export function EditBusinessForm({
         location: business.branch?.location ?? "",
       },
       package: business.package ?? "starter",
-      services:
-        business.services?.filter((service: string) =>
-          SERVICE_MAP.has(service),
-        ) ?? [],
+      services: business.services?.map((s) => s.service_key) ?? [],
       status: business.status ?? true,
       payment_status: business.payment_status ?? false,
       payment_initiation: business.payment_initiation
@@ -197,13 +194,9 @@ export function EditBusinessForm({
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Close modal"
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
           >
-            <X
-              size={24}
-              className="text-red-400 cursor-pointer border border-gray-200 rounded"
-            />
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
@@ -268,7 +261,7 @@ export function EditBusinessForm({
               {/* Password */}
               <div>
                 <label className="block text-sm font-medium">
-                  Operator Password <span className="text-red-500">*</span>
+                  Operator Password
                 </label>
                 <input
                   type="password"

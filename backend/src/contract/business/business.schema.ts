@@ -69,11 +69,10 @@ export const getAllBusinessesSchema = z.array(businessSchema);
 export const getBusinessByIdSchema = businessSchema;
 
 export const updateBusinessSchema = z.object({
-  _id: z.string().min(1),
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
   operatorEmail: z.string().email().optional(),
-  operatorPassword: z.string().min(6).optional(),
+  operatorPassword: z.string().optional(),
   businessType: z.string().optional(),
   profile: z.string().optional(),
   role: teamRoleEnum.optional(),
@@ -86,7 +85,7 @@ export const updateBusinessSchema = z.object({
   services: z.preprocess((val) => {
     if (typeof val === "string") return JSON.parse(val);
     return val;
-  }, z.array(servicesEnum)),
+  }, z.array(servicesEnum)).optional(),
   status: z.preprocess((val) => val === "true" || val === true, z.boolean()),
   payment_status: z.preprocess(
     (val) => val === "true" || val === true,

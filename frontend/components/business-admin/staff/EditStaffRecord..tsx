@@ -22,7 +22,9 @@ type Props = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
-export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {  const toast = useToast.getState();  const { data, isLoading, isError } = useStaffById(staffId);
+export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {
+  const toast = useToast.getState();
+  const { data, isLoading, isError } = useStaffById(staffId);
   const staff = data?.data ?? data;
 
   const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
@@ -81,7 +83,8 @@ export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {  const
       onClose();
     },
     onError: (err: any) => {
-      const errorMessage = err?.response?.data?.error || err?.message || "Failed to update staff";
+      const errorMessage =
+        err?.response?.data?.error || err?.message || "Failed to update staff";
       toast.show({
         message: errorMessage,
         type: "error",
@@ -137,14 +140,20 @@ export function EditstaffForm({ staffId, onClose, size = "lg" }: Props) {  const
             Flowdesk - Edit Staff Details
           </h2>
 
-          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+          <button
+            onClick={onClose}
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
+          >
             <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* FORM */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 text-[13px]"
+          >
             <p className="text-xl font-semibold">Edit Staff Account</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

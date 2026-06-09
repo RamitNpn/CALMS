@@ -14,18 +14,18 @@ export const servicesEnum = z.enum([
 ]);
 
 export const branchSchema = z.object({
-  name: z.string().min(1),
-  location: z.string().min(1),
+  name: z.string().optional(),
+  location: z.string().optional(),
 });
 
 export const createBusinessSchema = z.object({
-  businessName: z.string().min(1),
-  operatorName: z.string().min(1),
+  businessName: z.string().min(1, "Must be atlease 3 character long"),
+  operatorName: z.string().min(1, "Must be atlease 3 character long"),
   operatorEmail: z.string().email(),
-  businessType: z.string().min(1),
+  businessType: z.string().min(1, "Must be atlease 3 character long"),
 
   role: roleEnum.default("business"),
-  teams: z.string().default(""),
+  teams: z.string().default("").optional(),
 
   branch: branchSchema,
 
@@ -94,7 +94,7 @@ export const updateAdminBusinessSchema = z.object({
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
   operatorEmail: z.string().email().optional().or(z.literal("")),
-  operatorPassword: z.string().min(6).optional(),
+  operatorPassword: z.string().optional(),
 
   businessType: z.string().optional(),
   profile: z.any().optional(),
@@ -118,26 +118,18 @@ export type TAdminUpdateBusinessSchema = z.infer<
 >;
 
 export const updateBusinessSchema = z.object({
-  _id: z.string(),
-
   businessName: z.string().optional(),
   operatorName: z.string().optional(),
   operatorEmail: z.string().email().optional().or(z.literal("")),
-  operatorPassword: z.string().min(6).optional(),
-
+  operatorPassword: z.string().optional(),
   businessType: z.string().optional(),
   profile: z.any().optional(),
-
   role: roleEnum.optional(),
   teams: z.string().optional(),
-
   branch: branchSchema.optional(),
-
   package: packageEnum.optional(),
-
   status: z.boolean().optional(),
   payment_status: z.boolean().optional(),
-
   payment_initiation: z.string().optional(),
 });
 

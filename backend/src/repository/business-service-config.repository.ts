@@ -44,11 +44,12 @@ class BusinessServiceConfigRepository {
     try {
       return await this.model.findOneAndUpdate(
         {
-          business_id,
+          business_id: new Types.ObjectId(business_id),
         },
         data,
         {
           new: true,
+          upsert: true,
         },
       );
     } catch (error) {
