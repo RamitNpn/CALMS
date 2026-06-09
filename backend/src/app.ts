@@ -17,7 +17,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://calms-frontend.vercel.app",
+      "https://flowtest.cornortech.com",
     ],
     credentials: true,
   })
