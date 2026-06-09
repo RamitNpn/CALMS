@@ -1,17 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 import BillingRecord from "@/components/business-admin/billing/BillingRecord";
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import CustomizeSection from "@/components/shared/CustomizeSection";
 import { useAllBillings } from "@/hooks/business-admin/billing-management/getAllBillings";
-import {
-  BarChart3,
-  Settings,
-  ActivitySquare,
-  FileText,
-} from "lucide-react";
+import { BarChart3, Settings, ActivitySquare, FileText } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -38,15 +34,22 @@ const formatMonthKey = (date: Date) =>
 export default function BillingPage() {
   const [activeTab, setActiveTab] = useState("inventory");
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
   const { summary } = useBusinessAnalytics();
 
   const {
     data: billingData,
     isLoading,
     isError,
-  } = useAllBillings({ page, limit: 10 });
+  } = useAllBillings({ page, limit: 10, search: debouncedSearch, dateFilter });
 
-  const billings: TBilling[] = billingData?.data ?? billingData ?? [];
+  const billings = useMemo<TBilling[]>(
+    () => billingData?.data ?? billingData ?? [],
+    [billingData],
+  );
   const pagination = billingData?.pagination;
 
   const billingOverview = summary?.billing;
@@ -121,6 +124,13 @@ export default function BillingPage() {
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     { id: "customize", label: "Customize", icon: <Settings size={16} /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 
@@ -154,6 +164,10 @@ export default function BillingPage() {
           page={page}
           totalPages={pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
         />
       )}
 
@@ -254,13 +268,19 @@ export default function BillingPage() {
               </h3>
               <div className="space-y-4 text-sm text-gray-600">
                 <p>
-                  Revenue is currently ${billingStats.totalRevenue.toLocaleString()}.
+                  Revenue is currently $
+                  {billingStats.totalRevenue.toLocaleString()}.
                 </p>
                 <p>
-                  Outstanding balance sits at ${billingStats.pendingPayments.toLocaleString()} with {billingStats.overdueCount.toLocaleString()} overdue invoices.
+                  Outstanding balance sits at $
+                  {billingStats.pendingPayments.toLocaleString()} with{" "}
+                  {billingStats.overdueCount.toLocaleString()} overdue invoices.
                 </p>
                 <p>
-                  Average invoice value is ${billingStats.averageInvoiceValue.toFixed(0)} across {billingStats.invoiceCount.toLocaleString()} live billing records.
+                  Average invoice value is $
+                  {billingStats.averageInvoiceValue.toFixed(0)} across{" "}
+                  {billingStats.invoiceCount.toLocaleString()} live billing
+                  records.
                 </p>
               </div>
             </div>

@@ -9,6 +9,5 @@ export const serviceRouter = s.router(serviceContract, {
   getAllServices: serviceQueryHandler.getAllServices,
   getServiceByID: serviceQueryHandler.getServiceByID,
   updateService: serviceMutationHandler.updateService,
-  removeService: serviceMutationHandler.removeService,
-  initializeService: serviceMutationHandler.initializeServices,
+  removeService: serviceMutationHandler.removeService
 });

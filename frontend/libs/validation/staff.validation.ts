@@ -11,6 +11,7 @@ export const createStaffSchema = z.object({
   gender: z.enum(["male", "female", "other"]),
   profile: z.any().optional(),
   role: z.string(),
+  staffPermissions: z.array(z.string()).optional(),
 });
 
 export type TCreateStaffSchema = z.infer<typeof createStaffSchema>;
@@ -46,6 +47,8 @@ export const updateStaffSchema = z.object({
   gender: z.enum(["male", "female", "other"]).optional(),
   profile: z.any().optional(),
   role: z.string().optional(),
+  staffRoleId: z.string().optional(),
+  staffPermissions: z.array(z.string()).optional(),
 });
 
 export type TUpdateStaffSchema = z.infer<typeof updateStaffSchema>;

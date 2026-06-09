@@ -1,30 +1,30 @@
 import { apiClient } from "@/utils/api";
-import { TCreateAssetSchema, TDeleteAssetSchema, TGetAssetByIdSchema, TUpdateAssetSchema } from "../validation/asset.validation";
+import {
+  TDeleteAssetSchema,
+  TGetAssetByIdSchema,
+} from "../validation/asset.validation";
+import { UsePaginationParams } from "../types/shared.types";
 
-
-const createAsset = async (data: TCreateAssetSchema) => {
+const createAsset = async (data: FormData) => {
   const response = await apiClient.post("/assets", data);
   return response.data;
 };
 
-const getAllAssetApi = async (  page = 1,
-  limit = 10) => {
+const getAllAssetApi = async (params: UsePaginationParams) => {
   const response = await apiClient.get("/assets", {
-    params: { page, limit }
+    params,
   });
   return response.data;
 };
 
-const getAssetByIdApi = async (
-  assetId: TGetAssetByIdSchema["_id"],
-) => {
+const getAssetByIdApi = async (assetId: TGetAssetByIdSchema["_id"]) => {
   const response = await apiClient.get(`/assets/${assetId}`);
   return response.data;
 };
 
 const updateAssetApi = async (
   assetId: string,
-  data: Omit<Partial<TUpdateAssetSchema>, "_id">,
+  data: FormData,
 ) => {
   const response = await apiClient.put(`/assets/${assetId}`, data);
   return response.data;

@@ -12,10 +12,123 @@ interface CustomizeOption {
 
 interface CustomizeSectionProps {
   module: string;
+  initialOptions?: CustomizeOption[];
   onSave?: (options: CustomizeOption[]) => void;
 }
 
-const defaultOptions: Record<string, CustomizeOption[]> = {
+export const defaultCustomizeOptions: Record<string, CustomizeOption[]> = {
+  Business: [
+    {
+      id: "show-business-name",
+      name: "Business Name",
+      enabled: true,
+      description: "Display the business name column",
+    },
+    {
+      id: "show-operator-name",
+      name: "Operator Name",
+      enabled: true,
+      description: "Display the operator name column",
+    },
+    {
+      id: "show-operator-email",
+      name: "Operator Email",
+      enabled: true,
+      description: "Display the operator email address column",
+    },
+    {
+      id: "show-package",
+      name: "Package",
+      enabled: true,
+      description: "Display the business package column",
+    },
+    {
+      id: "show-payment-status",
+      name: "Payment Status",
+      enabled: true,
+      description: "Display payment status for the business",
+    },
+    {
+      id: "show-status",
+      name: "Business Status",
+      enabled: true,
+      description: "Display whether the business is active or not",
+    },
+    {
+      id: "show-branch",
+      name: "Branch Name",
+      enabled: true,
+      description: "Display branch name details",
+    },
+    {
+      id: "show-created-at",
+      name: "Created At",
+      enabled: true,
+      description: "Display creation date for the business",
+    },
+    {
+      id: "export-data",
+      name: "Allow Export",
+      enabled: true,
+      description: "Enable exporting business inventory to Excel",
+    },
+  ],
+  Payments: [
+    {
+      id: "show-business-name",
+      name: "Business Name",
+      enabled: true,
+      description: "Display the business name associated with the payment",
+    },
+    {
+      id: "show-business-email",
+      name: "Business Email",
+      enabled: true,
+      description: "Display the business email in the payment inventory",
+    },
+    {
+      id: "show-package",
+      name: "Package",
+      enabled: true,
+      description: "Show which package the payment belongs to",
+    },
+    {
+      id: "show-paid",
+      name: "Paid Amount",
+      enabled: true,
+      description: "Show the paid amount column",
+    },
+    {
+      id: "show-due",
+      name: "Due Amount",
+      enabled: true,
+      description: "Show the due amount column",
+    },
+    {
+      id: "show-status",
+      name: "Payment Status",
+      enabled: true,
+      description: "Show the payment status indicator",
+    },
+    {
+      id: "show-end-date",
+      name: "End Date",
+      enabled: true,
+      description: "Show the payment subscription end date",
+    },
+    {
+      id: "show-created-at",
+      name: "Created At",
+      enabled: true,
+      description: "Show when the payment was created",
+    },
+    {
+      id: "export-data",
+      name: "Allow Export",
+      enabled: true,
+      description: "Enable exporting payments inventory to Excel",
+    },
+  ],
   Assets: [
     {
       id: "show-status",
@@ -150,13 +263,18 @@ const defaultOptions: Record<string, CustomizeOption[]> = {
 
 export default function CustomizeSection({
   module,
+  initialOptions,
   onSave,
 }: CustomizeSectionProps) {
   const [options, setOptions] = useState<CustomizeOption[]>(
-    defaultOptions[module] || []
+    (initialOptions ?? defaultCustomizeOptions[module]) || []
   );
   const [newOption, setNewOption] = useState("");
   const [savedMessage, setSavedMessage] = useState(false);
+
+  React.useEffect(() => {
+    setOptions((initialOptions ?? defaultCustomizeOptions[module]) || []);
+  }, [initialOptions, module]);
 
   const toggleOption = (id: string) => {
     setOptions(
@@ -278,7 +396,7 @@ export default function CustomizeSection({
         </button>
         <button
           onClick={() =>
-            setOptions(defaultOptions[module] || [])
+            setOptions(defaultCustomizeOptions[module] || [])
           }
           className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition"
         >

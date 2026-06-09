@@ -10,9 +10,13 @@ const createBilling = async (data: FormData) => {
   return res.data;
 };
 
-const getAllBillingsApi = async (page = 1, limit = 10) => {
+const getAllBillingsApi = async (page = 1, limit = 10, search?: string, dateFilter?: string) => {
+  const params: any = { page, limit };
+  if (search) params.search = search;
+  if (dateFilter) params.dateFilter = dateFilter;
+
   const response = await apiClient.get("/billing", {
-    params: { page, limit },
+    params,
   });
   return response.data;
 };

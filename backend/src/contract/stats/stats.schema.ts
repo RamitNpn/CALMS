@@ -33,8 +33,6 @@ export const getBusinessAssetStatsSchema = z.object({
 export const getBusinessBillingStatsSchema = z.object({
     totalRevenue: z.number(),
     revenueRate: z.number(),
-    totalOutstanding: z.number(),
-    outstandingRate: z.number(),
     totalOverdue: z.number(),
     overdueRate: z.number(),
 })

@@ -23,8 +23,8 @@ function BillingStats({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <p className="text-muted-foreground text-sm mb-2">Total Revenue</p>
-            <p className="text-3xl font-bold text-foreground">
-              ${totalRevenue.toLocaleString()}
+            <p className="text-xl font-bold text-foreground">
+              Rs.{totalRevenue.toLocaleString()}
             </p>
             <p className="text-xs text-green-600 mt-2">Live revenue total</p>
           </div>
@@ -40,8 +40,8 @@ function BillingStats({
             <p className="text-muted-foreground text-sm mb-2">
               Pending Payments
             </p>
-            <p className="text-3xl font-bold text-foreground">
-              ${pendingPayments.toLocaleString()}
+            <p className="text-xl font-bold text-foreground">
+              Rs.{pendingPayments.toLocaleString()}
             </p>
             <p className="text-xs text-orange-600 mt-2">
               {overdueCount.toLocaleString()} overdue
@@ -59,8 +59,8 @@ function BillingStats({
             <p className="text-muted-foreground text-sm mb-2">
               Avg Invoice Value
             </p>
-            <p className="text-3xl font-bold text-foreground">
-              ${averageInvoiceValue.toFixed(0)}
+            <p className="text-xl font-bold text-foreground">
+              Rs.{averageInvoiceValue.toFixed(0)}
             </p>
             <p className="text-xs text-blue-600 mt-2">
               {invoiceCount.toLocaleString()} invoices

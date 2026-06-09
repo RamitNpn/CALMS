@@ -30,6 +30,8 @@ export const tokenContract = c.router({
     query: z.object({
       page: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
+      search: z.string().optional(),
+      dateFilter: z.string().optional(),
     }),
     responses: {
       200: z.object({

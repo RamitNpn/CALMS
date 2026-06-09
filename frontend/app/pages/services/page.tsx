@@ -8,7 +8,6 @@ import {
   Clock,
   Briefcase,
   Package,
-  ArrowRight,
   ShieldCheck,
   FileText,
   CalendarCheck,

@@ -6,12 +6,22 @@ export const getAllAssets: AppRouteQueryImplementation<
   typeof assetContract.getAllAssets
 > = async ({ req }) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const page = (req.query.page as unknown as number) || 1;
+    const limit = (req.query.limit as unknown as number) || 10;
     const business_id = req.query.business_id as string | undefined;
     const skip = (page - 1) * limit;
 
-    const { data: assets, total } = await assetRepository.getAll(business_id, skip, limit);
+    const search = req.query.search?.trim() || "";
+    const dateFilter = req.query.dateFilter || "all";
+
+    const { data: assets, total } = await assetRepository.getAll({
+      business_id,
+      skip,
+      limit,
+      search,
+      dateFilter,
+    });
+
     const totalPages = Math.ceil(total / limit);
 
     const formattedAssets = assets.map((a) => ({
@@ -19,6 +29,8 @@ export const getAllAssets: AppRouteQueryImplementation<
       business_id: a.business_id.toString(),
       name: a.name,
       type: a.type,
+      price: a.price,
+      image: a.image,
       customFields: a.customFields,
       status: a.status,
       createdAt: a.createdAt,
@@ -84,6 +96,8 @@ export const getAssetByID: AppRouteQueryImplementation<
         business_id: asset.business_id.toString(),
         name: asset.name,
         type: asset.type,
+        price: asset.price,
+        image: asset.image,
         customFields: asset.customFields,
         status: asset.status,
         createdAt: asset.createdAt,

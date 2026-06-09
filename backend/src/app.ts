@@ -9,6 +9,7 @@ import swaggerUi from "swagger-ui-express";
 import { createExpressEndpoints } from "@ts-rest/express";
 import morgan from "morgan";
 import { openApiDocument } from "./config/swagger";
+import { retrieveUserFromTokenMiddleware } from "./middleware/retrieveUserFromToken.middleware";
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://calms-frontend.vercel.app",
+      "https://flowtest.cornortech.com",
     ],
     credentials: true,
   })
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true })); // IMPORTANT
 app.use(morgan("dev"));
+app.use(retrieveUserFromTokenMiddleware);
 
 app.use("/flowdesk-api", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 

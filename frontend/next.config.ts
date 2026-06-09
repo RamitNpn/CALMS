@@ -17,10 +17,9 @@ const nextConfig: NextConfig = {
         hostname: "encrypted-tbn0.gstatic.com",
       },
 
-      // ADD THIS
       {
         protocol: "https",
-        hostname: "cdn.rareblocks.xyz",
+        hostname: "www.techieflare.com"
       },
     ],
   },

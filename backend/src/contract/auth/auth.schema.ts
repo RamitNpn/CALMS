@@ -11,6 +11,9 @@ export const loginResponseSchema = z.object({
   userEmail: z.string().email(),
   token: z.string(),
   role: z.enum(["admin", "business", "staff", "client"]),
+  permissions: z.array(z.string()).optional(),
+  business_id: z.string().optional(),
+  businessName: z.string().nullable().optional(),
 });
 
 export const verifySetupTokenSchema = z.object({

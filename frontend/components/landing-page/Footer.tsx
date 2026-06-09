@@ -1,65 +1,88 @@
+import Image from "next/image";
 import React from "react";
 
 function Footer() {
   return (
     <footer className="relative overflow-hidden bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center gap-6 text-center md:grid md:grid-cols-3 md:items-center md:text-left">
+          {/* LEFT */}
+          <div className="flex flex-col items-center md:items-start">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/DrivingLogo.png"
+                alt="Public Driving Management System"
+                width={48}
+                height={48}
+                className="h-12 w-auto object-contain"
+              />
 
-      <div className="relative mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 py-2 md:flex-row lg:px-8">
-        {/* LEFT */}
-        <div className="text-center md:text-left">
-          <h3 className="text-xl font-bold text-black">FlowDesk</h3>
+              <div>
+                <h3 className="text-base font-bold text-black sm:text-lg">
+                  PDMS
+                </h3>
+                <p className="text-xs text-gray-500 sm:text-sm">
+                  Public Driving Management System
+                </p>
+              </div>
+            </div>
 
-          <p className="mt-2 text-[14px] text-gray-600">
-            © {new Date().getFullYear()} FlowDesk - Cornor Tech Pvt. Ltd.
-          </p>
-        </div>
+            <p className="mt-3 text-xs text-gray-600 sm:text-sm">
+              © {new Date().getFullYear()} Public Driving Management System
+            </p>
 
-        {/* CENTER LINKS */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-medium">
-          <a
-            href="#"
-            className="text-gray-600 transition-all duration-200 hover:text-black"
-          >
-            Privacy Policy
-          </a>
+            <p className="text-xs text-gray-500">
+              Powered by Cornor Tech Pvt. Ltd.
+            </p>
+          </div>
 
-          <a
-            href="#"
-            className="text-gray-600 transition-all duration-200 hover:text-black"
-          >
-            Terms & Conditions
-          </a>
+          {/* CENTER LINKS */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium">
+            <a
+              href="#"
+              className="text-gray-600 transition-colors hover:text-blue-600"
+            >
+              Privacy Policy
+            </a>
 
-          <a
-            href="#"
-            className="text-gray-600 transition-all duration-200 hover:text-black"
-          >
-            Support
-          </a>
-        </div>
+            <a
+              href="#"
+              className="text-gray-600 transition-colors hover:text-blue-600"
+            >
+              Terms & Conditions
+            </a>
 
-        {/* RIGHT */}
-        <div className="flex items-center gap-2">
-          <a
-            href="#"
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FCF8F1] text-gray-700 transition-all duration-200 hover:bg-yellow-300 hover:text-black"
-          >
-            🌐
-          </a>
+            <a
+              href="#"
+              className="text-gray-600 transition-colors hover:text-blue-600"
+            >
+              Support
+            </a>
+          </div>
 
-          <a
-            href="#"
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FCF8F1] text-gray-700 transition-all duration-200 hover:bg-yellow-300 hover:text-black"
-          >
-            📘
-          </a>
+          {/* RIGHT */}
+          <div className="flex items-center justify-center gap-3 md:justify-end">
+            <a
+              href="#"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 transition-all hover:bg-blue-100"
+            >
+              🌐
+            </a>
 
-          <a
-            href="#"
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FCF8F1] text-gray-700 transition-all duration-200 hover:bg-yellow-300 hover:text-black"
-          >
-            📸
-          </a>
+            <a
+              href="#"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 transition-all hover:bg-blue-100"
+            >
+              📘
+            </a>
+
+            <a
+              href="#"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 transition-all hover:bg-blue-100"
+            >
+              📸
+            </a>
+          </div>
         </div>
       </div>
     </footer>

@@ -9,9 +9,68 @@ import clsx from "clsx";
 
 import { useBusinessById } from "@/hooks/super-admin/business-records/getBusinessRecordById";
 import { businessApi } from "@/libs/api/business.api";
-import { TAdminUpdateBusinessSchema, updateAdminBusinessSchema } from "@/libs";
+import {
+  TAdminUpdateBusinessSchema,
+  TServiceKey,
+  updateAdminBusinessSchema,
+} from "@/libs";
 import { X } from "lucide-react";
 
+const MOCK_SERVICES = [
+  {
+    service_key: "asset_management",
+    default_name: "Asset Management",
+  },
+
+  {
+    service_key: "attendance_management",
+    default_name: "Attendance Management",
+  },
+
+  {
+    service_key: "billing_management",
+    default_name: "Billing and Payments",
+  },
+
+  {
+    service_key: "business_management",
+    default_name: "Business Management",
+  },
+
+  {
+    service_key: "client_management",
+    default_name: "Client Management",
+  },
+
+  {
+    service_key: "inquiry_management",
+    default_name: "Inquiry Management",
+  },
+
+  {
+    service_key: "staff_management",
+    default_name: "Staff Management",
+  },
+
+  {
+    service_key: "profile_management",
+    default_name: "Profile Management",
+  },
+
+  {
+    service_key: "revenue_management",
+    default_name: "Revenue Management",
+  },
+
+  {
+    service_key: "token_management",
+    default_name: "Token Management",
+  },
+];
+
+const SERVICE_MAP = new Map(
+  MOCK_SERVICES.map((service) => [service.service_key, service]),
+);
 
 type BusinessFormProps = {
   onClose: () => void;
@@ -54,8 +113,6 @@ export function EditBusinessForm({
     },
   });
 
-  // ✅ SAFE RESET LOGIC
-
   const business = data;
   useEffect(() => {
     if (!businessId || !business) return;
@@ -63,7 +120,6 @@ export function EditBusinessForm({
     console.log("RESETTING FORM WITH:", business);
 
     reset({
-      _id: business._id,
       businessName: business.businessName ?? "",
       operatorName: business.operatorName ?? "",
       operatorEmail: business.operatorEmail ?? "",
@@ -76,7 +132,9 @@ export function EditBusinessForm({
         location: business.branch?.location ?? "",
       },
       package: business.package ?? "starter",
-      services: business.services ?? [],
+      services:
+        business.services?.map((s: { service_key: string }) => s.service_key) ??
+        [],
       status: business.status ?? true,
       payment_status: business.payment_status ?? false,
       payment_initiation: business.payment_initiation
@@ -87,7 +145,7 @@ export function EditBusinessForm({
 
   const { mutate, isPending } = useMutation({
     mutationFn: (payload: TAdminUpdateBusinessSchema) =>
-      businessApi.updateBusinessApi(businessId, payload),
+      businessApi.updateBusinessByAdminApi(businessId, payload),
     onSuccess: (data: any) => {
       toast.show({
         message: data?.message || "Business updated successfully",
@@ -96,7 +154,10 @@ export function EditBusinessForm({
       onClose();
     },
     onError: (err: any) => {
-      const errorMessage = err?.response?.data?.error || err?.message || "Failed to update business";
+      const errorMessage =
+        err?.response?.data?.error ||
+        err?.message ||
+        "Failed to update business";
       toast.show({
         message: errorMessage,
         type: "error",
@@ -107,7 +168,6 @@ export function EditBusinessForm({
   const onSubmit = (values: TAdminUpdateBusinessSchema) => {
     mutate({
       ...values,
-      _id: businessId,
       operatorPassword: values.operatorPassword || undefined,
     });
   };
@@ -136,18 +196,14 @@ export function EditBusinessForm({
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label="Close modal"
+            className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer"
           >
-            <X
-              size={24}
-              className="text-red-400 cursor-pointer border border-gray-200 rounded"
-            />
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
         {/* FORM */}
-        <div className="p-6">
+        <div className="p-6 text-[13px]">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Title */}
             <div>
@@ -207,7 +263,7 @@ export function EditBusinessForm({
               {/* Password */}
               <div>
                 <label className="block text-sm font-medium">
-                  Operator Password <span className="text-red-500">*</span>
+                  Operator Password
                 </label>
                 <input
                   type="password"
@@ -277,25 +333,19 @@ export function EditBusinessForm({
                   Services
                 </label>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {[
-                    "business_management",
-                    "asset_management",
-                    "client_management",
-                    "staff_management",
-                    "attendance_management",
-                    "billing_management",
-                  ].map((service) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-1">
+                  {MOCK_SERVICES.map((service) => (
                     <label
-                      key={service}
-                      className="flex items-center gap-2 text-sm"
+                      key={service.service_key}
+                      className="flex items-center gap-2 border border-gray-200 rounded-md p-2 hover:bg-gray-50 cursor-pointer"
                     >
                       <input
                         type="checkbox"
-                        value={service}
+                        value={service.service_key}
                         {...register("services")}
                       />
-                      {service}
+
+                      <span>{service.default_name}</span>
                     </label>
                   ))}
                 </div>

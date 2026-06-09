@@ -12,6 +12,8 @@ import { billingApi } from "@/libs/api/billing.api";
 import { updateBillingSchema } from "@/libs/validation/billing.validation";
 import { useBillingById } from "@/hooks/business-admin/billing-management/getBillingById";
 import { useToast } from "@/components/ui/toast";
+import Image from "next/image";
+import FormHeader from "@/components/shared/FormHeader";
 
 type BillingFormData = z.infer<typeof updateBillingSchema>;
 
@@ -155,9 +157,9 @@ export function EditBillingRecord({
 
   const onSubmit = (values: BillingFormData) => {
     console.log("📋 FORM SUBMITTED - DUE DATE:", values.dueDate);
-    
+
     const items = values.items ?? [];
-    
+
     const cleanedItems = items.map((item) => ({
       name: item.name.trim(),
       price: Number(item.price),
@@ -196,9 +198,7 @@ export function EditBillingRecord({
 
   if (isError) {
     return (
-      <div className="p-6 text-red-500">
-        Failed to load billing record
-      </div>
+      <div className="p-6 text-red-500">Failed to load billing record</div>
     );
   }
 
@@ -216,32 +216,20 @@ export function EditBillingRecord({
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Flowdesk - Edit Billing Details
-          </h2>
-
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* FORM */}
         <div className="p-6">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-6"
+            className="space-y-6 text-[13px]"
           >
-            <p className="text-xl font-semibold">
-              Edit Billing Information
-            </p>
+            <p className="text-xl font-semibold">Edit Billing Information</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* CLIENT NAME */}
               <div>
-                <label className="block text-sm font-medium">
-                  Client Name
-                </label>
+                <label className="block text-sm font-medium">Client Name</label>
 
                 <input
                   {...register("clientName")}
@@ -302,9 +290,7 @@ export function EditBillingRecord({
 
               {/* PAID AMOUNT */}
               <div>
-                <label className="block text-sm font-medium">
-                  Paid Amount
-                </label>
+                <label className="block text-sm font-medium">Paid Amount</label>
 
                 <input
                   type="number"
@@ -317,9 +303,7 @@ export function EditBillingRecord({
 
               {/* DUE DATE */}
               <div>
-                <label className="block text-sm font-medium">
-                  Due Date
-                </label>
+                <label className="block text-sm font-medium">Due Date</label>
 
                 <input
                   type="date"
@@ -353,9 +337,7 @@ export function EditBillingRecord({
             {/* BILLING ITEMS */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">
-                  Billing Items
-                </h3>
+                <h3 className="text-lg font-semibold">Billing Items</h3>
 
                 <button
                   type="button"
@@ -413,10 +395,7 @@ export function EditBillingRecord({
                       onClick={() => remove(index)}
                       className="text-red-500 hover:text-red-700"
                     >
-                      <Trash2
-                        size={18}
-                        className="cursor-pointer"
-                      />
+                      <Trash2 size={18} className="cursor-pointer" />
                     </button>
                   </div>
                 ))}
@@ -429,9 +408,7 @@ export function EditBillingRecord({
                 Total Amount: Rs.{" "}
                 {watchedItems?.reduce(
                   (acc, item) =>
-                    acc +
-                    (Number(item.price) || 0) *
-                      (Number(item.qty) || 0),
+                    acc + (Number(item.price) || 0) * (Number(item.qty) || 0),
                   0,
                 )}
               </p>

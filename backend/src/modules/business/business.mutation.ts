@@ -17,25 +17,50 @@ const MOCK_SERVICES = [
     service_key: "asset_management",
     default_name: "Asset Management",
   },
+
   {
     service_key: "attendance_management",
     default_name: "Attendance Management",
   },
+
   {
     service_key: "billing_management",
     default_name: "Billing and Payments",
   },
+
   {
     service_key: "business_management",
     default_name: "Business Management",
   },
+
   {
     service_key: "client_management",
     default_name: "Client Management",
   },
+
+  {
+    service_key: "inquiry_management",
+    default_name: "Inquiry Management",
+  },
+
   {
     service_key: "staff_management",
     default_name: "Staff Management",
+  },
+
+  {
+    service_key: "profile_management",
+    default_name: "Profile Management",
+  },
+
+  {
+    service_key: "revenue_management",
+    default_name: "Revenue Management",
+  },
+
+  {
+    service_key: "token_management",
+    default_name: "Token Management",
   },
 ];
 
@@ -98,6 +123,7 @@ export const createBusiness: AppRouteMutationImplementation<
       role,
       teams,
       branch,
+      status: true,
       package: pkg,
       payment_initiation,
     });
@@ -143,7 +169,6 @@ export const createBusiness: AppRouteMutationImplementation<
         normalizedServices = [services];
       }
     }
-
 
     await ensureServicesInitialized();
 
@@ -214,6 +239,18 @@ export const updateBusiness: AppRouteMutationImplementation<
   try {
     const { businessID } = req.params;
 
+    const existingBusiness = await businessRepository.getByID(businessID);
+
+    if (!existingBusiness) {
+      return {
+        status: 404,
+        body: {
+          success: false,
+          error: "Business not found",
+        },
+      };
+    }
+
     const { operatorPassword, package: pkg, ...rest } = req.body;
 
     const files = req.files as {
@@ -240,18 +277,21 @@ export const updateBusiness: AppRouteMutationImplementation<
     }
 
     if (operatorPassword) {
-      updateData.operatorPassword = await bcrypt.hash(operatorPassword, 10);
+      updateData.operatorPassword = await bcrypt.hash(
+        operatorPassword,
+        10,
+      );
     }
 
     if (profileUrl) {
       updateData.profile = profileUrl;
     }
 
-    if (updateData.branch) {
+    if (typeof updateData.branch === "string") {
       updateData.branch = JSON.parse(updateData.branch);
     }
 
-    if (updateData.services) {
+    if (typeof updateData.services === "string") {
       updateData.services = JSON.parse(updateData.services);
     }
 
@@ -260,13 +300,114 @@ export const updateBusiness: AppRouteMutationImplementation<
     }
 
     if (updateData.payment_status !== undefined) {
-      updateData.payment_status = updateData.payment_status === "true";
+      updateData.payment_status =
+        updateData.payment_status === "true";
     }
+
+    const FIELD_LABELS: Record<string, string> = {
+      businessName: "Business Name",
+      operatorName: "Operator Name",
+      operatorEmail: "Operator Email",
+      operatorPassword: "Operator Password",
+      businessType: "Business Type",
+      profile: "Profile Image",
+      teams: "Teams",
+      branch: "Branch Information",
+      package: "Package",
+      services: "Services",
+      status: "Status",
+      payment_status: "Payment Status",
+      payment_initiation: "Payment Initiation Date",
+      team_role: "Role",
+    };
+
+    const changes: Array<{
+      field: string;
+      oldValue: string;
+      newValue: string;
+    }> = [];
+
+    Object.entries(updateData).forEach(([field, newValue]) => {
+      const oldValue = (existingBusiness as any)[field];
+
+      if (field === "operatorPassword") {
+        changes.push({
+          field: "Operator Password",
+          oldValue: "********",
+          newValue: "********",
+        });
+
+        return;
+      }
+
+      const oldString =
+        oldValue === undefined || oldValue === null
+          ? ""
+          : typeof oldValue === "object"
+            ? JSON.stringify(oldValue)
+            : String(oldValue);
+
+      const newString =
+        newValue === undefined || newValue === null
+          ? ""
+          : typeof newValue === "object"
+            ? JSON.stringify(newValue)
+            : String(newValue);
+
+      if (oldString !== newString) {
+        changes.push({
+          field: FIELD_LABELS[field] || field,
+          oldValue: oldString,
+          newValue: newString,
+        });
+      }
+    });
 
     const updatedBusiness = await businessRepository.update(
       businessID,
       updateData,
     );
+
+    if (updateData.services) {
+      const normalizedServices = Array.isArray(updateData.services)
+        ? updateData.services
+        : JSON.parse(updateData.services);
+
+      await ensureServicesInitialized();
+
+      const masterServices = await serviceRepository.getAll();
+
+      const enabledServices = masterServices.filter((service) =>
+        normalizedServices.includes(service.service_key),
+      );
+
+      await businessServiceConfigRepository.update(businessID, {
+        services: enabledServices.map((service) => ({
+          service_key: service.service_key,
+          default_name: service.default_name,
+          custom_name: null,
+          enabled: true,
+          permissions: {
+            create: true,
+            edit: true,
+            delete: false,
+            view: true,
+          },
+        })),
+      });
+    }
+
+    if (changes.length > 0) {
+      await activityLogRepository.create({
+        module: "Business",
+        action: "UPDATE",
+        userId: new mongoose.Types.ObjectId(businessID),
+        title: updatedBusiness?.businessName,
+        role: "admin",
+        description: `${updatedBusiness?.businessName} profile updated`,
+        changes,
+      });
+    }
 
     return {
       status: 200,

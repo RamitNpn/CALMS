@@ -11,6 +11,8 @@ import { z } from "zod";
 import { billingApi } from "@/libs/api/billing.api";
 import { useToast } from "@/components/ui/toast";
 import { createBillingSchema } from "@/libs/validation/billing.validation";
+import Image from "next/image";
+import FormHeader from "@/components/shared/FormHeader";
 
 type BillingFormData = z.infer<typeof createBillingSchema>;
 
@@ -64,7 +66,6 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
 
   const watchedItems = watch("items");
 
-  // Auto calculate total amount
   const grandTotal =
     watchedItems?.reduce((acc, item) => {
       return acc + Number(item.price || 0) * Number(item.qty || 0);
@@ -166,26 +167,20 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
         )}
       >
         {/* HEADER */}
-        <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-gray-100 p-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">Create Billing</h2>
+        <FormHeader onClose={() => onClose?.()} />
 
+        {/* FORM */}
+        <div className="p-6">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800">Create Billing</h2>
             <p className="mt-1 text-sm text-gray-500">
               Generate invoice and billing details
             </p>
           </div>
-
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-gray-200 p-1 hover:bg-red-500 hover:text-white"
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-8 text-[13px]"
           >
-            <X className="cursor-pointer" />
-          </button>
-        </div>
-
-        {/* FORM */}
-        <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             {/* CLIENT DETAILS */}
             <div>
               <h3 className="mb-4 text-lg font-semibold text-gray-800">
@@ -203,7 +198,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                     {...register("clientName", {
                       required: "Client name is required",
                     })}
-                    className="mt-1 w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-gray-600"
+                    className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                   />
 
                   {errors.clientName && (
@@ -224,7 +219,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                     {...register("clientEmail", {
                       required: "Email is required",
                     })}
-                    className="mt-1 w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-gray-600"
+                    className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                   />
 
                   {errors.clientEmail && (
@@ -244,7 +239,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                     {...register("title", {
                       required: "Title is required",
                     })}
-                    className="mt-1 w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-gray-600"
+                    className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                   />
 
                   {errors.title && (
@@ -272,7 +267,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                       qty: 1,
                     })
                   }
-                  className="flex items-center gap-1 rounded-lg bg-gray-800 px-4 py-2 text-sm text-white"
+                  className="flex items-center gap-1 rounded bg-gray-800 px-4 py-2 text-sm text-white"
                 >
                   <Plus size={16} />
                   Add Item
@@ -289,7 +284,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                 {fields.map((field, index) => (
                   <div
                     key={field.id}
-                    className="grid grid-cols-12 gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4"
+                    className="grid grid-cols-12 gap-3 rounded border border-gray-200 bg-gray-50 p-4"
                   >
                     {/* Item Name */}
                     <div className="col-span-12 md:col-span-5">
@@ -300,7 +295,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                       <input
                         {...register(`items.${index}.name`)}
                         className={clsx(
-                          "mt-1 w-full rounded-lg border p-2 outline-none",
+                          "mt-1 w-full rounded border p-2 outline-none",
                           errors.items?.[index]?.name
                             ? "border-red-500"
                             : "border-gray-200",
@@ -323,7 +318,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                           valueAsNumber: true,
                         })}
                         className={clsx(
-                          "mt-1 w-full rounded-lg border p-2 outline-none",
+                          "mt-1 w-full rounded border p-2 outline-none",
                           errors.items?.[index]?.price
                             ? "border-red-500"
                             : "border-gray-200",
@@ -346,7 +341,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                           valueAsNumber: true,
                         })}
                         className={clsx(
-                          "mt-1 w-full rounded-lg border p-2 outline-none",
+                          "mt-1 w-full rounded border p-2 outline-none",
                           errors.items?.[index]?.qty
                             ? "border-red-500"
                             : "border-gray-200",
@@ -363,7 +358,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                     <div className="col-span-2 md:col-span-2">
                       <label className="block text-sm font-medium">Total</label>
 
-                      <div className="mt-1 rounded-lg border border-gray-200 bg-white p-2 text-center font-semibold">
+                      <div className="mt-1 rounded border border-gray-200 bg-white p-2 text-center font-semibold">
                         Rs.
                         {(watchedItems?.[index]?.price || 0) *
                           (watchedItems?.[index]?.qty || 0)}
@@ -375,7 +370,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                       <button
                         type="button"
                         onClick={() => remove(index)}
-                        className="rounded-lg p-2 text-red-500 hover:bg-red-100"
+                        className="rounded p-2 text-red-500 cursor-pointer hover:bg-red-100"
                       >
                         <Trash2 size={18} />
                       </button>
@@ -405,7 +400,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                     {...register("totalAmount", {
                       valueAsNumber: true,
                     })}
-                    className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-100 p-3 font-semibold outline-none"
+                    className="mt-1 w-full rounded border border-gray-200 bg-gray-100 p-3 font-semibold outline-none"
                   />
                 </div>
 
@@ -420,7 +415,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
                     {...register("paidAmount", {
                       valueAsNumber: true,
                     })}
-                    className="mt-1 w-full rounded-lg border border-gray-200 p-3 outline-none focus:border-gray-600"
+                    className="w-full mt-1 border border-gray-200 p-2 rounded outline-none"
                   />
                 </div>
 
@@ -486,7 +481,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
               <button
                 type="button"
                 onClick={() => reset()}
-                className="rounded-lg bg-red-500 px-5 py-2 text-white"
+                className="rounded bg-red-500 px-5 py-2 text-white"
               >
                 Reset
               </button>
@@ -494,7 +489,7 @@ export function BillingForm({ onClose, size = "xl" }: BillingFormProps) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-lg bg-gray-800 px-6 py-2 text-white"
+                className="rounded bg-gray-800 px-6 py-2 text-white"
               >
                 {isPending ? "Creating..." : "Create Billing"}
               </button>

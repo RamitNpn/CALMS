@@ -10,73 +10,49 @@ export const createAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.createAttendance
 > = async ({ req }) => {
   try {
-    const {
-      business_id,
-      clientName,
-      clientEmail,
-      userType,
-      checkIn,
-      checkOut,
-    } = req.body;
+    const { userIds, business_id } = req.body;
 
-    if (!clientEmail) {
+    if (!userIds || !userIds.length) {
       return {
         status: 400,
         body: {
           success: false,
-          error: "Client email is required",
+          error: "userIds are required",
         },
       };
     }
 
-    const clientData = await userRepository.getByEmail(
-      clientEmail.toLowerCase(),
-    );
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
 
-    if (!clientData) {
-      return {
-        status: 404,
-        body: {
-          success: false,
-          error: "Client with that email does not exist",
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const results = [];
+
+    for (const userId of userIds) {
+      // 1. prevent duplicate today attendance
+      const existing = await attendanceRepository.findOne({
+        userIds: [new mongoose.Types.ObjectId(userId)],
+        date: {
+          $gte: todayStart,
+          $lte: todayEnd,
         },
-      };
-    }
-
-    const attendance = await attendanceRepository.createAttendance({
-      business_id: new mongoose.Types.ObjectId(business_id),
-      clientId: new mongoose.Types.ObjectId(clientData._id),
-      clientName,
-      clientEmail,
-      userType,
-      checkIn,
-      checkOut,
-    });
-
-    const businessUser = await businessRepository.getByID(business_id);
-    const user = await userRepository.getByID(business_id);
-    const account = businessUser || user;
-
-    if (!account) {
-      return {
-        status: 404,
-        body: { success: false, error: "User not found" },
-      };
-    }
-
-    const isBusiness = "operatorPassword" in account;
-
-    const userName = isBusiness ? account.operatorName : account.userName;
-
-    if (attendance) {
-      const createLogs = await activityLogRepository.create({
-        module: "Attendance",
-        action: "CREATE",
-        userId: new mongoose.Types.ObjectId(business_id),
-        title: "Business Attendance",
-        role: account.role,
-        description: `Attendance created for client: ${clientName}`,
       });
+
+      if (existing) continue;
+
+      // 2. create attendance
+      const attendance = await attendanceRepository.createAttendance({
+        userId: new mongoose.Types.ObjectId(userId),
+        business_id: new mongoose.Types.ObjectId(business_id),
+        status: "Present",
+        checkIn: new Date(),
+        checkOut: undefined,
+        date: new Date(), // IMPORTANT FIX
+      });
+
+      results.push(attendance);
     }
 
     return {
@@ -84,7 +60,7 @@ export const createAttendance: AppRouteMutationImplementation<
       body: {
         success: true,
         message: "Attendance created",
-        data: attendance,
+        data: results,
       },
     };
   } catch (error) {
@@ -99,14 +75,14 @@ export const updateAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.updateAttendance
 > = async ({ req }) => {
   try {
-    const { clientName, method, checkIn, checkOut } = req.body;
+    const { clientName, method, checkIn, checkOut, status } = req.body;
     const updated = await attendanceRepository.updateAttendance(
       req.params.attendanceID,
       {
-        clientName,
         method,
         checkIn,
         checkOut,
+        status,
       },
     );
 
@@ -126,6 +102,8 @@ export const removeAttendance: AppRouteMutationImplementation<
   typeof attendanceContract.removeAttendance
 > = async ({ req }) => {
   try {
+
+    const date = new Date();
     const search = await attendanceRepository.getAttendanceByID(
       req.params.attendanceID,
     );

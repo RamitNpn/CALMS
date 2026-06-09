@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Activity, Trash2, Download } from "lucide-react";
 import { useActivityLogs } from "@/hooks/shared/useLogs";
 import { TLogEntry } from "@/libs/types/log.types";
@@ -20,8 +20,6 @@ interface LogDetailsProps {
 
 export default function LogDetails({
   module,
-  recordId,
-  recordName,
   userId,
   onClearLogs,
 }: LogDetailsProps) {
@@ -42,12 +40,15 @@ export default function LogDetails({
     return f;
   }, [module, userId, filterAction]);
 
-  const { data:logData, isLoading } = useActivityLogs(page, 10, filters);
+  const { data: logData, isLoading } = useActivityLogs(page, 10, filters);
 
-  const logs = logData?.data || [];
+  const loadLogs = useMemo(() => {
+    if (!logData) return [];
+    return logData.data || [];
+  }, [logData]);
 
   const filteredLogs = useMemo(() => {
-    return logs.filter((log: TLogEntry) => {
+    return loadLogs.filter((log: TLogEntry) => {
       const matchesSearch =
         log.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         log.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -55,7 +56,7 @@ export default function LogDetails({
         log.action?.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesSearch;
     });
-  }, [logs, searchQuery]);
+  }, [loadLogs, searchQuery]);
 
   const getActionColor = (action: string) => {
     switch (action) {
@@ -137,10 +138,10 @@ export default function LogDetails({
             Track all changes and activities for {module}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 text-[13px]">
           <button
             onClick={downloadLogs}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition"
+            className="flex items-center gap-2 px-4 py-2 bg-white shadow-md cursor-pointer text-gray-700 rounded-md transition"
           >
             <Download size={16} />
             Export
@@ -148,7 +149,7 @@ export default function LogDetails({
           {onClearLogs && (
             <button
               onClick={onClearLogs}
-              className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition"
+              className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 shadow-md cursor-pointer rounded-md transition"
             >
               <Trash2 size={16} />
               Clear
@@ -158,20 +159,20 @@ export default function LogDetails({
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-4 text-[13px]">
         <div className="flex-1">
           <input
             type="text"
             placeholder={`Search ${module} logs by user, record, or action...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 border border-gray-200 bg-white rounded-md outline-none"
           />
         </div>
         <select
           value={filterAction}
           onChange={(e) => setFilterAction(e.target.value)}
-          className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="px-4 py-2 border border-gray-200 bg-white rounded-md outline-none"
         >
           <option value="ALL">All Actions</option>
           <option value="CREATE">Create</option>
@@ -192,23 +193,23 @@ export default function LogDetails({
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="w-full table-auto">
+            <table className="w-full text-[13px]">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                  <th className="px-4 w-30 py-3 text-left font-semibold text-gray-900">
                     Time By
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-900">
                     Action
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-900">
                     Title
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-900">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                  <th className="px-4 py-3 text-left font-semibold text-gray-900">
                     Description
                   </th>
                 </tr>
@@ -219,10 +220,10 @@ export default function LogDetails({
                     key={log._id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4 text-gray-700">
+                    <td className="px-4 py-2 text-gray-700">
                       {new Date(log.timestamp).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-2">
                       <span
                         className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${getActionColor(log.action)}`}
                       >
@@ -230,13 +231,13 @@ export default function LogDetails({
                         {log.action}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-700 font-medium">
+                    <td className="px-4 py-2 text-gray-700 font-medium">
                       {log.title}
                     </td>
-                    <td className="px-6 py-4 text-gray-700 font-medium capitalize">
+                    <td className="px-4 py-2 text-gray-700 font-medium capitalize">
                       {log.role}
                     </td>
-                    <td className="px-6 py-4 text-gray-700">
+                    <td className="px-4 py-2 text-gray-700">
                       {log.description}
                       {log.changes && log.changes.length > 0 && (
                         <div className="mt-2 text-xs text-gray-600 space-y-1">
@@ -262,21 +263,25 @@ export default function LogDetails({
 
       {/* Pagination */}
       {filteredLogs.length > 0 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Showing {filteredLogs.length} of {logs.length} logs for {module}
+        <div className="flex text-[13px] items-center justify-between">
+          <p className="text-gray-600">
+            Showing {filteredLogs.length} of {logData?.pagination?.total || 0}
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="px-4 py-2 bg-white shadow-md cursor-pointer rounded hover:bg-gray-50 disabled:opacity-50"
             >
               Previous
             </button>
+            <span className="px-4 py-2 border border-gray-200 rounded-lg bg-gray-100">
+              Page {page} of {logData?.pagination?.totalPages || 1}
+            </span>
             <button
+              disabled={page >= logData?.pagination?.totalPages}
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="px-4 py-2 bg-white shadow-md cursor-pointer rounded hover:bg-gray-50 disabled:opacity-50 disabled"
             >
               Next
             </button>

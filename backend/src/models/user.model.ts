@@ -12,6 +12,8 @@ export interface IUser extends Document {
   license?: string;
   certificate?: string;
   role: "staff" | "client";
+  staffRoleId?: mongoose.Types.ObjectId;
+  staffPermissions?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -73,6 +75,16 @@ const UserSchema = new mongoose.Schema(
       type: String,
       enum: ["staff", "client"],
       default: "client",
+    },
+    staffRoleId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Role",
+      required: false,
+    },
+    staffPermissions: {
+      type: [String],
+      required: false,
+      default: undefined,
     },
   },
   {

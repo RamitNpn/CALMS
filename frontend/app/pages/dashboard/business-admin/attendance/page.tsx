@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import moment from "moment";
+import { useDebounce } from "use-debounce";
 import {
   BarChart,
   Bar,
@@ -21,42 +21,14 @@ import AttendanceRecord from "@/components/business-admin/attendance/AttendanceR
 import TabNavigation from "@/components/shared/TabNavigation";
 import LogDetails from "@/components/shared/LogDetails";
 import CustomizeSection from "@/components/shared/CustomizeSection";
-import {
-  BarChart3,
-  Settings,
-  ActivitySquare,
-  FileText,
-  Calendar,
-} from "lucide-react";
-import { AttendanceCalendar } from "@/components/business-admin/attendance/AttendanceCalender";
+import { BarChart3, Settings, ActivitySquare, FileText } from "lucide-react";
 import AttendanceStats from "@/components/business-admin/attendance/AttendanceStats";
 import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 import type { TAttendance } from "@/libs/types/attendance.types";
+import { useTodayAttendance } from "@/hooks/business-admin/attendance-management/getTodaysAttendance";
+import { useAttendanceStats } from "@/hooks/business-admin/stats-data/getAttendanceStats";
 
 const ATTENDANCE_COLORS = ["#16a34a", "#dc2626", "#2563eb", "#f59e0b"];
-
-type CalendarAttendanceRecord = {
-  date: string;
-  status: "present" | "absent" | "leave" | "half-day" | "holiday";
-  checkInTime?: string;
-  checkOutTime?: string;
-};
-
-const getAttendanceStatus = (attendance: TAttendance) => {
-  if (attendance.checkIn && attendance.checkOut) {
-    return "present" as const;
-  }
-
-  if (attendance.checkIn && !attendance.checkOut) {
-    return "half-day" as const;
-  }
-
-  if (!attendance.checkIn && attendance.checkOut) {
-    return "leave" as const;
-  }
-
-  return "absent" as const;
-};
 
 const formatMonthKey = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -64,58 +36,42 @@ const formatMonthKey = (date: Date) =>
 export default function AttendancePage() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState("inventory");
+  const [search, setSearch] = useState("");
+  const [role, setRole] = useState("all");
+
+  const [debouncedSearch] = useDebounce(search, 500);
   const { summary } = useBusinessAnalytics();
 
+  const [businessId] = useState<string>(() => {
+    const storedData = JSON.parse(localStorage.getItem("auth-data") || "{}");
+    return storedData?.business_id;
+  });
+
+  const { data: attendanceData } = useAllAttendances({
+    page,
+    business_id: businessId,
+  });
+
   const {
-    data: attendanceData,
+    data: users,
     isLoading,
     isError,
-  } = useAllAttendances({ page, limit: 10 });
+  } = useTodayAttendance({
+    page: 1,
+    limit: 1000,
+    business_id: businessId,
+    search: debouncedSearch,
+    role,
+  });
 
-  const attendances: TAttendance[] = attendanceData?.data ?? attendanceData ?? [];
-  const pagination = attendanceData?.pagination;
+  const { data: attendanceStats } = useAttendanceStats();
 
-  const attendanceOverview = summary?.attendance;
-
-  const attendanceStats = {
-    presentCount: attendanceOverview?.totalAttendance ?? 0,
-    absentCount: attendanceOverview?.totalAbsent ?? 0,
-    leaveCount: attendanceOverview?.totalOnLeave ?? 0,
-    lateCount: attendanceOverview?.lateToday ?? 0,
-    attendanceRate: attendanceOverview?.attendanceRate ?? 0,
-  };
-
-  const calendarRecords = useMemo<CalendarAttendanceRecord[]>(
-    () =>
-      attendances.map((attendance) => {
-        const createdAt = new Date(attendance.createdAt);
-
-        return {
-          date: createdAt.toISOString().slice(0, 10),
-          status: getAttendanceStatus(attendance),
-          checkInTime: attendance.checkIn
-            ? moment(attendance.checkIn).format("hh:mm A")
-            : undefined,
-          checkOutTime: attendance.checkOut
-            ? moment(attendance.checkOut).format("hh:mm A")
-            : undefined,
-        };
-      }),
-    [attendances],
+  const attendances = useMemo<TAttendance[]>(
+    () => attendanceData?.data ?? attendanceData ?? [],
+    [attendanceData],
   );
 
-  const calendarMonth = useMemo(() => {
-    if (attendances.length === 0) {
-      return new Date();
-    }
-
-    const latestAttendance = [...attendances].sort(
-      (left, right) =>
-        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
-    )[0];
-
-    return new Date(latestAttendance.createdAt);
-  }, [attendances]);
+  const attendanceOverview = summary?.attendance;
 
   const attendanceTrend = useMemo(() => {
     const byMonth = attendances.reduce<Record<string, number>>((acc, item) => {
@@ -160,9 +116,14 @@ export default function AttendancePage() {
 
   const tabs = [
     { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
-    { id: "calender", label: "Calender View", icon: <Calendar size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
-    { id: "customize", label: "Customize", icon: <Settings size={16} /> },
+    {
+      id: "customize",
+      label: "Customize",
+      icon: <Settings size={16} />,
+      disabled: true,
+      badge: "Dev",
+    },
     { id: "logs", label: "Log Details", icon: <ActivitySquare size={16} /> },
   ];
 
@@ -180,7 +141,7 @@ export default function AttendancePage() {
         </div>
       </div>
 
-      <AttendanceStats {...attendanceStats} />
+      <AttendanceStats />
 
       {/* TAB NAVIGATION */}
       <TabNavigation
@@ -192,17 +153,17 @@ export default function AttendancePage() {
       {/* TAB CONTENT */}
       {activeTab === "inventory" && (
         <AttendanceRecord
-          attendances={attendances}
+          users={users?.data || []}
           isLoading={isLoading}
           error={isError ? "Failed to load attendance records" : null}
           page={page}
-          totalPages={pagination?.totalPages || 1}
+          totalPages={users?.pagination?.totalPages || 1}
           onPageChange={setPage}
+          search={search}
+          setSearch={setSearch}
+          role={role}
+          setRole={setRole}
         />
-      )}
-
-      {activeTab === "calender" && (
-        <AttendanceCalendar records={calendarRecords} month={calendarMonth} />
       )}
 
       {activeTab === "analysis" && (
@@ -261,33 +222,106 @@ export default function AttendancePage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Check-in Method Split
               </h3>
-              <ResponsiveContainer width="100%" height={280}>
+
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
+                  {/* CENTER TOTAL LABEL (custom overlay) */}
+                  <text
+                    x="50%"
+                    y="50%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="text-sm fill-gray-500"
+                  >
+                    Total
+                  </text>
+
+                  <text
+                    x="50%"
+                    y="54%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="text-lg font-semibold fill-gray-900"
+                  >
+                    {attendanceMethodData.reduce(
+                      (acc, curr) => acc + curr.value,
+                      0,
+                    )}
+                  </text>
+
                   <Pie
                     data={attendanceMethodData}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
-                    label
+                    outerRadius={105}
+                    innerRadius={60}
+                    paddingAngle={3}
+                    labelLine={false}
+                    label={({ name, percent }) => {
+                      const safePercent =
+                        typeof percent === "number" ? percent : 0;
+
+                      return `${name} (${(safePercent * 100).toFixed(0)}%)`;
+                    }}
                   >
                     {attendanceMethodData.map((entry, index) => (
                       <Cell
                         key={entry.name}
-                        fill={ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]}
+                        fill={
+                          ATTENDANCE_COLORS[index % ATTENDANCE_COLORS.length]
+                        }
                       />
                     ))}
                   </Pie>
+
+                  {/* TOOLTIP */}
                   <Tooltip
+                    formatter={(value, name) => [`${value} records`, name]}
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: 8,
+                      fontSize: 12,
                     }}
                   />
                 </PieChart>
               </ResponsiveContainer>
+
+              {/* LEGEND */}
+              <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-gray-600">
+                {attendanceMethodData.map((item, index) => {
+                  const total = attendanceMethodData.reduce(
+                    (acc, curr) => acc + curr.value,
+                    0,
+                  );
+                  const percent = total ? (item.value / total) * 100 : 0;
+
+                  return (
+                    <div
+                      key={item.name}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{
+                            backgroundColor:
+                              ATTENDANCE_COLORS[
+                                index % ATTENDANCE_COLORS.length
+                              ],
+                          }}
+                        />
+                        <span>{item.name}</span>
+                      </div>
+                      <span className="font-medium text-gray-700">
+                        {percent.toFixed(1)}%
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -296,16 +330,16 @@ export default function AttendancePage() {
               </h3>
               <div className="space-y-4 text-sm text-gray-600">
                 <p>
-                  Attendance rate is {attendanceStats.attendanceRate.toFixed(1)}%
-                  with {attendanceStats.presentCount.toLocaleString()} present
+                  Attendance rate is{" "}
+                  {attendanceStats?.attendanceRate.toFixed(1)}% with{" "}
+                  {attendanceStats?.totalAttendance.toLocaleString()} present
                   records currently in the system.
                 </p>
                 <p>
-                  {attendanceStats.absentCount.toLocaleString()} absences,
-                  {" "}
-                  {attendanceStats.leaveCount.toLocaleString()} leave records,
-                  and {attendanceStats.lateCount.toLocaleString()} late check-ins
-                  are visible from the current stats feed.
+                  {attendanceStats?.totalAbsent.toLocaleString()} absences,{" "}
+                  {attendanceStats?.totalOnLeave.toLocaleString()} leave
+                  records,s and {attendanceStats?.lateToday.toLocaleString()}{" "}
+                  late check-ins are visible from the current stats feed.
                 </p>
                 <p>
                   The calendar view below uses the same live attendance records,

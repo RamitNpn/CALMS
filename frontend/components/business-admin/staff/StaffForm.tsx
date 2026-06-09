@@ -9,6 +9,7 @@ import { X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TCreateStaff } from "@/libs/types/staff.types";
 import { createStaffSchema, staffApi } from "@/libs";
+import FormHeader from "@/components/shared/FormHeader";
 
 type StaffFormProps = {
   onClose?: () => void;
@@ -92,25 +93,11 @@ export function StaffForm({ onClose, size = "lg" }: StaffFormProps) {
         )}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Flowdesk - Create Staff
-          </h2>
-
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-200 rounded-lg transition"
-          >
-            <X
-              size={22}
-              className="text-red-500 border border-gray-200 rounded cursor-pointer"
-            />
-          </button>
-        </div>
+        <FormHeader onClose={() => onClose?.()} />
 
         {/* CONTENT */}
         <div className="p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 text-[13px]">
             {/* TITLE */}
             <div>
               <p className="text-xl font-semibold">Create Staff Account</p>

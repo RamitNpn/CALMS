@@ -6,6 +6,8 @@ import businessRepository from "../../repository/business.repository";
 import userRepository from "../../repository/user.repository";
 import { authRepository } from "../../repository/auth.repository";
 import activityLogRepository from "../../repository/activity-log.repository";
+import permissionRepository from "../../repository/permission.repository";
+import rolePermissionRepository from "../../repository/role-permission.repository";
 import mongoose from "mongoose";
 
 export const authLogin: AppRouteMutationImplementation<
@@ -65,15 +67,39 @@ export const authLogin: AppRouteMutationImplementation<
       description: `User logged in with email: ${email}`,
     });
 
+    let permissions: string[] = [];
+
+    if (role === "admin" || role === "business") {
+      permissions = await permissionRepository.getAllCodes();
+    } else if (role === "staff") {
+      const profile = await userRepository.getByEmail(normalizedEmail);
+      const rolePermissions = profile?.staffRoleId
+        ? await rolePermissionRepository.getAllowedCodes(profile.staffRoleId.toString())
+        : [];
+      const directPermissions = Array.isArray(profile?.staffPermissions)
+        ? profile?.staffPermissions
+        : profile?.staffPermissions
+        ? [profile.staffPermissions]
+        : [];
+
+      const permissionSet = new Set([...rolePermissions, ...directPermissions]);
+      permissions = Array.from(permissionSet);
+
+      if (permissions.length === 0) {
+        permissions = [];
+      }
+    }
+
     return {
       status: 200,
       body: {
         id: account._id.toString(),
-        business_id,
+        business_id: business_id.toString(),
         businessName,
         userName,
         userEmail,
         role,
+        permissions,
         token,
       },
     };

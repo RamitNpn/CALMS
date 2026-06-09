@@ -81,8 +81,8 @@ export function ViewClientRecord({
             </span>
           </h2>
 
-          <button onClick={onClose}>
-            <X className="text-red-500 cursor-pointer" />
+          <button onClick={onClose} className="p-1 rounded border border-gray-200 hover:bg-gray-200 transition cursor-pointer">
+            <X className="w-4 h-4 text-red-500" />
           </button>
         </div>
 
