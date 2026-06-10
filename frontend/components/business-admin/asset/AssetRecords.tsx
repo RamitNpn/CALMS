@@ -14,6 +14,7 @@ import Button from "@/components/ui/button";
 import { AssetForm } from "./AssetForm";
 import Select from "@/components/ui/select";
 import Image from "next/image";
+import { useAllAssets } from "@/hooks/business-admin/asset-management/getAllAssets";
 
 interface AssetTableProps {
   assets: TAsset[];
@@ -47,6 +48,7 @@ export default function AssetRecord({
   const [viewId, setViewId] = useState<string | null>(null);
 
   const { mutate: deleteAsset } = useDeleteAsset();
+  const { data: assetData } = useAllAssets({});
   const [itemToRemove, setItemToRemove] = useState<TAsset | null>(null);
   const toast = useToast.getState();
 
@@ -66,7 +68,7 @@ export default function AssetRecord({
   };
 
   const downloadRecords = () => {
-    if (!assets?.length) return;
+    if (!assetData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -79,7 +81,7 @@ export default function AssetRecord({
       "Custom Fields",
     ];
 
-    const rows = assets.map((asset, index) => [
+    const rows = assetData?.data?.map((asset: TAsset, index: number) => [
       index + 1,
       asset._id,
       asset.name,
@@ -92,7 +94,7 @@ export default function AssetRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows?.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");

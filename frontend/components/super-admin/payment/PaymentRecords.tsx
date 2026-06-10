@@ -160,7 +160,7 @@ export default function PaymentTable({
             }}
             options={[
               {
-                label: "All Revenue",
+                label: "All Records",
                 value: "all",
               },
               {

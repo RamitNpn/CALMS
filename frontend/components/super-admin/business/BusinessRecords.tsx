@@ -155,7 +155,7 @@ export default function BusinessTable({
             }}
             options={[
               {
-                label: "All Revenue",
+                label: "All Records",
                 value: "all",
               },
               {

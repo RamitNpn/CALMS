@@ -97,7 +97,7 @@ export default function StaffPage() {
   const activeRate = totalStaff > 0 ? (activeStaff / totalStaff) * 100 : 0;
 
   const tabs = [
-    { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
+    { id: "inventory", label: "Records", icon: <FileText size={16} /> },
     { id: "permission", label: "Permission", icon: <Wrench size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     {

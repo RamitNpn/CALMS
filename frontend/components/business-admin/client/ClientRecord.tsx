@@ -13,6 +13,7 @@ import { EditClientForm } from "./EditClientRecord";
 import Button from "@/components/ui/button";
 import { ClientForm } from "./ClientForm";
 import Select from "@/components/ui/select";
+import { useAllClients } from "@/hooks/business-admin/client-management/getAllClientData";
 
 interface ClientTableProps {
   clients: TClient[];
@@ -55,6 +56,7 @@ export default function ClientRecord({
   const router = useRouter();
 
   const { mutate: deleteClient } = useDeleteClient();
+  const { data: clientData } = useAllClients({});
   const [itemToRemove, setItemToRemove] = useState<TClient | null>(null);
   const toast = useToast.getState();
 
@@ -123,7 +125,7 @@ export default function ClientRecord({
 
           <Button
             onClick={() => {
-              if (!clients?.length) return;
+              if (!clientData?.data?.length) return;
 
               const headers = [
                 "SN",
@@ -136,7 +138,7 @@ export default function ClientRecord({
                 "Created At",
               ];
 
-              const rows = clients.map((c, i) => [
+              const rows = clientData?.data.map((c, i) => [
                 i + 1,
                 c._id,
                 c.userName,
@@ -149,7 +151,7 @@ export default function ClientRecord({
 
               const csvContent = [
                 headers.join(","),
-                ...rows.map((row) =>
+                ...rows.map((row: (string | number)[]) =>
                   row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
                 ),
               ].join("\n");

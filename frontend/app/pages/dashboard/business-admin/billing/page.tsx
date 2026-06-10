@@ -121,7 +121,7 @@ export default function BillingPage() {
   }, [billings]);
 
   const tabs = [
-    { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
+    { id: "inventory", label: "Records", icon: <FileText size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     { id: "customize", label: "Customize", icon: <Settings size={16} /> },
     {

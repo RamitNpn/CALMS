@@ -33,7 +33,7 @@ export function Toast() {
   return (
     <div
       onClick={hide}
-      className={`fixed bottom-8 right-6 px-4 py-2 rounded-md text-white ${
+      className={`fixed bottom-8 right-6 px-4 py-2 rounded text-[13px] text-white ${
         toast.type === "error" ? "bg-red-600" : "bg-green-600"
       }`}
     >

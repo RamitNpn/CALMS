@@ -15,6 +15,7 @@ import { clientApi } from "@/libs/api/client.api";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import { useAllClients } from "@/hooks/business-admin/client-management/getAllClientData";
+import { useAllFinance } from "@/hooks/business-admin/business-management/getAllFinance";
 
 interface InquiryRecordProps {
   inquiries: TDrivingInquiry[];
@@ -58,6 +59,7 @@ export default function InquiryRecord({
   const { mutate: deleteInquiry } = useDeleteInquiry();
 
   const { data: clientData } = useAllClients({});
+  const { data: financeData } = useAllFinance({});
 
   const existingClientEmails = new Set(
     (clientData as any)?.data?.map((c: any) =>
@@ -120,7 +122,7 @@ export default function InquiryRecord({
   };
 
   const downloadRecords = () => {
-    if (!inquiries?.length) return;
+    if (!financeData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -150,7 +152,7 @@ export default function InquiryRecord({
       "Updated At",
     ];
 
-    const rows = inquiries.map((inquiry, index) => [
+    const rows = financeData?.data.map((inquiry, index) => [
       index + 1,
       inquiry._id,
       inquiry.fullName,
@@ -180,7 +182,7 @@ export default function InquiryRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");
@@ -235,7 +237,7 @@ export default function InquiryRecord({
             }}
             options={[
               {
-                label: "All Inquiry",
+                label: "All Inquiries",
                 value: "all",
               },
               {

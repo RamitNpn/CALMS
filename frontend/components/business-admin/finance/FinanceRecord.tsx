@@ -14,6 +14,7 @@ import { ViewFinanceRecord } from "./ViewFinanceRecord";
 import { EditFinanceForm } from "./EditFinanceForm";
 import { FinanceForm } from "./FinanceForm";
 import Select from "@/components/ui/select";
+import { useAllFinance } from "@/hooks/business-admin/business-management/getAllFinance";
 
 interface FinancialTableProps {
   records: TFinance[];
@@ -51,6 +52,7 @@ export default function FinanceRecord({
   const [itemToRemove, setItemToRemove] = useState<TFinance | null>(null);
 
   const { mutate: deleteRecord } = useDeleteFinance();
+  const { data: financeData } = useAllFinance({});
 
   const toast = useToast.getState();
 
@@ -70,7 +72,7 @@ export default function FinanceRecord({
   };
 
   const downloadRecords = () => {
-    if (!records?.length) return;
+    if (!financeData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -88,7 +90,7 @@ export default function FinanceRecord({
       "Updated At",
     ];
 
-    const rows = records.map((record, index) => [
+    const rows = financeData?.data.map((record, index) => [
       index + 1,
       record._id,
       record.business_id,
@@ -106,7 +108,7 @@ export default function FinanceRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");
@@ -160,7 +162,7 @@ export default function FinanceRecord({
             }}
             options={[
               {
-                label: "All Revenue",
+                label: "All Records",
                 value: "all",
               },
               {

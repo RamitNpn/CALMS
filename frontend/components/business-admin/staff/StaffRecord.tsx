@@ -13,6 +13,7 @@ import { EditstaffForm } from "./EditStaffRecord.";
 import Button from "@/components/ui/button";
 import { StaffForm } from "./StaffForm";
 import Select from "@/components/ui/select";
+import { useAllStaff } from "@/hooks/business-admin/staff-management/getAllStaffDatas";
 interface StaffTableProps {
   staffs: TStaff[];
   isLoading?: boolean;
@@ -43,6 +44,7 @@ export default function StaffRecord({
   const router = useRouter();
 
   const { mutate: deleteStaff } = useDeleteStaff();
+  const { data: staffData } = useAllStaff({});
   const [itemToRemove, setItemToRemove] = useState<TStaff | null>(null);
   const toast = useToast.getState();
 
@@ -64,7 +66,7 @@ export default function StaffRecord({
   };
 
   const downloadRecords = () => {
-    if (!staffs?.length) return;
+    if (!staffData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -77,7 +79,7 @@ export default function StaffRecord({
       "Created At",
     ];
 
-    const rows = staffs.map((s, i) => [
+    const rows = staffData?.data.map((s, i) => [
       i + 1,
       s._id,
       s.userName,
@@ -90,7 +92,7 @@ export default function StaffRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");

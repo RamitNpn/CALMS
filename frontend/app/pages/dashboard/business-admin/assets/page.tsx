@@ -29,7 +29,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useBusinessAnalytics } from "@/hooks/business-admin/analysis/useBusinessAnalytics";
 import { useDebounce } from "use-debounce";
 import { useAssetStats } from "@/hooks/business-admin/stats-data/getAssetStats";
 
@@ -141,7 +140,7 @@ export default function BusinessesPage() {
   ).length;
 
   const tabs = [
-    { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
+    { id: "inventory", label: "Records", icon: <FileText size={16} /> },
     { id: "types", label: "Add Types", icon: <PlusCircleIcon size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     {

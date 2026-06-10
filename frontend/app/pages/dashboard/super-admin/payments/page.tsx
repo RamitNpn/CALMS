@@ -35,7 +35,7 @@ const formatMonthKey = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
 const PAYMENT_TABS = [
-  { id: "inventory", label: "Inventory" },
+  { id: "inventory", label: "Records" },
   { id: "analysis", label: "Analysis" },
   { id: "customize", label: "Customize" },
   { id: "logs", label: "Log Records" },

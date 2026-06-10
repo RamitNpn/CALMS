@@ -96,6 +96,12 @@ class UserRepository {
     }
   }
 
+  async getUsersByIds(userIds: string[]) {
+    return UserModel.find({
+      _id: { $in: userIds },
+    }).lean();
+  }
+
   async getByID(id: string) {
     try {
       return await this.model.findById(id);

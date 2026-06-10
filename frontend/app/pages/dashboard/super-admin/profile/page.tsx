@@ -16,10 +16,6 @@ type AdminProfileForm = {
   operatorPassword: string;
   businessType: string;
   teams: string;
-  branch: {
-    name: string;
-    location: string;
-  };
   package: "starter" | "growth" | "enterprise";
   profile?: string;
 };
@@ -50,10 +46,6 @@ export default function AdminProfilePage() {
       operatorEmail: profileData.operatorEmail || "",
       businessType: profileData.businessType || "",
       teams: profileData.teams || "",
-      branch: {
-        name: profileData.branch?.name || "",
-        location: profileData.branch?.location || "",
-      },
       package: profileData.package || "starter",
       profile: profileData.profile || "",
     });
@@ -223,7 +215,7 @@ export default function AdminProfilePage() {
         <button
           type="submit"
           disabled={isPending}
-          className="px-2 py-[5px] bg-gray-600 cursor-pointer text-white rounded hover:bg-gray-700 disabled:opacity-50"
+          className="px-2 py-[4px] bg-gray-600 cursor-pointer text-white text-[13px] rounded hover:bg-gray-700 disabled:opacity-50"
         >
           {isPending ? (
             <span className="flex items-center gap-2">

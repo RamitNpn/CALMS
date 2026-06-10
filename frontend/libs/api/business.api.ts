@@ -4,7 +4,6 @@ import {
   TCreateBusinessSchema,
   TDeleteBusinessSchema,
   TGetAllBusinessByIdSchema,
-  TUpdateBusinessSchema,
 } from "../validation/business.validation";
 import { UsePaginationParams } from "../types/shared.types";
 
