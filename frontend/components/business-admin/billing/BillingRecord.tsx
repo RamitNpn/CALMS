@@ -15,6 +15,7 @@ import { EditBillingRecord } from "./EditBillingRecord";
 import { BillingForm } from "./BillingForm";
 import Button from "@/components/ui/button";
 import Select from "@/components/ui/select";
+import { useAllBillings } from "@/hooks/business-admin/billing-management/getAllBillings";
 
 interface BillingTableProps {
   billings: TBilling[];
@@ -48,6 +49,8 @@ export default function BillingRecord({
   const [viewId, setViewId] = useState<string | null>(null);
 
   const { mutate: deleteBilling } = useDeleteBilling();
+    const { data: billingData } = useAllBillings({});
+  
 
   const [itemToRemove, setItemToRemove] = useState<TBilling | null>(null);
 
@@ -76,7 +79,7 @@ export default function BillingRecord({
   };
 
   const downloadRecords = () => {
-    if (!billings?.length) return;
+    if (!billingData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -90,7 +93,7 @@ export default function BillingRecord({
       "Created At",
     ];
 
-    const rows = billings.map((b, i) => [
+    const rows = billingData?.data.map((b: TBilling, i: number) => [
       i + 1,
       b._id,
       b.clientName,
@@ -104,7 +107,7 @@ export default function BillingRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");

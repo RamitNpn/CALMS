@@ -101,7 +101,7 @@ export default function ClientPage() {
     totalClients > 0 ? (activeClients / totalClients) * 100 : 0;
 
   const tabs = [
-    { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
+    { id: "inventory", label: "Records", icon: <FileText size={16} /> },
     { id: "analysis", label: "Analysis", icon: <BarChart3 size={16} /> },
     {
       id: "customize",

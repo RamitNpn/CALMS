@@ -32,7 +32,7 @@ export default function InquiryPage() {
   const pagination = inquiryData?.pagination;
 
   const tabs = [
-    { id: "inventory", label: "Inventory", icon: <FileText size={16} /> },
+    { id: "inventory", label: "Records", icon: <FileText size={16} /> },
     {
       id: "customize",
       label: "Customize",

@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAllAttendances } from "@/hooks/business-admin/attendance-management/getAllAttendances";
 
 interface AttendanceTableProps {
   users: TUser[];
@@ -106,10 +107,12 @@ export default function AttendanceRecord({
     bulkAttendanceMutation();
   };
 
+  const { data: attendanceData } = useAllAttendances({});
+
   const hasAnyAttendance = users?.some((u: any) => u.status || u.checkIn);
 
   const downloadRecords = () => {
-    if (!users?.length) return;
+    if (!attendanceData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -124,13 +127,13 @@ export default function AttendanceRecord({
       "Created At",
     ];
 
-    const rows = users.map((u: any, index: number) => [
+    const rows = attendanceData?.data.map((u: any, index: number) => [
       index + 1,
       u._id,
-      u.userName,
+      u.userName || "",
       u.userEmail || "",
       u.userPhone || "",
-      u.role || "",
+      u.userType || "",
       u.status || "",
       u.checkIn ? moment(u.checkIn).format("YYYY-MM-DD HH:mm:ss") : "",
       u.checkOut ? moment(u.checkOut).format("YYYY-MM-DD HH:mm:ss") : "",
@@ -139,7 +142,7 @@ export default function AttendanceRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");

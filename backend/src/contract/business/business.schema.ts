@@ -84,7 +84,7 @@ export const updateBusinessSchema = z.object({
   branch: z.preprocess((val) => {
     if (typeof val === "string") return JSON.parse(val);
     return val;
-  }, branchSchema),
+  }, branchSchema).optional(),
   package: packageEnum.optional(),
   services: z.preprocess((val) => {
     if (typeof val === "string") return JSON.parse(val);

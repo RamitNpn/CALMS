@@ -12,6 +12,7 @@ import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import Button from "@/components/ui/button";
 import Select from "@/components/ui/select";
 import { BusinessForm } from "./BusinessForm";
+import { useAllBusinesses } from "@/hooks/super-admin/business-records/getAllBusinesses";
 
 interface BusinessTableProps {
   businesses: TBusiness[];
@@ -53,6 +54,7 @@ export default function BusinessTable({
   const [viewId, setViewId] = useState<string | null>(null);
 
   const { mutate: deleteBusiness } = useDeleteBusiness();
+  const { data: businessData } = useAllBusinesses({});
   const [itemToRemove, setItemToRemove] = useState<TBusiness | null>(null);
 
   const confirmRemove = () => {
@@ -66,7 +68,7 @@ export default function BusinessTable({
   };
 
   const downloadRecords = () => {
-    if (!businesses?.length) return;
+    if (!businessData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -83,7 +85,7 @@ export default function BusinessTable({
       "Updated At",
     ];
 
-    const rows = businesses.map((business, index) => [
+    const rows = businessData?.data.map((business: TBusiness, index: number) => [
       index + 1,
       business._id,
       business.businessName,
@@ -100,7 +102,7 @@ export default function BusinessTable({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");
@@ -155,7 +157,7 @@ export default function BusinessTable({
             }}
             options={[
               {
-                label: "All Revenue",
+                label: "All Records",
                 value: "all",
               },
               {

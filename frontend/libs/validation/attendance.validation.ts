@@ -15,14 +15,17 @@ export type TCreateAttendanceSchema = z.infer<typeof createAttendanceSchema>;
 export const attendanceSchema = z.object({
   _id: z.string(),
   business_id: z.string(),
-  userIds: z.array(z.string().min(1)).min(1, "At least one user ID is required"),
-  userType: z.string().min(1, "User type is required"),
-  checkIn: z.string().optional(),
-  checkOut: z.string().optional(),
-  status: z.string().optional(),
+  userId: z.string().min(1, "User ID is required"),
+  userName: z.string(),
+  userEmail: z.string(),
+  userPhone: z.string().optional(),
+  userType: z.string().optional(),
+  checkIn: z.coerce.date().optional(),
+  checkOut: z.coerce.date().optional(),
   method: z.enum(["QR", "Manual"]).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  status: z.string(),
 });
 
 export const getAllAttendanceSchema = z.array(attendanceSchema);

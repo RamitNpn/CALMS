@@ -24,16 +24,11 @@ function Footer() {
                 <p className="text-xs text-gray-500 sm:text-sm">
                   Public Driving Management System
                 </p>
+                <p className="text-[13px] text-gray-500">
+                  © {new Date().getFullYear()}, Powered by Cornor Tech Pvt. Ltd.
+                </p>
               </div>
             </div>
-
-            <p className="mt-3 text-xs text-gray-600 sm:text-sm">
-              © {new Date().getFullYear()} Public Driving Management System
-            </p>
-
-            <p className="text-xs text-gray-500">
-              Powered by Cornor Tech Pvt. Ltd.
-            </p>
           </div>
 
           {/* CENTER LINKS */}

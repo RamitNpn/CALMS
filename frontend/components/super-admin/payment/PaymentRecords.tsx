@@ -15,6 +15,7 @@ import { RenewPaymentForm } from "./RenewPaymentForm";
 import Button from "@/components/ui/button";
 import Select from "@/components/ui/select";
 import { PaymentForm } from "./PaymentForm";
+import { useAllPayments } from "@/hooks/super-admin/payment-records/getAllPayment";
 
 interface PaymentTableProps {
   payments: TPayment[];
@@ -59,6 +60,7 @@ export default function PaymentTable({
   const [renewId, setRenewId] = useState<string | null>(null);
 
   const { mutate: deletePayment } = useDeletePayment();
+  const { data: paymentData } = useAllPayments({});
   const [itemToRemove, setItemToRemove] = useState<TPayment | null>(null);
 
   const confirmRemove = () => {
@@ -71,7 +73,7 @@ export default function PaymentTable({
     });
   };
   const downloadRecords = () => {
-    if (!payments?.length) return;
+    if (!paymentData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -90,7 +92,7 @@ export default function PaymentTable({
       "Updated At",
     ];
 
-    const rows = payments.map((payment, index) => [
+    const rows = paymentData?.data.map((payment: TPayment, index: number) => [
       index + 1,
       payment._id,
       payment.business_id,
@@ -109,7 +111,7 @@ export default function PaymentTable({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");
@@ -160,7 +162,7 @@ export default function PaymentTable({
             }}
             options={[
               {
-                label: "All Revenue",
+                label: "All Records",
                 value: "all",
               },
               {

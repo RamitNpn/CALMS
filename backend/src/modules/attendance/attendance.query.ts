@@ -80,17 +80,46 @@ export const getAllAttendance: AppRouteQueryImplementation<
         dateFilter,
       });
 
-    const formattedAttendance = data.map((u) => ({
-      _id: u._id.toString(),
-      business_id: u.business_id?.toString(),
-      userId: u.userId?.toString(),
-      checkIn: u.checkIn,
-      checkOut: u.checkOut,
-      method: u.method as "QR" | "Manual",
-      status: u.status as "Present" | "Absent" | "Leave" | "Late",
-      createdAt: u.createdAt,
-      updatedAt: u.updatedAt,
-    }));
+    const userIds = [
+      ...new Set(
+        data
+          .map((attendance) => attendance.userId?.toString())
+          .filter(Boolean),
+      ),
+    ];
+
+    const users = await userRepository.getUsersByIds(userIds);
+
+    const userMap = new Map(
+      users.map((user) => [user._id.toString(), user]),
+    );
+
+    const formattedAttendance = data.map((attendance) => {
+      const user = userMap.get(attendance.userId?.toString());
+
+      return {
+        _id: attendance._id.toString(),
+        business_id: attendance.business_id?.toString(),
+        userId: attendance.userId?.toString(),
+
+        userName: user?.userName ?? "-",
+        userEmail: user?.userEmail ?? "-",
+        userPhone: user?.userPhone ?? "-",
+        userType: user?.role === "client" ? "client" : "staff",
+
+        checkIn: attendance.checkIn,
+        checkOut: attendance.checkOut,
+        method: attendance.method as "QR" | "Manual",
+        status: attendance.status as
+          | "Present"
+          | "Absent"
+          | "Leave"
+          | "Late",
+
+        createdAt: attendance.createdAt,
+        updatedAt: attendance.updatedAt,
+      };
+    });
 
     return {
       status: 200,
@@ -140,12 +169,18 @@ export const getAttendanceByID: AppRouteQueryImplementation<
     };
   }
 
+  const user = await userRepository.getByID(data.userId?.toString() || "");
+
   return {
     status: 200,
     body: {
       _id: data._id.toString(),
       business_id: data.business_id.toString(),
       userId: data.userId.toString(),
+      userName: user?.userName ?? "-",
+      userEmail: user?.userEmail ?? "-",
+      userType: user?.role === "client" ? "client" : "staff",
+      userPhone: user?.userPhone ?? "-",
       checkIn: data.checkIn,
       checkOut: data.checkOut,
       status: data.status as "Present" | "Absent" | "Leave" | "Late",

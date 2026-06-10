@@ -14,6 +14,7 @@ import { useToast } from "@/components";
 import { useDeleteToken } from "@/hooks/business-admin/token-management/removeTokenData";
 import { printToken } from "@/utils/printToken";
 import Select from "@/components/ui/select";
+import { useAllTokens } from "@/hooks/super-admin/token-records/getAllTokens";
 
 interface TokenTableProps {
   tokens: TToken[];
@@ -55,8 +56,8 @@ export default function TokenRecord({
   const [viewToken, setViewToken] = useState<any>(null);
   const [itemToRemove, setItemToRemove] = useState<TToken | null>(null);
 
-  // DELETE (inside file like AssetRecord style)
   const { mutate: deleteToken } = useDeleteToken();
+  const { data: tokenData } = useAllTokens({});
 
   const toast = useToast.getState();
 
@@ -76,7 +77,7 @@ export default function TokenRecord({
   };
 
   const downloadRecords = () => {
-    if (!tokens?.length) return;
+    if (!tokenData?.data?.length) return;
 
     const headers = [
       "SN",
@@ -89,7 +90,7 @@ export default function TokenRecord({
       "Created At",
     ];
 
-    const rows = tokens.map((t, i) => [
+    const rows = tokenData?.data.map((t: TToken, i: number) => [
       i + 1,
       t._id,
       t.tokenNumber,
@@ -104,7 +105,7 @@ export default function TokenRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) =>
+      ...rows.map((row: (string | number)[]) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");
@@ -150,7 +151,7 @@ export default function TokenRecord({
               onPageChange(1);
             }}
             options={[
-              { label: "All Records", value: "all" },
+              { label: "All Tokens", value: "all" },
               { label: "Today", value: "current_day" },
               { label: "This Week", value: "current_week" },
               { label: "This Month", value: "current_month" },
