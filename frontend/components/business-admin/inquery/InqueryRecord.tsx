@@ -152,7 +152,7 @@ export default function InquiryRecord({
       "Updated At",
     ];
 
-    const rows = financeData?.data.map((inquiry, index) => [
+    const rows = financeData?.data.map((inquiry: TDrivingInquiry, index: number) => [
       index + 1,
       inquiry._id,
       inquiry.fullName,

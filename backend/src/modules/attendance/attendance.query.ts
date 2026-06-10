@@ -80,7 +80,6 @@ export const getAllAttendance: AppRouteQueryImplementation<
         dateFilter,
       });
 
-    // Get unique user IDs
     const userIds = [
       ...new Set(
         data
@@ -89,10 +88,8 @@ export const getAllAttendance: AppRouteQueryImplementation<
       ),
     ];
 
-    // Fetch all users in a single query
     const users = await userRepository.getUsersByIds(userIds);
 
-    // Create lookup map
     const userMap = new Map(
       users.map((user) => [user._id.toString(), user]),
     );

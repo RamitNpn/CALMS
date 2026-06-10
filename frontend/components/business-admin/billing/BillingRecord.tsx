@@ -93,7 +93,7 @@ export default function BillingRecord({
       "Created At",
     ];
 
-    const rows = billingData?.data.map((b, i) => [
+    const rows = billingData?.data.map((b: TBilling, i: number) => [
       i + 1,
       b._id,
       b.clientName,

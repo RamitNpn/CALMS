@@ -90,7 +90,7 @@ export default function FinanceRecord({
       "Updated At",
     ];
 
-    const rows = financeData?.data.map((record, index) => [
+    const rows = financeData?.data.map((record: TFinance, index: number) => [
       index + 1,
       record._id,
       record.business_id,

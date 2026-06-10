@@ -138,7 +138,7 @@ export default function ClientRecord({
                 "Created At",
               ];
 
-              const rows = clientData?.data.map((c, i) => [
+              const rows = clientData?.data.map((c: TClient, i: number) => [
                 i + 1,
                 c._id,
                 c.userName,

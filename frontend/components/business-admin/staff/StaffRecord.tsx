@@ -79,7 +79,7 @@ export default function StaffRecord({
       "Created At",
     ];
 
-    const rows = staffData?.data.map((s, i) => [
+    const rows = staffData?.data.map((s: TStaff, i: number) => [
       i + 1,
       s._id,
       s.userName,

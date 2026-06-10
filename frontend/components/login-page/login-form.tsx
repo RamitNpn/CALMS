@@ -64,11 +64,11 @@ export default function LoginForm() {
       }
     },
 
-    onError: (error: unknown) => {
+    onError: (error: string) => {
       console.error("Login failed:", (error as { message?: string })?.message);
 
       toast.show({
-        message: (error as { message?: string })?.message || "Login failed",
+        message: error,
         type: "error",
       });
     },
