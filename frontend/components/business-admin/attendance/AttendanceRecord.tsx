@@ -70,9 +70,9 @@ export default function AttendanceRecord({
         userIds: selectedIds,
         business_id: businessId,
         status: "Present",
-        checkIn: new Date().toISOString(),
+        checkIn: new Date().toLocaleDateString(),
         checkOut: undefined,
-        date: new Date().toISOString(),
+        date: new Date().toLocaleDateString(),
       });
     },
 
