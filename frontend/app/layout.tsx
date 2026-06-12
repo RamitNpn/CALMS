@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   applicationName: "Public Driving Management System (PDMS)",
   category: "Education & Transportation",
 
-  metadataBase: new URL("https://flowtest.cornortech.com"),
+  metadataBase: new URL("https://flowdesk.cornortech.com"),
 
   alternates: {
     canonical: "/",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     description:
       "A complete platform for managing driving schools, instructors, students, training schedules, attendance, examinations, and payments.",
 
-    url: "https://flowtest.cornortech.com",
+    url: "https://flowdesk.cornortech.com",
     siteName: "PDMS",
     type: "website",
     locale: "en_US",

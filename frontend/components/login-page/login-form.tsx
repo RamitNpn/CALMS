@@ -64,11 +64,19 @@ export default function LoginForm() {
       }
     },
 
-    onError: (error: string) => {
-      console.error("Login failed:", (error as { message?: string })?.message);
+    onError: (error: Error | unknown) => {
+      let errorMessage = "Login failed. Please try again.";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      }
+
+      console.error("Login failed:", errorMessage);
 
       toast.show({
-        message: error,
+        message: errorMessage,
         type: "error",
       });
     },

@@ -16,7 +16,13 @@ type Store = {
 export const useToast = create<Store>((set) => ({
   toast: null,
   show: (toast) => {
-    set({ toast });
+    // Ensure message is always a string
+    const normalizedToast: Toast = {
+      ...toast,
+      message: String(toast.message || "").trim() || "An action was completed",
+    };
+
+    set({ toast: normalizedToast });
 
     setTimeout(() => {
       set({ toast: null });
