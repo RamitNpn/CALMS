@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/toast";
 import { attendanceApi } from "@/libs";
 import Image from "next/image";
 import FormHeader from "@/components/shared/FormHeader";
+import { toLocalDateTimeInput } from "@/utils/dateTime.helper";
 
 type Props = {
   attendanceId: string;
@@ -55,23 +56,23 @@ export function EditAttendanceRecord({
     },
   });
 
-  useEffect(() => {
-    if (!attendanceId || !attendance) return;
+useEffect(() => {
+  if (!attendanceId || !attendance) return;
 
-    reset({
-      _id: attendanceId,
+  reset({
+    _id: attendanceId,
 
-      checkIn: attendance.checkIn
-        ? new Date(attendance.checkIn).toISOString().slice(0, 16)
-        : "",
+    checkIn: attendance.checkIn
+      ? toLocalDateTimeInput(attendance.checkIn)
+      : "",
 
-      checkOut: attendance.checkOut
-        ? new Date(attendance.checkOut).toISOString().slice(0, 16)
-        : "",
+    checkOut: attendance.checkOut
+      ? toLocalDateTimeInput(attendance.checkOut)
+      : "",
 
-      status: attendance.status ?? "Present",
-    });
-  }, [attendanceId, attendance, reset]);
+    status: attendance.status ?? "Present",
+  });
+}, [attendanceId, attendance, reset]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: ({
