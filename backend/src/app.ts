@@ -10,14 +10,14 @@ import { createExpressEndpoints } from "@ts-rest/express";
 import morgan from "morgan";
 import { openApiDocument } from "./config/swagger";
 import { retrieveUserFromTokenMiddleware } from "./middleware/retrieveUserFromToken.middleware";
+import env from "./config/env";
 
 const app = express();
 
 app.use(
   cors({
     origin: [
-      "http://localhost:3000",
-      "https://flowtest.cornortech.com",
+      env.frontend_url || "https://flowdesk.cornortech.com"
     ],
     credentials: true,
   })
@@ -25,7 +25,7 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true })); // IMPORTANT
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(retrieveUserFromTokenMiddleware);
 
