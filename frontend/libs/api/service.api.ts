@@ -11,6 +11,10 @@ const getServiceByIdApi = async (serviceId: TGetServiceByIdSchema["_id"]) => {
   return response.data;
 };
 
+const getServiceByBusinessIdApi = async (businessId: string) => {
+  const response = await apiClient.get(`/services/business/${businessId}`);
+  return response.data;
+};
 
 const updateServiceApi = async (serviceId: string, data: TUpdateServiceSchema) => {
   const response = await apiClient.put(`/services/${serviceId}`, data);
@@ -25,6 +29,7 @@ const deleteServiceApi = async (serviceId: TDeleteServiceSchema["_id"]) => {
 export const serviceApi = {
   getAllServicesApi,
   getServiceByIdApi,
+  getServiceByBusinessIdApi,
   updateServiceApi,
   deleteServiceApi,
 };
