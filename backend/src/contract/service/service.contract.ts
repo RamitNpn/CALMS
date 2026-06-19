@@ -5,15 +5,16 @@ import { errorSchema, successSchema } from "../common.schema";
 
 import {
   getAllServicesSchema,
+  getServiceByBusinessIDSchema,
   getServiceByIDSchema,
   initializeServiceSchema,
   updateServiceSchema,
 } from "./service.schema";
+import { getServiceByBusinessID } from "../../modules/service/service.query";
 
 const c = initContract();
 
 export const serviceContract = c.router({
-
   getAllServices: {
     method: "GET",
     path: "/services",
@@ -30,10 +31,7 @@ export const serviceContract = c.router({
     method: "GET",
     path: "/services/:serviceID",
     pathParams: z.object({
-      serviceID: z.string().min(
-        1,
-        "Service ID is required"
-      ),
+      serviceID: z.string().min(1, "Service ID is required"),
     }),
     summary: "Get service details by ID",
     responses: {
@@ -44,14 +42,26 @@ export const serviceContract = c.router({
     },
   },
 
+  getServiceByBusinessID: {
+    method: "GET",
+    path: "/services/business/:businessID",
+    pathParams: z.object({
+      businessID: z.string().min(1, "Business ID is required"),
+    }),
+    summary: "Get service details by business ID",
+    responses: {
+      200: getServiceByBusinessIDSchema,
+      400: errorSchema,
+      404: errorSchema,
+      500: errorSchema,
+    },
+  },
+
   updateService: {
     method: "PUT",
     path: "/services/:serviceID",
     pathParams: z.object({
-      serviceID: z.string().min(
-        1,
-        "Service ID is required"
-      ),
+      serviceID: z.string().min(1, "Service ID is required"),
     }),
     body: updateServiceSchema,
     summary: "Update system service details",
@@ -67,10 +77,7 @@ export const serviceContract = c.router({
     method: "DELETE",
     path: "/services/:serviceID",
     pathParams: z.object({
-      serviceID: z.string().min(
-        1,
-        "Service ID is required"
-      ),
+      serviceID: z.string().min(1, "Service ID is required"),
     }),
     body: z.object({}),
     summary: "Delete system service",

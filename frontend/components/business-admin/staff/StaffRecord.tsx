@@ -66,7 +66,7 @@ export default function StaffRecord({
   };
 
   const downloadRecords = () => {
-    if (!staffData?.data?.length) return;
+    if (!staffs?.length) return;
 
     const headers = [
       "SN",
@@ -79,7 +79,7 @@ export default function StaffRecord({
       "Created At",
     ];
 
-    const rows = staffData?.data.map((s: TStaff, i: number) => [
+    const rows = staffs.map((s, i) => [
       i + 1,
       s._id,
       s.userName,
@@ -92,7 +92,7 @@ export default function StaffRecord({
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row: (string | number)[]) =>
+      ...rows.map((row) =>
         row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
       ),
     ].join("\n");

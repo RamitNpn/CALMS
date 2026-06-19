@@ -4,7 +4,7 @@ import fs from "fs";
 export const uploadToCloudinary = async (filePath: string) => {
   try {
     const result = await cloudinary.uploader.upload(filePath, {
-      folder: "flowdesk-users",
+      folder: "restaurant-pos",
       resource_type: "image",
     });
 

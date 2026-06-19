@@ -55,7 +55,7 @@ export default function TokenForm({ onClose, size = "lg" }: TokenFormProps) {
     setValue,
     reset,
     formState: { errors },
-  } = useForm<TCreateTokenSchema>({
+  } = useForm({
     resolver: zodResolver(createTokenSchema),
     defaultValues: {
       businessId: businessId,

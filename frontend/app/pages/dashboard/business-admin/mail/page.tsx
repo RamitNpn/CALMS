@@ -5,7 +5,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components";
 import { Mail, Send, X, Users, Search, Trash2, Loader2 } from "lucide-react";
 import { UserApi } from "@/libs/api/user.api";
-import Image from "next/image";
 
 type User = {
   _id: string;
@@ -39,7 +38,6 @@ export default function MailboxPage() {
 
   const [loadingUsers, setLoadingUsers] = useState(true);
 
-  // ---------------- FETCH USERS ----------------
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -56,7 +54,6 @@ export default function MailboxPage() {
     fetchUsers();
   }, []);
 
-  // ---------------- FILTER ----------------
   const filteredUsers = useMemo(() => {
     return users.filter(
       (u) =>
@@ -65,7 +62,6 @@ export default function MailboxPage() {
     );
   }, [users, search]);
 
-  // ---------------- TOGGLE ----------------
   const toggleEmail = (email: string) => {
     setSelectedEmails((prev) =>
       prev.includes(email) ? prev.filter((e) => e !== email) : [...prev, email],
@@ -77,7 +73,6 @@ export default function MailboxPage() {
 
   const clearAll = () => setSelectedEmails([]);
 
-  // ---------------- VALIDATION ----------------
   const validate = (): boolean => {
     const newErrors: Errors = {};
 
@@ -97,7 +92,6 @@ export default function MailboxPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ---------------- SEND ----------------
   const { mutate, isPending } = useMutation({
     mutationFn: async (payload: MailPayload) => {
       const res = await fetch("/mail/send-bulk", {

@@ -14,7 +14,6 @@ import { rbacApi } from "@/libs/api/rbac.api";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { useDeleteRbac } from "@/hooks/business-admin/rbac/removeRbac";
 import { useToast } from "@/components/ui/toast";
-import { TRole } from "@/libs/types/role.types";
 
 const DEFAULT_SIDEBAR_PERMISSIONS = [
   { code: "business_management:view", label: "Dashboard" },

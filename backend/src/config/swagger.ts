@@ -4,8 +4,8 @@ import { contract } from "../contract";
 
 export const openApiDocument = generateOpenApi(contract, {
   info: {
-    title: "Flowdesk API",
+    title: "PDMS API",
     version: "1.0.0",
   },
-  baseUrl: "http://localhost:4000", // Your API base URL
+  baseUrl: "https://flowdesk-backend-786k.onrender.com", // Your API base URL
 });
